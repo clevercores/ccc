@@ -1,0 +1,2324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CalPad — show your work</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="CalPad — Notion-style step-by-step math solver and practice pad.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     CalPad — Notion-Style Design System
+     ============================================================ */
+  :root{
+    --paper:#FFFFFF;
+    --surface:#FFFFFF;
+    --surface-2:#F7F7F5;
+    --surface-3:#F0F0EF;
+    --line:#E9E9E7;
+    --line-strong:#D3D3D0;
+    --ink:#37352F;
+    --ink-soft:#787774;
+    --ink-faint:#9B9A97;
+    --brand:#2EAADC;
+    --brand-soft:#E8F6FC;
+    --brand-contrast:#FFFFFF;
+    --pen:#EB5757;
+    --pen-soft:#FDF2F2;
+    --good:#0F7B6C;
+    --good-soft:#EDF3EC;
+    --gold:#D9730D;
+
+    --radius-sm:4px;
+    --radius-md:6px;
+    --radius-lg:10px;
+    --radius-pill:999px;
+
+    --shadow-1:0 1px 2px rgba(15, 15, 15, 0.06);
+    --shadow-2:0 8px 24px -4px rgba(15, 15, 15, 0.12);
+
+    --font-ui:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+    --font-mono:'JetBrains Mono', ui-monospace, monospace;
+
+    --fs-xs:0.75rem;
+    --fs-sm:0.85rem;
+    --fs-base:0.95rem;
+    --fs-md:1.05rem;
+    --fs-lg:1.25rem;
+
+    --cellw:18px;
+    --cellh:26px;
+    color-scheme:light;
+  }
+
+  html[data-mode="dark"]{
+    --paper:#191919;
+    --surface:#202020;
+    --surface-2:#262626;
+    --surface-3:#2F2F2F;
+    --line:#2F2F2F;
+    --line-strong:#3F3F3F;
+    --ink:#E3E3E3;
+    --ink-soft:#9B9B9B;
+    --ink-faint:#6B6B6B;
+    --brand:#529CCA;
+    --brand-soft:#1C2C35;
+    --brand-contrast:#FFFFFF;
+    --pen:#FF6B6B;
+    --pen-soft:#381A1A;
+    --good:#2ECC71;
+    --good-soft:#183324;
+    --gold:#F2C94C;
+
+    --shadow-1:0 1px 3px rgba(0,0,0,0.4);
+    --shadow-2:0 12px 30px rgba(0,0,0,0.6);
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font-ui);
+    color:var(--ink);
+    background:var(--paper);
+    font-size:var(--fs-base);
+    min-height:100vh;
+    padding-bottom:40px;
+    transition:background-color .15s ease, color .15s ease;
+    -webkit-font-smoothing:antialiased;
+  }
+  button, input, select{ font-family:inherit; font-size:inherit; }
+  button{ cursor:pointer; }
+
+  /* ---------------- topbar ---------------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px 20px;
+    background:color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{ display:flex; align-items:center; gap:8px; }
+  .brand-mark{ width:24px; height:24px; flex:none; border-radius:var(--radius-sm); }
+  .brand-word{ font-weight:700; font-size:var(--fs-lg); letter-spacing:-0.02em; color:var(--ink); line-height:1; }
+  .brand-tag{ display:none; font-size:var(--fs-xs); color:var(--ink-faint); margin-top:2px; }
+  @media(min-width:640px){ .brand-tag{ display:block; } }
+
+  .top-actions{ display:flex; align-items:center; gap:10px; }
+  
+  .sound-select{
+    padding:4px 8px; border-radius:var(--radius-sm); border:1px solid var(--line-strong);
+    background:var(--surface); color:var(--ink); font-size:var(--fs-xs); font-weight:500; outline:none;
+  }
+
+  .fontsize-group{ display:flex; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius-sm); padding:2px; }
+  .fs-btn{
+    border:none; background:transparent; color:var(--ink-soft); font-weight:600; font-size:var(--fs-xs);
+    padding:2px 8px; border-radius:2px; transition:all 0.15s ease;
+  }
+  .fs-btn.active{ background:var(--surface); color:var(--ink); box-shadow:var(--shadow-1); }
+
+  .theme-toggle-btn{
+    width:32px; height:32px; border-radius:var(--radius-sm);
+    border:1px solid var(--line); background:var(--surface); color:var(--ink);
+    display:flex; align-items:center; justify-content:center; flex:none;
+    transition:all 0.15s ease;
+  }
+  .theme-toggle-btn:hover{ background:var(--surface-2); border-color:var(--line-strong); }
+
+  /* ---------------- shell & tabs ---------------- */
+  .shell{ max-width:780px; margin:0 auto; padding:20px 16px 8px; }
+
+  .tabs{ display:flex; gap:6px; border-bottom:1px solid var(--line); margin-bottom:18px; }
+  .tab-btn{
+    display:flex; align-items:center; gap:6px;
+    padding:6px 10px; border:none; background:transparent;
+    color:var(--ink-soft); font-weight:500; font-size:var(--fs-base);
+    border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.15s ease;
+    border-radius:var(--radius-sm) var(--radius-sm) 0 0;
+  }
+  .tab-btn svg{ width:15px; height:15px; flex:none; }
+  .tab-btn:hover{ color:var(--ink); background:var(--surface-2); }
+  .tab-btn.active{ color:var(--ink); font-weight:600; border-bottom-color:var(--ink); }
+
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+
+  /* ---------------- entry card (Notion Callout Style) ---------------- */
+  .entry-card{
+    border:1px solid var(--line); border-radius:var(--radius-md); background:var(--surface-2);
+    padding:14px 16px; box-shadow:var(--shadow-1); margin-bottom:16px;
+  }
+  .entry-header{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; gap:8px;
+  }
+  .entry-label{
+    font-size:var(--fs-xs); font-weight:700; color:var(--ink-faint);
+    letter-spacing:.06em; text-transform:uppercase;
+  }
+  .decimal-opt-wrap{
+    display:none; align-items:center; gap:6px; font-size:var(--fs-xs); color:var(--ink-soft); font-weight:500;
+  }
+  .decimal-opt-wrap.visible{ display:flex; }
+  .decimal-select{
+    padding:2px 6px; border-radius:var(--radius-sm); border:1px solid var(--line-strong);
+    background:var(--surface); color:var(--ink); font-size:var(--fs-xs); font-weight:600; outline:none;
+  }
+
+  .entry-field-wrap{
+    position:relative; display:flex; align-items:stretch;
+    border:1px solid var(--line-strong); border-radius:var(--radius-sm); background:var(--surface);
+    overflow:visible; transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .entry-field-wrap:focus-within{ border-color:var(--brand); box-shadow:0 0 0 2px var(--brand-soft); }
+  .symbol-trigger{
+    flex:none; width:36px; display:flex; align-items:center; justify-content:center;
+    border:none; border-left:1px solid var(--line); background:transparent; color:var(--ink-soft);
+    font-family:var(--font-mono); font-weight:700; font-size:var(--fs-md);
+  }
+  .symbol-trigger:hover{ color:var(--brand); background:var(--surface-2); }
+  .expr-field{
+    flex:1 1 0; min-width:0; border:none; background:transparent; outline:none;
+    padding:10px 12px; font-family:var(--font-mono); font-size:var(--fs-md); color:var(--ink);
+  }
+
+  .symbol-popover{
+    position:absolute; top:calc(100% + 6px); right:0; z-index:30;
+    background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--radius-md);
+    box-shadow:var(--shadow-2); padding:6px; display:grid; grid-template-columns:repeat(2,1fr);
+    gap:4px; min-width:220px;
+  }
+  .symbol-popover[hidden]{ display:none; }
+  .symbol-popover button{
+    display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:var(--radius-sm);
+    border:none; background:transparent; text-align:left; color:var(--ink);
+  }
+  .symbol-popover button:hover{ background:var(--surface-2); }
+  .symbol-popover .sym{ font-family:var(--font-mono); font-weight:700; font-size:var(--fs-md); width:20px; flex:none; }
+
+  .error{
+    margin-top:10px; font-size:var(--fs-sm); color:var(--pen); background:var(--pen-soft);
+    border:1px solid var(--pen); border-radius:var(--radius-sm); padding:8px 12px; display:none;
+  }
+
+  /* ---------------- Solution Bar & Drawer (Moved Bottom Right) ---------------- */
+  .result-wrap{ position:relative; }
+  .solution-toolbar{
+    display:flex; align-items:center; justify-content:flex-end; margin-top:12px; margin-bottom:12px;
+  }
+  .solution-toggle-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:6px 14px; border-radius:var(--radius-pill);
+    border:1px solid var(--line-strong); background:var(--surface-2);
+    color:var(--ink); font-weight:600; font-size:var(--fs-xs);
+    box-shadow:var(--shadow-1); transition:all 0.15s ease;
+  }
+  .solution-toggle-btn:hover{ background:var(--surface-3); border-color:var(--ink-soft); }
+  .solution-toggle-btn svg{ width:14px; height:14px; transition:transform 0.2s ease; }
+  .solution-toggle-btn.expanded svg{ transform:rotate(180deg); }
+
+  .solution-drawer{
+    display:none; border:1px solid var(--line-strong); border-radius:var(--radius-md);
+    background:var(--surface-2); padding:16px; margin-top:12px; margin-bottom:16px;
+    box-shadow:var(--shadow-1); animation: fadeIn 0.2s ease;
+  }
+  .solution-drawer.open{ display:block; }
+  @keyframes fadeIn{ from{ opacity:0; transform:translateY(-4px); } to{ opacity:1; transform:translateY(0); } }
+
+  /* ---- Tight digit grid ---- */
+  .worksheet{ overflow-x:auto; padding:4px 2px; }
+  .num-grid{ display:flex; flex-direction:column; align-items:flex-end; font-family:var(--font-mono); width:max-content; }
+  .grid-row{ display:flex; align-items:center; position:relative; }
+  .row-prefix{ width:16px; text-align:left; font-size:var(--fs-md); color:var(--ink-soft); flex:none; font-weight:700; }
+  .cell{ width:var(--cellw); height:var(--cellh); position:relative; display:flex; align-items:center; justify-content:center; }
+  .cell .main{ font-size:1rem; font-weight:600; color:var(--ink); line-height:var(--cellh); letter-spacing:normal; }
+  .cell .main.pen{ color:var(--pen); }
+  .cell .main.struck{ text-decoration:line-through; text-decoration-color:var(--pen); text-decoration-thickness:2px; color:var(--ink-faint); }
+
+  .rule-row{ border-top:1.5px solid var(--ink); margin:0; width:100%; height:1px; }
+  .row-op .main{ font-weight:700; }
+  .row-final .main{ font-weight:700; color:var(--good); }
+
+  .bottom-summary-wrap{ display:none; flex-direction:column; gap:8px; margin-top:16px; }
+  .bottom-summary-wrap.visible{ display:flex; }
+  .bottom-summary-row{ display:flex; flex-wrap:wrap; gap:16px; align-items:baseline; }
+  .final-answer-item{ display:inline-flex; align-items:baseline; gap:6px; font-family:var(--font-mono); }
+  .final-answer-item .label{ font-weight:600; font-size:var(--fs-sm); color:var(--ink-soft); font-family:var(--font-ui); }
+  .final-answer-item .value{ font-weight:700; font-size:1.15rem; color:var(--good); background:none; border:none; padding:0; }
+
+  /* Meme comment banner */
+  .meme-banner{
+    font-size:var(--fs-sm); font-weight:600; color:var(--good);
+    background:var(--good-soft); padding:8px 12px; border-radius:var(--radius-sm);
+    border:1px solid var(--good); display:inline-block; margin-top:6px;
+    animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes popIn { 0%{ transform:scale(0.9); opacity:0; } 100%{ transform:scale(1); opacity:1; } }
+
+  pre.calc-pre{ font-family:var(--font-mono); font-size:0.95rem; line-height:1.8; margin:0; white-space:pre; color:var(--ink); letter-spacing:normal; }
+  pre.calc-pre .rule{ color:var(--ink); font-weight:700; }
+  pre.calc-pre .q{ color:var(--good); font-weight:700; }
+
+  .step-block{ margin:0 0 16px; padding-bottom:12px; border-bottom:1px solid var(--line); display:block; }
+  .step-block.step-hidden{ display:none !important; }
+  .step-block:last-of-type{ margin-bottom:0; border-bottom:none; }
+  .step-heading{ font-weight:500; font-size:var(--fs-xs); color:var(--ink-soft); margin-bottom:8px; line-height:1.5; }
+  .step-heading .num{ color:var(--ink); font-weight:700; margin-right:4px; }
+  .step-subexpr{ font-family:var(--font-mono); font-size:0.95rem; color:var(--ink-soft); margin-bottom:8px; padding-left:1.2em; line-height:1.6; }
+  .step-subexpr u.step-hl{ text-decoration:none; border-bottom:2px solid var(--brand); color:var(--ink); font-weight:700; padding-bottom:1px; }
+  .step-result-line{ font-family:var(--font-mono); font-size:0.95rem; color:var(--ink); margin-top:8px; padding-left:1.2em; display:none; }
+  .step-result-line.visible{ display:block; }
+  .step-result-line b{ color:var(--good); }
+
+  /* ---- Editable Digit Cells ---- */
+  input.cell-input{
+    width:100%; height:100%; text-align:center; font-family:var(--font-mono); font-weight:600;
+    font-size:1rem; color:var(--ink); background:transparent; border:none;
+    border-bottom:1.5px solid var(--line-strong); padding:0; outline:none; caret-color:var(--brand);
+    transition:all 0.15s ease;
+  }
+  input.cell-input:focus{ border-bottom-color:var(--brand); background:var(--brand-soft); }
+  input.cell-input.right,
+  input.cell-input.wrong,
+  input.cell-input.filled {
+    border-bottom-color: transparent !important;
+  }
+  input.cell-input.wrong {
+    color: var(--pen) !important;
+    font-weight: 700;
+    background: var(--pen-soft);
+    border-radius: 2px;
+  }
+
+  /* ---- Dynamic Carry-Over Input Boxes ---- */
+  input.ann-input{
+    position:absolute; top:-2px; right:-1px; left:auto; width:15px; height:16px;
+    font-family:var(--font-mono); font-style:italic; font-weight:600; font-size:0.75rem; color:var(--brand);
+    text-align:center; border:1px dotted var(--line-strong); border-radius:2px;
+    background:var(--surface); padding:0; outline:none; caret-color:var(--brand); z-index:10;
+    opacity:0; pointer-events:none; transform:scale(0.85); transition:all 0.15s ease;
+  }
+  input.ann-input.carry-box{
+    position:absolute; top:-1px; right:0; left:auto;
+    border:1px dotted var(--line-strong); color:var(--brand);
+  }
+  input.ann-input.active-step,
+  input.ann-input:focus,
+  input.ann-input.right,
+  input.ann-input.wrong,
+  input.ann-input.filled {
+    opacity:1;
+    pointer-events:auto;
+    transform:scale(1);
+  }
+  input.ann-input:focus{ border-color:var(--brand); border-style:solid; background:var(--surface); }
+  input.ann-input.right{ color:var(--good); border-color:transparent; background:transparent; }
+  input.ann-input.wrong{ color:var(--pen) !important; border-color:var(--pen); border-style:solid; background:var(--pen-soft); }
+
+  /* Handwrite Canvas */
+  .handwrite-toolbar{ display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .hw-btn{
+    font-weight:600; font-size:var(--fs-xs); color:var(--ink-soft); background:var(--surface);
+    border:1px solid var(--line-strong); border-radius:var(--radius-pill); padding:4px 10px;
+  }
+  .hw-btn:hover{ border-color:var(--brand); color:var(--brand); }
+  .hw-swatches{ display:flex; gap:6px; align-items:center; }
+  .hw-swatch{ width:16px; height:16px; border-radius:50%; border:2px solid transparent; cursor:pointer; }
+  .hw-swatch.active{ border-color:var(--ink); }
+  .write-question{ font-family:var(--font-mono); font-size:1rem; font-weight:700; margin:10px 0 4px; color:var(--ink); }
+  .handwrite-pad-wrap{
+    position:relative; min-height:220px; border:1px dashed var(--line-strong); border-radius:var(--radius-md);
+    margin-top:10px; background:var(--surface-2); touch-action:none; overflow:hidden;
+  }
+  .handwrite-pad-wrap canvas{ display:block; width:100%; height:220px; cursor:crosshair; }
+  .handwrite-pad-wrap.empty::before{
+    content:attr(data-placeholder); position:absolute; left:14px; top:14px; color:var(--ink-faint);
+    font-size:var(--fs-base); pointer-events:none;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="1" y="1" width="30" height="30" rx="6" fill="var(--brand)"/>
+      <path d="M10 10H14.5V22" stroke="var(--brand-contrast)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M14.5 10H23" stroke="var(--brand-contrast)" stroke-width="2.4" stroke-linecap="round"/>
+      <circle cx="20" cy="16" r="1.6" fill="var(--brand-contrast)"/>
+      <circle cx="20" cy="20" r="1.6" fill="var(--brand-contrast)"/>
+    </svg>
+    <div>
+      <div class="brand-word">CalPad</div>
+      <div class="brand-tag">show your work, one step at a time</div>
+    </div>
+  </div>
+
+  <div class="top-actions">
+    <div class="sound-select-wrap">
+      <select class="sound-select" id="soundPresetSelect">
+        <option value="arcade">🔊 Meme Arcade</option>
+        <option value="mario">🎮 Mario & Boing</option>
+        <option value="anime">✨ Anime Sparkle</option>
+        <option value="off">🔇 Mute</option>
+      </select>
+    </div>
+
+    <div class="fontsize-group" id="fontSizeGroup">
+      <button class="fs-btn" data-scale="90" type="button" title="Small Text">S</button>
+      <button class="fs-btn active" data-scale="100" type="button" title="Medium Text">M</button>
+      <button class="fs-btn" data-scale="112" type="button" title="Large Text">L</button>
+    </div>
+
+    <button class="theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="Toggle dark/day mode">
+      <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+    </button>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="calculate" type="button" role="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h.01M12 19h.01M16 19h.01"/></svg>
+      Calculate
+    </button>
+    <button class="tab-btn" data-tab="handwrite" type="button" role="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5.5-1.5L20 4a2.1 2.1 0 0 0-3-3L5.5 12.5 4 18z"/></svg>
+      Handwrite
+    </button>
+  </div>
+
+  <!-- ============== CALCULATE TAB ============== -->
+  <div class="tab-panel active" id="panel-calculate">
+    <div class="entry-card">
+      <div class="entry-header">
+        <div class="entry-label" id="caLabel">Calculation</div>
+        <div class="decimal-opt-wrap" id="caDecWrap">
+          <label for="caDecSelect">Decimals:</label>
+          <select class="decimal-select" id="caDecSelect">
+            <option value="auto">Auto</option>
+            <option value="1">.0</option>
+            <option value="2" selected>.00</option>
+            <option value="3">.000</option>
+          </select>
+        </div>
+      </div>
+      <div class="entry-field-wrap" id="caFieldWrap">
+        <input class="expr-field" id="caExpr" type="text" placeholder="2454/32+4" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="symbol-trigger" id="caSymbolTrigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Insert symbol">∑</button>
+        <div class="symbol-popover" id="caSymbolPopover" role="listbox" hidden></div>
+      </div>
+    </div>
+
+    <div class="error" id="caError"></div>
+
+    <div class="result-wrap" id="caResultWrap">
+      <!-- Main Practice Working Canvas -->
+      <div class="worksheet" id="caWorksheet"></div>
+      <div class="bottom-summary-wrap" id="caFinalAnswerBox"></div>
+
+      <!-- Solution Toolbar positioned at Bottom Right -->
+      <div class="solution-toolbar">
+        <button class="solution-toggle-btn" id="solutionToggleBtn" type="button">
+          <span>💡 Full Solution</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+
+      <!-- Collapsible Solution Drawer -->
+      <div class="solution-drawer" id="solutionDrawer">
+        <div class="worksheet" id="soWorksheet"></div>
+        <div class="bottom-summary-wrap" id="soFinalAnswerBox"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== HANDWRITE TAB ============== -->
+  <div class="tab-panel" id="panel-handwrite">
+    <div class="entry-card">
+      <div class="entry-header">
+        <div class="entry-label" id="wrLabel">Calculation</div>
+        <div class="decimal-opt-wrap" id="wrDecWrap">
+          <label for="wrDecSelect">Decimals:</label>
+          <select class="decimal-select" id="wrDecSelect">
+            <option value="auto">Auto</option>
+            <option value="1">.0</option>
+            <option value="2" selected>.00</option>
+          </select>
+        </div>
+      </div>
+      <div class="entry-field-wrap" id="wrFieldWrap">
+        <input class="expr-field" id="wrExpr" type="text" placeholder="2454/32+4" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="symbol-trigger" id="wrSymbolTrigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Insert symbol">∑</button>
+        <div class="symbol-popover" id="wrSymbolPopover" role="listbox" hidden></div>
+      </div>
+    </div>
+
+    <div class="error" id="wrError"></div>
+    <div class="result-wrap" id="wrResultWrap">
+      <div class="write-question" id="wQuestionDisplay"></div>
+      <div class="handwrite-toolbar">
+        <div class="hw-swatches" id="hwSwatches">
+          <span class="hw-swatch active" data-color="#2F3438" style="background:#2F3438"></span>
+          <span class="hw-swatch" data-color="#EF4444" style="background:#EF4444"></span>
+          <span class="hw-swatch" data-color="#2563EB" style="background:#2563EB"></span>
+        </div>
+        <button class="hw-btn" id="hwUndoBtn" type="button">Undo</button>
+        <button class="hw-btn" id="hwClearBtn" type="button">Clear</button>
+      </div>
+      <div class="handwrite-pad-wrap empty" id="wPadWrap" data-placeholder="Write your working here...">
+        <canvas id="wCanvas"></canvas>
+      </div>
+      <div class="bottom-summary-wrap" id="wFinalAnswerBox"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------------------------------------------------------------- *
+ *  Web Audio API Synthesizer (Appreciative Clap, Hurray & Meme Sounds)
+ * ---------------------------------------------------------------- */
+let audioCtx = null;
+function getAudioContext(){
+  if(!audioCtx){ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+const MEME_COMMENTS = [
+  "Absolute Gigachad Math Move! 🧠🔥",
+  "Mind = Blown 🤯 Big Brain Energy!",
+  "Math Wiz Mode Activated! ⚡️💻",
+  "Zero Mistakes! Simply Iconic 👑",
+  "Calculated with Precision! 🎯👏",
+  "Hurray! You Done It! 🎉🥳"
+];
+
+function triggerMemeExperience(targetEl) {
+  const container = targetEl || document.querySelector('.tab-panel.active .result-wrap') || document.body;
+  const existingMeme = container.querySelector('.meme-banner');
+  if (existingMeme) existingMeme.remove();
+  const randomMeme = MEME_COMMENTS[Math.floor(Math.random() * MEME_COMMENTS.length)];
+  const memeEl = el('div', 'meme-banner', randomMeme);
+  container.appendChild(memeEl);
+}
+
+document.getElementById('soundPresetSelect').addEventListener('change', (e) => {
+  if (e.target.value !== 'off') {
+    playClapSound();
+    triggerMemeExperience();
+  }
+});
+
+function playClapSound(){
+  const preset = document.getElementById('soundPresetSelect').value;
+  if(preset === 'off') return;
+  const ctx = getAudioContext();
+  const now = ctx.currentTime;
+
+  // Clapping Noise Effect
+  for(let i = 0; i < 18; i++){
+    const burstTime = now + (i * 0.035) + (Math.random() * 0.015);
+    const bufferSize = ctx.sampleRate * 0.04;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let j = 0; j < bufferSize; j++) {
+      data[j] = Math.random() * 2 - 1;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 1100 + Math.random() * 1000;
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.2, burstTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, burstTime + 0.04);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    noise.start(burstTime);
+    noise.stop(burstTime + 0.04);
+  }
+
+  // Hurray Fanfare Tones
+  [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, now + 0.2 + idx * 0.08);
+    gain.gain.setValueAtTime(0.15, now + 0.2 + idx * 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + idx * 0.08 + 0.25);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(now + 0.2 + idx * 0.08); osc.stop(now + 0.2 + idx * 0.08 + 0.25);
+  });
+}
+
+function playCorrectSound(){
+  const preset = document.getElementById('soundPresetSelect').value;
+  if(preset === 'off') return;
+  const ctx = getAudioContext();
+  const now = ctx.currentTime;
+
+  if(preset === 'mario'){
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(987.77, now);
+    osc.frequency.setValueAtTime(1318.51, now + 0.08);
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.35);
+  } else if(preset === 'anime'){
+    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx*0.04);
+      gain.gain.setValueAtTime(0.12, now + idx*0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx*0.04 + 0.2);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(now + idx*0.04); osc.stop(now + idx*0.04 + 0.2);
+    });
+  } else {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(523.25, now);
+    osc.frequency.setValueAtTime(659.25, now + 0.06);
+    osc.frequency.setValueAtTime(783.99, now + 0.12);
+    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.3);
+  }
+}
+
+function playWrongSound(){
+  const preset = document.getElementById('soundPresetSelect').value;
+  if(preset === 'off') return;
+  const ctx = getAudioContext();
+  const now = ctx.currentTime;
+
+  if(preset === 'mario'){
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(300, now);
+    osc.frequency.exponentialRampToValueAtTime(80, now + 0.25);
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.25);
+  } else if(preset === 'anime'){
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(160, now);
+    osc.frequency.linearRampToValueAtTime(110, now + 0.3);
+    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.3);
+  } else {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(130, now);
+    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.22);
+  }
+}
+
+function celebrateConfetti(anchorEl){
+  if(!anchorEl) return;
+  playClapSound();
+  
+  const rect = anchorEl.getBoundingClientRect();
+  const originX = rect.left + rect.width/2 + window.scrollX;
+  const originY = rect.top + window.scrollY;
+  const container = document.createElement('div');
+  container.style.cssText = 'position:absolute; left:0; top:0; width:1px; height:1px; overflow:visible; pointer-events:none; z-index:9999;';
+  document.body.appendChild(container);
+
+  const colors = ['#2EAADC','#0F7B6C','#EB5757','#D9730D','#9B51E0'];
+  for(let i=0; i<36; i++){
+    const piece = document.createElement('div');
+    const size = 5 + Math.random()*5;
+    piece.style.cssText = `position:absolute; left:${originX + (Math.random()-0.5)*60}px; top:${originY}px; width:${size}px; height:${size*0.4}px; background:${colors[Math.floor(Math.random()*colors.length)]}; opacity:0.95; border-radius:${Math.random()<0.5?'2px':'50%'};`;
+    const dx = (Math.random()-0.5)*260;
+    const dy = -80 - Math.random()*120;
+    const rot = (Math.random()-0.5)*720;
+    container.appendChild(piece);
+    if(typeof piece.animate === 'function'){
+      piece.animate([
+        { transform:'translate(0,0) rotate(0deg)', opacity:1 },
+        { transform:`translate(${dx}px, ${dy}px) rotate(${rot}deg)`, opacity:0 }
+      ], { duration:800+Math.random()*600, easing:'cubic-bezier(.25,.46,.45,.94)', fill:'forwards' });
+    }
+  }
+  setTimeout(() => container.remove(), 1500);
+}
+
+/* ---------------------------------------------------------------- *
+ *  Operator metadata & Helpers
+ * ---------------------------------------------------------------- */
+const OP_META = {
+  '+': {name:'Addition'},
+  '-': {name:'Subtraction'},
+  '×': {name:'Multiplication'},
+  '÷': {name:'Division'}
+};
+
+const SYMBOL_OPTIONS = [
+  {insert:'+',  sym:'+',  name:'Add'},
+  {insert:'−',  sym:'−',  name:'Subtract'},
+  {insert:'×',  sym:'×',  name:'Multiply'},
+  {insert:'÷',  sym:'÷',  name:'Divide'},
+  {insert:'()', sym:'( )', name:'Brackets'},
+  {insert:'√',  sym:'√',  name:'Square root'},
+  {insert:'^2', sym:'x²', name:'Square'},
+  {insert:'^',  sym:'^',  name:'Power'},
+  {insert:'%',  sym:'%',  name:'Percent'}
+];
+
+function normalizeNum(str){ return str.replace(/^0+(?=\d)/,''); }
+function trimDecimal(s){ return s.replace(/\.0+$/,'').replace(/(\.\d*?[1-9])0+$/,'$1'); }
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function showError(errEl, resultWrapEl, msg){
+  errEl.textContent = msg;
+  errEl.style.display='block';
+  if(resultWrapEl) resultWrapEl.style.display='none';
+}
+function hideError(errEl){ errEl.style.display='none'; }
+
+function classifySimple(raw){
+  const m = raw.match(/^(\d+)\s*([+\-−×x\*÷\/])\s*(\d+)$/i);
+  if(!m) return null;
+  let op = m[2];
+  if(op==='x'||op==='X'||op==='*'||op==='×') op='×';
+  else if(op==='÷'||op==='/') op='÷';
+  else if(op==='+') op='+';
+  else op='-';
+  return {op, aStr:m[1], bStr:m[3]};
+}
+
+function splitSign(s){
+  s = s.toString().trim();
+  if(s.startsWith('-')){ return {sign:'-', mag:s.slice(1)}; }
+  return {sign:'+', mag:s};
+}
+function cmpMag(a,b){
+  a = a.replace(/^0+/,'')||'0'; b = b.replace(/^0+/,'')||'0';
+  if(a.length>b.length) return 1;
+  if(a.length<b.length) return -1;
+  if(a>b) return 1;
+  if(a<b) return -1;
+  return 0;
+}
+
+/* ---------------------------------------------------------------- *
+ *  Multi-step expression evaluator
+ * ---------------------------------------------------------------- */
+function tokenizeExpr(raw){
+  const s = raw.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/√/g,'#').replace(/,/g,'')
+    .replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
+  const tokens=[]; let i=0;
+  while(i<s.length){
+    const c=s[i];
+    if(/\s/.test(c)){ i++; continue; }
+    if(/[0-9.]/.test(c)){ let j=i; while(j<s.length && /[0-9.]/.test(s[j])) j++; tokens.push({t:'num', v:parseFloat(s.slice(i,j))}); i=j; continue; }
+    if(c==='#'){ tokens.push({t:'sqrt'}); i++; continue; }
+    if('+-*/^()'.includes(c)){ tokens.push({t:c}); i++; continue; }
+    throw new Error(`"${c}" isn't a symbol CalPad understands.`);
+  }
+  return tokens;
+}
+function insertImplicitMultiplication(tokens){
+  const out=[];
+  for(const tok of tokens){
+    if(out.length){
+      const prev = out[out.length-1];
+      const prevEndsValue = prev.t==='num' || prev.t===')';
+      const curStartsValue = tok.t==='num' || tok.t==='(' || tok.t==='sqrt';
+      if(prevEndsValue && curStartsValue) out.push({t:'*'});
+    }
+    out.push(tok);
+  }
+  return out;
+}
+function evaluateExpression(raw){
+  try{
+    const trimmed = raw.trim();
+    if(!trimmed) return {error:'Type a calculation to begin.'};
+    const tokens = insertImplicitMultiplication(tokenizeExpr(trimmed));
+    let pos=0;
+    const peek = ()=>tokens[pos];
+    const next = ()=>tokens[pos++];
+    function parseExpr(){
+      let v=parseTerm();
+      while(peek() && (peek().t==='+'||peek().t==='-')){
+        const op=next().t; const r=parseTerm();
+        v = op==='+' ? v+r : v-r;
+      }
+      return v;
+    }
+    function parseTerm(){
+      let v=parseFactor();
+      while(peek() && (peek().t==='*'||peek().t==='/')){
+        const op=next().t; const r=parseFactor();
+        if(op==='/'){ if(r===0) throw new Error("Can't divide by zero."); v=v/r; } else v=v*r;
+      }
+      return v;
+    }
+    function parseFactor(){
+      if(peek() && peek().t==='-'){ next(); return -parseFactor(); }
+      if(peek() && peek().t==='+'){ next(); return parseFactor(); }
+      return parsePow();
+    }
+    function parsePow(){
+      let v=parseUnary();
+      if(peek() && peek().t==='^'){
+        next();
+        if(!peek()) throw new Error('A power (^) needs a number after it.');
+        const r=parseFactor();
+        v=Math.pow(v,r);
+      }
+      return v;
+    }
+    function parseUnary(){
+      if(peek() && peek().t==='sqrt'){
+        next();
+        if(!peek()) throw new Error('A square root (√) needs a number after it.');
+        const v=parseUnary();
+        if(v<0) throw new Error("Can't take the square root of a negative number.");
+        return Math.sqrt(v);
+      }
+      return parsePrimary();
+    }
+    function parsePrimary(){
+      const tk=next();
+      if(!tk) throw new Error('That expression looks incomplete.');
+      if(tk.t==='num') return tk.v;
+      if(tk.t==='('){
+        const v=parseExpr();
+        const c=next();
+        if(!c || c.t!==')') throw new Error('Missing a closing bracket.');
+        return v;
+      }
+      throw new Error('Could not read that expression.');
+    }
+    const value = parseExpr();
+    if(pos!==tokens.length) throw new Error('Could not read that expression.');
+    if(!isFinite(value)) throw new Error('That expression is not valid.');
+    return {value};
+  } catch(e){
+    return {error: e.message || 'Could not read that expression.'};
+  }
+}
+function formatExprValue(v, decSetting){
+  if(Number.isInteger(v)) return String(v);
+  if(decSetting === 'auto') return String(Math.round(v*100)/100);
+  const places = parseInt(decSetting, 10) || 2;
+  return v.toFixed(places);
+}
+
+/* ---------------------------------------------------------------- *
+ *  Grid helpers
+ * ---------------------------------------------------------------- */
+function el(tag, cls, html){
+  const e=document.createElement(tag);
+  if(cls) e.className=cls;
+  if(html!==undefined) e.innerHTML=html;
+  return e;
+}
+
+let activeOnInputCb = null;
+
+function buildRow(prefix, cells, rowClass, prefixWidthPx){
+  const row = el('div','grid-row '+(rowClass||''));
+  const prefixDiv = el('div','row-prefix', prefix||'');
+  if(prefixWidthPx) prefixDiv.style.width = prefixWidthPx+'px';
+  row.appendChild(prefixDiv);
+  cells.forEach(c=>{
+    const cell = el('div','cell');
+
+    if(c.editableCarry){
+      const carryInput = document.createElement('input');
+      carryInput.type='text';
+      carryInput.className='ann-input carry-box';
+      carryInput.setAttribute('inputmode','numeric');
+      carryInput.setAttribute('pattern','[0-9]*');
+      carryInput.setAttribute('maxlength','1');
+      carryInput.setAttribute('autocomplete','off');
+      carryInput.setAttribute('autocapitalize','off');
+      carryInput.setAttribute('spellcheck','false');
+      carryInput.setAttribute('aria-label','carry digit');
+      if(c.carryOrder!==undefined) carryInput.dataset.order = c.carryOrder;
+      makeDigitEditable(carryInput, c.carryExpected, null, activeOnInputCb);
+      cell.appendChild(carryInput);
+    }
+
+    if(c.editableAnnLeft){
+      const annInput = document.createElement('input');
+      annInput.type='text';
+      annInput.className='ann-input ann-left';
+      annInput.setAttribute('inputmode','numeric');
+      annInput.setAttribute('pattern','[0-9]*');
+      annInput.setAttribute('maxlength','1');
+      annInput.setAttribute('autocomplete','off');
+      annInput.setAttribute('autocapitalize','off');
+      annInput.setAttribute('spellcheck','false');
+      annInput.setAttribute('aria-label','borrow carry-over digit');
+      if(c.annLeftOrder!==undefined) annInput.dataset.order = c.annLeftOrder;
+      makeDigitEditable(annInput, c.annLeftExpected, null, activeOnInputCb);
+      cell.appendChild(annInput);
+    } else if(c.annLeft) {
+      cell.appendChild(el('div','ann ann-left', c.annLeft));
+    }
+
+    if(c.editableAnnRight){
+      const annInput = document.createElement('input');
+      annInput.type='text';
+      annInput.className='ann-input ann-right';
+      annInput.setAttribute('inputmode','numeric');
+      annInput.setAttribute('pattern','[0-9]*');
+      annInput.setAttribute('maxlength','1');
+      annInput.setAttribute('autocomplete','off');
+      annInput.setAttribute('autocapitalize','off');
+      annInput.setAttribute('spellcheck','false');
+      annInput.setAttribute('aria-label','borrow reduced digit');
+      if(c.annRightOrder!==undefined) annInput.dataset.order = c.annRightOrder;
+      makeDigitEditable(annInput, c.annRightExpected, null, activeOnInputCb);
+      cell.appendChild(annInput);
+    } else if(c.annRight) {
+      cell.appendChild(el('div','ann ann-right', c.annRight));
+    }
+
+    let hintEl=null;
+    if(c.hint){
+      hintEl = el('div','balance-hint hidden', c.hint);
+      cell.appendChild(hintEl);
+    }
+    
+    if(c.editable){
+      const input = document.createElement('input');
+      input.type='text';
+      input.className = 'main cell-input'+(c.pen?' pen':'');
+      input.setAttribute('inputmode','numeric');
+      input.setAttribute('pattern','[0-9.]*');
+      input.setAttribute('maxlength','1');
+      input.setAttribute('autocomplete','off');
+      input.setAttribute('autocapitalize','off');
+      input.setAttribute('spellcheck','false');
+      input.setAttribute('aria-label','digit to fill in');
+      if(c.order!==undefined) input.dataset.order = c.order;
+      makeDigitEditable(input, c.expected, hintEl, activeOnInputCb);
+      cell.appendChild(input);
+    } else {
+      const mainCls = 'main'+(c.strike?' struck':'')+(c.pen?' pen':'');
+      cell.appendChild(el('div', mainCls, c.digit===undefined?'':c.digit));
+    }
+    row.appendChild(cell);
+  });
+  return row;
+}
+
+function ruleRow(width, prefixWidthPx){
+  const wrap = el('div','grid-row');
+  const prefixDiv = el('div','row-prefix','');
+  if(prefixWidthPx) prefixDiv.style.width = prefixWidthPx+'px';
+  wrap.appendChild(prefixDiv);
+  const rule = el('div','rule-row');
+  const w = `calc(${width} * var(--cellw))`;
+  rule.style.width = w;
+  const holder = el('div');
+  holder.style.width = w;
+  holder.appendChild(rule);
+  wrap.appendChild(holder);
+  return wrap;
+}
+
+function partialRuleRow(totalWidth, startCol, span, prefixWidthPx){
+  const wrap = el('div','grid-row');
+  const prefixDiv = el('div','row-prefix','');
+  if(prefixWidthPx) prefixDiv.style.width = prefixWidthPx+'px';
+  wrap.appendChild(prefixDiv);
+  const lead = el('div','div-spacer');
+  lead.style.width = `calc(${startCol} * var(--cellw))`;
+  wrap.appendChild(lead);
+  const rule = el('div','rule-row');
+  rule.style.width = `calc(${span} * var(--cellw))`;
+  wrap.appendChild(rule);
+  const trailCols = totalWidth-startCol-span;
+  if(trailCols>0){
+    const trail = el('div','div-spacer');
+    trail.style.width = `calc(${trailCols} * var(--cellw))`;
+    wrap.appendChild(trail);
+  }
+  return wrap;
+}
+
+function blankCells(n){ return Array.from({length:n}, ()=>({digit:''})); }
+
+/* ---------------------------------------------------------------- *
+ *  Addition Engine
+ * ---------------------------------------------------------------- */
+function computeAddition(aStr,bStr){
+  const width = Math.max(aStr.length,bStr.length);
+  const a = aStr.padStart(width,'0');
+  const b = bStr.padStart(width,'0');
+  let carry=0;
+  const carryIn=new Array(width).fill(0);
+  const resultDigits=new Array(width).fill(0);
+  for(let i=width-1;i>=0;i--){
+    carryIn[i]=carry;
+    const sum=Number(a[i])+Number(b[i])+carry;
+    resultDigits[i]=sum%10;
+    carry=Math.floor(sum/10);
+  }
+  return {a,b,width,carryIn,resultDigits,finalCarry:carry};
+}
+
+function addMagRender(aStr,bStr,editable,orderRef){
+  const r = computeAddition(aStr,bStr);
+  const extra = r.finalCarry>0 ? 1 : 0;
+  const totalW = r.width+extra;
+  const grid = el('div','num-grid');
+
+  const carryCells = blankCells(totalW);
+  for(let i=0;i<r.width;i++){
+    if(r.carryIn[i]>0) {
+      carryCells[i+extra] = editable ? {
+        digit:'', editableCarry:true, carryExpected:String(r.carryIn[i]), carryOrder:orderRef.n++
+      } : {digit:'', annRight:String(r.carryIn[i])};
+    }
+  }
+  grid.appendChild(buildRow('', carryCells, 'row-carry'));
+
+  const aCells = blankCells(totalW);
+  for(let i=0;i<r.width;i++) aCells[i+extra]={digit:r.a[i]};
+  grid.appendChild(buildRow('', aCells, 'row-plain'));
+
+  const bCells = blankCells(totalW);
+  for(let i=0;i<r.width;i++) bCells[i+extra]={digit:r.b[i]};
+  grid.appendChild(buildRow('+', bCells, 'row-op'));
+
+  grid.appendChild(ruleRow(totalW));
+
+  const resCells = blankCells(totalW);
+  if(extra) {
+    resCells[0] = editable ? {digit:'', editable:true, expected:String(r.finalCarry), order:orderRef.n++} : {digit:String(r.finalCarry), pen:true};
+  }
+  for(let i=0;i<r.width;i++) {
+    resCells[i+extra] = editable ? {digit:'', editable:true, expected:String(r.resultDigits[i]), order:orderRef.n++} : {digit:String(r.resultDigits[i])};
+  }
+  grid.appendChild(buildRow('', resCells, 'row-final'));
+
+  const answer = (extra?String(r.finalCarry):'') + r.resultDigits.join('');
+  return {gridEl:grid, resultStr:answer};
+}
+
+function renderAddition(aStr,bStr){
+  return addMagRender(aStr,bStr,false,null);
+}
+
+/* ---------------------------------------------------------------- *
+ *  Subtraction Engine
+ * ---------------------------------------------------------------- */
+function computeSubtraction(aBig,bBig){
+  let swapped=false;
+  if(aBig<bBig){ [aBig,bBig]=[bBig,aBig]; swapped=true; }
+  const width = aBig.toString().length;
+  const a = aBig.toString().padStart(width,'0');
+  const b = bBig.toString().padStart(width,'0');
+  let borrow=0;
+  const borrowIn=new Array(width).fill(0);
+  const borrowOut=new Array(width).fill(0);
+  const resultDigits=new Array(width).fill(0);
+  for(let i=width-1;i>=0;i--){
+    borrowIn[i]=borrow;
+    let top=Number(a[i])-borrow;
+    if(top<Number(b[i])){ top+=10; borrow=1; } else { borrow=0; }
+    borrowOut[i]=borrow;
+    resultDigits[i]=top-Number(b[i]);
+  }
+  return {a,b,width,borrowIn,borrowOut,resultDigits,swapped};
+}
+
+function subMagRender(aStr,bStr,editable,orderRef){
+  const aBig=BigInt(aStr), bBig=BigInt(bStr);
+  const r = computeSubtraction(aBig,bBig);
+  const grid = el('div','num-grid');
+
+  const topCells = [];
+  for(let i=0;i<r.width;i++){
+    topCells.push(editable ? {
+      digit:r.a[i],
+      editableAnnLeft: !!r.borrowOut[i],
+      annLeftExpected: '1',
+      annLeftOrder: orderRef.n++,
+      editableAnnRight: !!r.borrowIn[i],
+      annRightExpected: String(Number(r.a[i])-1),
+      annRightOrder: orderRef.n++,
+      strike: !!r.borrowIn[i]
+    } : {
+      digit:r.a[i],
+      annLeft: r.borrowOut[i]? '1' : '',
+      annRight: r.borrowIn[i] ? String(Number(r.a[i])-1) : '',
+      strike: !!r.borrowIn[i]
+    });
+  }
+  grid.appendChild(buildRow('', topCells, 'row-plain'));
+
+  const botCells = r.b.split('').map(d=>({digit:d}));
+  grid.appendChild(buildRow('−', botCells, 'row-op'));
+
+  grid.appendChild(ruleRow(r.width));
+
+  const resCells = r.resultDigits.map((d,i)=> editable ? {digit:'', editable:true, expected:String(d), order:orderRef.n++} : {digit:String(d)});
+  grid.appendChild(buildRow('', resCells, 'row-final'));
+
+  let answer = r.resultDigits.join('').replace(/^0+(?=\d)/,'');
+  if(answer==='') answer='0';
+  return {gridEl:grid, resultStr:(r.swapped?'-':'')+answer};
+}
+
+function renderSubtraction(aStr,bStr){
+  return subMagRender(aStr,bStr,false,null);
+}
+
+/* ---------------------------------------------------------------- *
+ *  Multiplication Engine
+ * ---------------------------------------------------------------- */
+function computeMultiplication(aBig,bBig){
+  const bStr=bBig.toString();
+  const partials=[];
+  for(let k=0;k<bStr.length;k++){
+    const digit=BigInt(bStr[bStr.length-1-k]);
+    if(digit===0n) continue;
+    const product = aBig*digit*(10n**BigInt(k));
+    partials.push({digit:digit.toString(), place:k, value:product.toString()});
+  }
+  const finalProduct=(aBig*bBig).toString();
+  return {aStr:aBig.toString(), bStr, partials, finalProduct};
+}
+
+function computeSingleDigitMultiplyCarries(numStr, digitChar){
+  const digit = Number(digitChar);
+  const width = numStr.length;
+  const carryIn = new Array(width).fill(0);
+  const resultDigits = new Array(width).fill(0);
+  let carry = 0;
+  for(let i=width-1;i>=0;i--){
+    carryIn[i] = carry;
+    const prod = Number(numStr[i])*digit + carry;
+    resultDigits[i] = prod % 10;
+    carry = Math.floor(prod/10);
+  }
+  return {width, carryIn, resultDigits, finalCarry:carry};
+}
+
+function mulMagRender(aStr,bStr,editable,orderRef){
+  const aBig=BigInt(aStr), bBig=BigInt(bStr);
+  const r = computeMultiplication(aBig,bBig);
+  const width = r.finalProduct.length;
+  const grid = el('div','num-grid');
+
+  grid.appendChild(buildRow('', padPlain(r.aStr,width), 'row-plain'));
+  grid.appendChild(buildRow('×', padPlain(r.bStr,width), 'row-op'));
+  grid.appendChild(ruleRow(width));
+
+  if(r.partials.length>1){
+    r.partials.forEach(p=>{
+      const cells = padPlain(p.value,width);
+      if(editable){
+        cells.forEach(c => {
+          if(c.digit !== ''){
+            c.editable = true;
+            c.expected = c.digit;
+            c.digit = '';
+            c.order = orderRef.n++;
+          }
+        });
+      }
+      grid.appendChild(buildRow('', cells, 'row-plain'));
+    });
+    grid.appendChild(ruleRow(width));
+    const sum = sumRowsWithCarries(r.partials.map(p=>p.value), width);
+    grid.appendChild(buildRow('', sum.carryCells, 'row-carry'));
+    
+    const finalCells = sum.resultCells;
+    if(editable){
+      finalCells.forEach(c => {
+        if(c.digit !== ''){
+          c.editable = true;
+          c.expected = c.digit;
+          c.digit = '';
+          c.order = orderRef.n++;
+        }
+      });
+    }
+    grid.appendChild(buildRow('', finalCells, 'row-final'));
+  } else {
+    const finalCells = padPlain(r.finalProduct,width);
+    if(editable){
+      finalCells.forEach(c => {
+        if(c.digit !== ''){
+          c.editable = true;
+          c.expected = c.digit;
+          c.digit = '';
+          c.order = orderRef.n++;
+        }
+      });
+    }
+    grid.appendChild(buildRow('', finalCells, 'row-final'));
+  }
+
+  return {gridEl:grid, resultStr:r.finalProduct};
+}
+
+function renderMultiplication(aStr,bStr){
+  return mulMagRender(aStr,bStr,false,null);
+}
+
+function padPlain(str,width){
+  const p = str.padStart(width,' ');
+  return p.split('').map(ch=>({digit: ch===' '?'':ch}));
+}
+
+function sumRowsWithCarries(numberStrings, width){
+  const padded = numberStrings.map(s=>s.padStart(width,'0'));
+  let carry=0;
+  const carryIn=new Array(width).fill(0);
+  const resultDigits=new Array(width).fill(0);
+  for(let i=width-1;i>=0;i--){
+    carryIn[i]=carry;
+    let colSum=carry;
+    for(const p of padded) colSum+=Number(p[i]);
+    resultDigits[i]=colSum%10;
+    carry=Math.floor(colSum/10);
+  }
+  const carryCells = Array.from({length:width},(_, i)=> ({digit:'', annRight: carryIn[i]>0?String(carryIn[i]):''}));
+  const resultCells = resultDigits.map(d=>({digit:String(d)}));
+  return {carryCells, resultCells, finalCarry:carry};
+}
+
+/* ---------------------------------------------------------------- *
+ *  Division Engine
+ * ---------------------------------------------------------------- */
+function computeLongDivisionDecimal(dividendStr, divisorStr, maxFractionDigits){
+  maxFractionDigits = maxFractionDigits===undefined?2:maxFractionDigits;
+  let dParts = divisorStr.split('.');
+  const shift = (dParts[1]||'').length;
+  let divisorDigits = ((dParts[0]||'0')+(dParts[1]||'')).replace(/^0+(?=\d)/,'');
+  if(divisorDigits==='') divisorDigits='0';
+  const divisorBig = BigInt(divisorDigits);
+  if(divisorBig===0n) throw new Error("Can't divide by zero.");
+
+  let aParts = dividendStr.split('.');
+  let aInt = aParts[0]||'0', aFrac = aParts[1]||'';
+  if(aFrac.length < shift){
+    aInt = aInt + aFrac + '0'.repeat(shift-aFrac.length);
+    aFrac = '';
+  } else {
+    aInt = aInt + aFrac.slice(0,shift);
+    aFrac = aFrac.slice(shift);
+  }
+  const knownDigits = (aInt+aFrac).split('');
+  const intLen = aInt.length;
+
+  let remainder = 0n;
+  let started = false;
+  let firstStartedIndex = -1;
+  const quotientChars = [];
+  const steps = [];
+  let openStep = null;
+  const usedDigits = [];
+  let fracAppended = 0;
+  let i=0;
+  const hardCap = knownDigits.length + maxFractionDigits + 2;
+
+  while(true){
+    let digit;
+    if(i < knownDigits.length){
+      digit = knownDigits[i];
+    } else {
+      if(started && remainder===0n) break;
+      if(fracAppended>=maxFractionDigits) break;
+      digit='0';
+      fracAppended++;
+    }
+    usedDigits.push(digit);
+    remainder = remainder*10n + BigInt(digit);
+
+    if(!started){
+      if(remainder>=divisorBig){ started=true; firstStartedIndex=i; }
+      else { i++; continue; }
+    }
+
+    if(remainder>=divisorBig){
+      if(openStep){ openStep.afterValue=remainder.toString(); openStep.afterCol=i; openStep=null; }
+      const qd = remainder/divisorBig;
+      const product = qd*divisorBig;
+      quotientChars[i]=qd.toString();
+      remainder = remainder-product;
+      const step = {col:i, product:product.toString(), afterValue:null, afterCol:null};
+      steps.push(step);
+      openStep=step;
+    } else {
+      quotientChars[i]='0';
+    }
+
+    if(remainder===0n){
+      if(i+1 < knownDigits.length){
+      } else {
+        if(openStep){ openStep.afterValue='0'; openStep.afterCol=i; openStep=null; }
+        break;
+      }
+    }
+    if(i>=hardCap) break;
+    i++;
+  }
+  if(openStep){ openStep.afterValue = remainder.toString(); openStep.afterCol = i; }
+
+  return {quotientChars, steps, firstStartedIndex, finalRemainder:remainder, started, usedDigits, intLen, divisorDigits,
+    truncated: (started && remainder!==0n && fracAppended>=maxFractionDigits)};
+}
+
+function divMagRender(aMag,bMag,editable,orderRef,maxFractionDigits){
+  const d = computeLongDivisionDecimal(aMag,bMag,maxFractionDigits);
+  const divisorDisplay = d.divisorDigits;
+  const prefixLen = divisorDisplay.length+3;
+  const grid = el('div','num-grid');
+  const intLen = d.intLen;
+  const hasDot = d.usedDigits.length > intLen;
+  const totalCols = prefixLen + d.usedDigits.length + (hasDot ? 1 : 0);
+  const dividendStart = prefixLen;
+
+  function absCol(idx){
+    let c = dividendStart + idx;
+    if(hasDot && idx >= intLen) c += 1;
+    return c;
+  }
+  const dotAbsCol = hasDot ? dividendStart + intLen : -1;
+
+  function placeDigits(cellsArr, str, endIdx, isEditable, orderRefRef, isPen = false){
+    const startIdx = endIdx - str.length + 1;
+    for(let k=0; k<str.length; k++){
+      const idx = startIdx + k;
+      const col = absCol(idx);
+      cellsArr[col] = isEditable
+        ? {digit:'', editable:true, expected:str[k], order:orderRefRef.n++}
+        : {digit:str[k], pen:isPen};
+    }
+  }
+
+  if(!d.started){
+    const rawLen = aMag.replace('.','').length || 1;
+    const totalColsSimple = prefixLen + rawLen;
+    const qCells = blankCells(totalColsSimple);
+    if(editable) qCells[totalColsSimple-1] = {digit:'', editable:true, expected:'0', order:orderRef.n++};
+    else qCells[totalColsSimple-1] = {digit:'0'};
+    grid.appendChild(buildRow('', qCells, 'row-final'));
+    grid.appendChild(partialRuleRow(totalColsSimple, totalColsSimple-1, 1));
+    const dCells = blankCells(totalColsSimple);
+    for(let k=0;k<divisorDisplay.length;k++) dCells[k]={digit:divisorDisplay[k]};
+    dCells[divisorDisplay.length]={digit:')'};
+    const aDigitsOnly = aMag.replace('.','');
+    for(let k=0;k<aDigitsOnly.length;k++) dCells[totalColsSimple-aDigitsOnly.length+k]={digit:aDigitsOnly[k]};
+    grid.appendChild(buildRow('', dCells, 'row-plain'));
+    return {gridEl:grid, resultStr:'0'};
+  }
+
+  let dispFirstIndex = d.firstStartedIndex;
+  if(dispFirstIndex >= intLen) dispFirstIndex = intLen-1;
+  if(dispFirstIndex<0) dispFirstIndex=0;
+
+  // Quotient row
+  const qCells = blankCells(totalCols);
+  if(hasDot) qCells[dotAbsCol] = {digit:'.'};
+  for(let idx=dispFirstIndex; idx<d.usedDigits.length; idx++){
+    const val = (d.quotientChars[idx]!==undefined && d.quotientChars[idx]!==null) ? d.quotientChars[idx] : '0';
+    qCells[absCol(idx)] = editable ? {digit:'', editable:true, expected:val, order:orderRef.n++} : {digit:val};
+  }
+  grid.appendChild(buildRow('', qCells, 'row-final'));
+
+  // Quotient separator
+  grid.appendChild(partialRuleRow(totalCols, absCol(dispFirstIndex), totalCols - absCol(dispFirstIndex)));
+
+  // Dividend row
+  const dCells = blankCells(totalCols);
+  for(let k=0;k<divisorDisplay.length;k++) dCells[k]={digit:divisorDisplay[k]};
+  dCells[divisorDisplay.length]={digit:')'};
+  if(hasDot) dCells[dotAbsCol]={digit:'.'};
+  for(let idx=0; idx<d.usedDigits.length; idx++) dCells[absCol(idx)]={digit:d.usedDigits[idx]};
+  grid.appendChild(buildRow('', dCells, 'row-plain'));
+
+  // Steps rows
+  d.steps.forEach((step,idx)=>{
+    const sd = computeSingleDigitMultiplyCarries(divisorDisplay, d.quotientChars[step.col] || '1');
+    const carryCells = blankCells(totalCols);
+    let anyCarry = false;
+    const prodStartIdx = step.col - step.product.length + 1;
+    
+    for(let cIdx=0; cIdx<sd.width; cIdx++){
+      if(sd.carryIn[cIdx] > 0){
+        anyCarry = true;
+        const colIdx = prodStartIdx + cIdx;
+        carryCells[absCol(colIdx)] = {
+          digit:'',
+          editableCarry: editable,
+          carryExpected: String(sd.carryIn[cIdx]),
+          carryOrder: orderRef ? orderRef.n++ : 0
+        };
+      }
+    }
+    if(anyCarry && editable) {
+      grid.appendChild(buildRow('', carryCells, 'row-carry'));
+    }
+
+    // Product row
+    const prodCells = blankCells(totalCols);
+    if(hasDot) prodCells[dotAbsCol] = {digit:''};
+    placeDigits(prodCells, step.product, step.col, editable, orderRef, true);
+    const firstProdCol = absCol(prodStartIdx);
+    if(firstProdCol - 1 >= 0) prodCells[firstProdCol - 1] = {digit:'−', pen:true};
+    grid.appendChild(buildRow('', prodCells, 'row-plain'));
+
+    // Rule under product
+    const ruleStart = Math.max(firstProdCol - 1, 0);
+    const ruleSpan = absCol(step.col) - ruleStart + 1;
+    grid.appendChild(partialRuleRow(totalCols, ruleStart, ruleSpan));
+
+    // Remainder / brought down row
+    const isLast = idx === d.steps.length - 1;
+    const afterCells = blankCells(totalCols);
+    if(hasDot) afterCells[dotAbsCol] = {digit:''};
+    placeDigits(afterCells, step.afterValue, step.afterCol, editable, orderRef, false);
+    grid.appendChild(buildRow('', afterCells, isLast ? 'row-final' : 'row-plain'));
+  });
+
+  let qStr='';
+  for(let idx=dispFirstIndex; idx<d.usedDigits.length; idx++){
+    qStr += (d.quotientChars[idx]!==undefined && d.quotientChars[idx]!==null) ? d.quotientChars[idx] : '0';
+  }
+  let withPoint = qStr;
+  if(hasDot){
+    const relPoint = intLen - dispFirstIndex;
+    withPoint = qStr.slice(0,relPoint)+'.'+qStr.slice(relPoint);
+  }
+  const resultStr = trimDecimal(withPoint);
+  return {gridEl:grid, resultStr};
+}
+
+/* ---- signed wrappers ---- */
+function addSigned(aS,bS,editable,orderRef){
+  const A=splitSign(aS), B=splitSign(bS);
+  if(A.sign===B.sign){
+    const r = addMagRender(A.mag,B.mag,editable,orderRef);
+    return {resultStr:(A.sign==='-'&&r.resultStr!=='0'?'-':'')+r.resultStr, gridEl:r.gridEl, kind:'add', mags:[A.mag,B.mag]};
+  }
+  const cmp = cmpMag(A.mag,B.mag);
+  if(cmp===0){
+    const r = subMagRender(A.mag,B.mag,editable,orderRef);
+    return {resultStr:'0', gridEl:r.gridEl, kind:'sub', mags:[A.mag,B.mag]};
+  }
+  const bigger = cmp>0?A:B, smaller = cmp>0?B:A;
+  const r = subMagRender(bigger.mag, smaller.mag, editable, orderRef);
+  return {resultStr:(bigger.sign==='-'&&r.resultStr!=='0'?'-':'')+r.resultStr, gridEl:r.gridEl, kind:'sub', mags:[bigger.mag,smaller.mag]};
+}
+function subSigned(aS,bS,editable,orderRef){
+  const B=splitSign(bS);
+  const negB = B.mag==='0' ? '0' : (B.sign==='-'?'':'-')+B.mag;
+  return addSigned(aS, negB, editable, orderRef);
+}
+function mulSigned(aS,bS,editable,orderRef){
+  const A=splitSign(aS), B=splitSign(bS);
+  const r = mulMagRender(A.mag,B.mag,editable,orderRef);
+  const sign = (A.sign!==B.sign && r.resultStr!=='0') ? '-':'';
+  return {resultStr:sign+r.resultStr, gridEl:r.gridEl, kind:'mul', mags:[A.mag,B.mag]};
+}
+function divSigned(aS,bS,editable,orderRef, maxDecs){
+  const A=splitSign(aS), B=splitSign(bS);
+  const r = divMagRender(A.mag,B.mag,editable,orderRef, maxDecs);
+  const sign = (A.sign!==B.sign && r.resultStr!=='0') ? '-':'';
+  return {resultStr:sign+r.resultStr, gridEl:r.gridEl, kind:'div', mags:[A.mag,B.mag]};
+}
+
+/* ---- tokenizer + order-of-operations reducer ---- */
+function displayOpSymbol(t){
+  if(t==='*') return '×';
+  if(t==='/') return '÷';
+  if(t==='-') return '−';
+  return '+';
+}
+function tokenizePositions(s){
+  const tokens=[]; let i=0;
+  while(i<s.length){
+    const c=s[i];
+    if(/\s/.test(c)){ i++; continue; }
+    if(/[0-9.]/.test(c)){ let j=i; while(j<s.length && /[0-9.]/.test(s[j])) j++; tokens.push({t:'num', v:s.slice(i,j)}); i=j; continue; }
+    if('+-*/()'.includes(c)){ tokens.push({t:c}); i++; continue; }
+    throw new Error(`"${c}" isn't a symbol this solver understands.`);
+  }
+  return tokens;
+}
+function foldUnary(tokens){
+  const out=[];
+  for(let k=0;k<tokens.length;k++){
+    const tok=tokens[k];
+    if(tok.t==='-'||tok.t==='+'){
+      const prev = out[out.length-1];
+      const isUnaryPos = !prev || ['+','-','*','/','('].includes(prev.t);
+      if(isUnaryPos && tokens[k+1] && tokens[k+1].t==='num'){
+        const sign = tok.t==='-' ? '-' : '';
+        out.push({t:'num', v: sign+tokens[k+1].v});
+        k++;
+        continue;
+      }
+    }
+    out.push(tok);
+  }
+  return out;
+}
+function exprTextFromTokens(tokens){
+  return tokens.map(tk=> tk.t==='num' ? tk.v : displayOpSymbol(tk.t)).join(' ');
+}
+function exprHighlightHtml(tokens, hlStart, hlEnd){
+  const texts = tokens.map(tk=> tk.t==='num' ? escapeHtml(tk.v) : displayOpSymbol(tk.t));
+  const before = texts.slice(0,hlStart).join(' ');
+  const mid = texts.slice(hlStart,hlEnd+1).join(' ');
+  const after = texts.slice(hlEnd+1).join(' ');
+  return [before, `<u class="step-hl">${mid}</u>`, after].filter(x=>x!=='').join(' ');
+}
+function reduceFlatTokens(tokens, stepsOut, forceLabel, editable, orderRef, wrapContext, maxDecs){
+  wrapContext = wrapContext || (html=>html);
+  tokens = tokens.slice();
+  for(let pass=0; pass<2; pass++){
+    const isTarget = pass===0 ? (t)=> t==='*'||t==='/' : (t)=> t==='+'||t==='-';
+    let idx;
+    while((idx = tokens.findIndex(tk=> tk.t!=='num' && isTarget(tk.t))) !== -1){
+      const left = tokens[idx-1], opTok = tokens[idx], right = tokens[idx+1];
+      if(!left || left.t!=='num' || !right || right.t!=='num'){
+        throw new Error('That expression looks incomplete.');
+      }
+      let stepResult;
+      if(opTok.t==='+') stepResult = addSigned(left.v, right.v, editable, orderRef);
+      else if(opTok.t==='-') stepResult = subSigned(left.v, right.v, editable, orderRef);
+      else if(opTok.t==='*') stepResult = mulSigned(left.v, right.v, editable, orderRef);
+      else stepResult = divSigned(left.v, right.v, editable, orderRef, maxDecs);
+
+      const fullBeforeHtml = wrapContext(exprHighlightHtml(tokens, idx-1, idx+1));
+      const before = exprTextFromTokens(tokens);
+      tokens.splice(idx-1, 3, {t:'num', v:stepResult.resultStr});
+      const after = exprTextFromTokens(tokens);
+
+      const labelMap = {'+':'Add','-':'Subtract','*':'Multiply','/':'Divide'};
+      stepsOut.push({
+        label: forceLabel || labelMap[opTok.t],
+        opSymbol: displayOpSymbol(opTok.t),
+        aStr: left.v, bStr: right.v,
+        resultStr: stepResult.resultStr,
+        gridEl: stepResult.gridEl,
+        exprBefore: before, exprAfter: after,
+        fullBeforeHtml
+      });
+    }
+  }
+  if(tokens.length!==1 || tokens[0].t!=='num') throw new Error('Could not fully solve that expression.');
+  return tokens[0].v;
+}
+function solveExpressionSteps(raw, editable, orderRef, decSetting){
+  const steps=[];
+  let s = raw.trim().replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/,/g,'');
+  if(!s) throw new Error('Type a calculation to begin.');
+  s = s.replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
+  s = s.replace(/\(\s*-/g, '(0-');
+
+  const maxDecs = decSetting === 'auto' ? 2 : (parseInt(decSetting, 10) || 2);
+
+  function resolveBrackets(str){
+    let guard=0;
+    while(str.indexOf('(')!==-1){
+      guard++; if(guard>50) throw new Error('Too many nested brackets.');
+      const m = str.match(/\(([^()]*)\)/);
+      if(!m) throw new Error('Mismatched brackets.');
+      const innerRaw = m[1];
+      if(!innerRaw.trim()) throw new Error('Empty brackets.');
+      const innerTokens = foldUnary(tokenizePositions(innerRaw));
+      if(innerTokens.length===0) throw new Error('Empty brackets.');
+      const prefix = str.slice(0,m.index), suffix = str.slice(m.index+m[0].length);
+      const toDisplay = (t)=> t.replace(/\*/g,'×').replace(/\//g,'÷').replace(/-/g,'−');
+      const wrapContext = (innerHtml)=> escapeHtml(toDisplay(prefix)) + '(' + innerHtml + ')' + escapeHtml(toDisplay(suffix));
+      let innerResult;
+      if(innerTokens.length===1 && innerTokens[0].t==='num'){
+        innerResult = innerTokens[0].v;
+      } else {
+        innerResult = reduceFlatTokens(innerTokens, steps, 'Solve the brackets', editable, orderRef, wrapContext, maxDecs);
+      }
+      str = str.slice(0,m.index) + innerResult + str.slice(m.index+m[0].length);
+      const beforeChar = str[m.index-1];
+      const afterIdx = m.index + innerResult.length;
+      const afterChar = str[afterIdx];
+      const needsMultBefore = beforeChar!==undefined && /[0-9)]/.test(beforeChar);
+      const needsMultAfter = afterChar!==undefined && /[0-9(]/.test(afterChar);
+      if(needsMultBefore || needsMultAfter){
+        const withStars = (needsMultBefore?'*':'') + innerResult + (needsMultAfter?'*':'');
+        str = str.slice(0,m.index) + withStars + str.slice(afterIdx);
+      }
+    }
+    return str;
+  }
+
+  const flat = resolveBrackets(s);
+  const tokens = foldUnary(tokenizePositions(flat));
+  if(tokens.length===0) throw new Error('Type a calculation to begin.');
+  let finalValue;
+  if(tokens.length===1 && tokens[0].t==='num'){
+    finalValue = tokens[0].v;
+  } else {
+    finalValue = reduceFlatTokens(tokens, steps, null, editable, orderRef, null, maxDecs);
+  }
+  return {steps, finalValue: trimDecimal(finalValue)};
+}
+
+/* ---- Step Orchestrator ---- */
+function renderStepBlocks(container, steps, isCalculateTab = false){
+  container.innerHTML='';
+  steps.forEach((s,i)=>{
+    const block = el('div','step-block' + (isCalculateTab && i > 0 ? ' step-hidden' : ''));
+    block.dataset.stepIndex = i;
+    
+    const headingDiv = el('div','step-heading');
+    headingDiv.dataset.fullLabel = s.label;
+    headingDiv.dataset.stepNum = i + 1;
+    headingDiv.innerHTML = `<span class="num">Step ${i+1}:</span> ${escapeHtml(s.label)}`;
+    
+    block.appendChild(headingDiv);
+    block.appendChild(el('div','step-subexpr', s.fullBeforeHtml));
+    const wsHolder = el('div','worksheet');
+    wsHolder.appendChild(s.gridEl);
+    block.appendChild(wsHolder);
+    
+    const resLine = el('div','step-result-line' + (isCalculateTab ? '' : ' visible'), `= ${escapeHtml(s.exprAfter)}`);
+    block.appendChild(resLine);
+    container.appendChild(block);
+  });
+}
+
+/* ---------------------------------------------------------------- *
+ *  Focus Navigation & Dynamic Step Reveal
+ * ---------------------------------------------------------------- */
+function updateActiveStepCarryVisibility(containerEl, currentOrder) {
+  if(!containerEl) return;
+  const numCurrent = Number(currentOrder);
+  const allInputs = Array.from(containerEl.querySelectorAll('input[data-order]'));
+  
+  allInputs.forEach(input => {
+    const inputOrder = Number(input.dataset.order);
+    if(input.classList.contains('ann-input')) {
+      if(inputOrder <= numCurrent || input.value !== '') {
+        input.classList.add('active-step');
+      }
+    }
+  });
+}
+
+function focusNextEditable(currentEl, containerEl){
+  if(!containerEl) return;
+  const all = Array.from(containerEl.querySelectorAll('input[data-order]'));
+  const visible = all.filter(el => !el.closest('.step-block.step-hidden'));
+  visible.sort((a,b)=> Number(a.dataset.order)-Number(b.dataset.order));
+  const idx = visible.indexOf(currentEl);
+  
+  if(idx > -1 && idx + 1 < visible.length){
+    const nxt = visible[idx+1];
+    updateActiveStepCarryVisibility(containerEl, nxt.dataset.order);
+    nxt.focus(); nxt.select();
+  } else {
+    currentEl.blur();
+    checkStepCompletionAndAdvance(currentEl.closest('.step-block') || containerEl);
+  }
+}
+
+function checkStepCompletionAndAdvance(stepBlockEl) {
+  if(!stepBlockEl) return;
+  const stepInputs = Array.from(stepBlockEl.querySelectorAll('input[data-order]'));
+  if(!stepInputs.length) return;
+  
+  const allStepCorrect = stepInputs.every(inp => inp.classList.contains('right'));
+  if(allStepCorrect){
+    const resLine = stepBlockEl.querySelector('.step-result-line');
+    if(resLine) resLine.classList.add('visible');
+
+    celebrateConfetti(stepBlockEl);
+
+    const nextStep = stepBlockEl.nextElementSibling;
+    if(nextStep && nextStep.classList.contains('step-block')){
+      nextStep.classList.remove('step-hidden');
+      setTimeout(() => focusFirstEditable(nextStep), 60);
+    }
+  }
+}
+
+function focusFirstEditable(containerEl){
+  if(!containerEl) return;
+  const all = Array.from(containerEl.querySelectorAll('input[data-order]'));
+  const visible = all.filter(el => !el.closest('.step-block.step-hidden'));
+  if(visible.length){
+    visible.sort((a,b)=> Number(a.dataset.order)-Number(b.dataset.order));
+    const first = visible[0];
+    updateActiveStepCarryVisibility(containerEl, first.dataset.order);
+    first.focus();
+    first.select();
+  }
+}
+
+function focusPrevEditable(currentEl, containerEl){
+  if(!containerEl) return;
+  const all = Array.from(containerEl.querySelectorAll('input[data-order]'));
+  const visible = all.filter(el => !el.closest('.step-block.step-hidden'));
+  visible.sort((a,b)=> Number(a.dataset.order)-Number(b.dataset.order));
+  const idx = visible.indexOf(currentEl);
+  if(idx > 0){
+    const prev = visible[idx-1];
+    if(!prev.readOnly){
+      prev.value='';
+      prev.classList.remove('right','wrong','filled');
+    }
+    updateActiveStepCarryVisibility(containerEl, prev.dataset.order);
+    prev.focus(); prev.select();
+  }
+}
+
+function makeDigitEditable(inputEl, expected, hintEl, onInputCb){
+  inputEl.dataset.expected = expected===undefined ? '' : String(expected);
+  
+  inputEl.addEventListener('input', ()=>{
+    const v = inputEl.value.replace(/[^0-9.]/g,'').slice(-1);
+    if(inputEl.value!==v) inputEl.value=v;
+    
+    inputEl.classList.remove('wrong','right','filled');
+    
+    if(v !== ''){
+      inputEl.classList.add('filled');
+      if(v === inputEl.dataset.expected){
+        inputEl.classList.add('right');
+        if(hintEl) hintEl.classList.add('hidden');
+        playCorrectSound();
+        focusNextEditable(inputEl, inputEl.closest('.result-wrap'));
+      } else {
+        inputEl.classList.add('wrong');
+        if(hintEl) hintEl.classList.remove('hidden');
+        playWrongSound();
+      }
+    } else if(hintEl){
+      hintEl.classList.add('hidden');
+    }
+    if(onInputCb) onInputCb();
+  });
+
+  inputEl.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ e.preventDefault(); return; }
+    if(e.key==='Backspace' && inputEl.value===''){
+      e.preventDefault();
+      focusPrevEditable(inputEl, inputEl.closest('.result-wrap'));
+    }
+  });
+
+  inputEl.addEventListener('focus', ()=>{
+    updateActiveStepCarryVisibility(inputEl.closest('.result-wrap'), inputEl.dataset.order);
+    inputEl.select();
+  });
+}
+
+function renderFinalAnswerDisplay(container, mainValue, remainder){
+  container.innerHTML='';
+  const row = el('div','bottom-summary-row');
+  const wrap = el('div','final-answer-item');
+  wrap.appendChild(el('span','label', remainder!==undefined?'Quotient:':'Answer:'));
+  wrap.appendChild(el('span','value', mainValue));
+  row.appendChild(wrap);
+  if(remainder!==undefined && remainder!=='0'){
+    const rwrap = el('div','final-answer-item');
+    rwrap.appendChild(el('span','label','Remainder:'));
+    rwrap.appendChild(el('span','value', remainder));
+    row.appendChild(rwrap);
+  }
+  container.appendChild(row);
+
+  const randomMeme = MEME_COMMENTS[Math.floor(Math.random() * MEME_COMMENTS.length)];
+  container.appendChild(el('div','meme-banner', randomMeme));
+}
+
+/* ---------------------------------------------------------------- *
+ *  Synchronized Entry Controller
+ * ---------------------------------------------------------------- */
+let isSyncing = false;
+const registeredControllers = [];
+
+function syncAllFields(newValue, sourceCtrl) {
+  if (isSyncing) return;
+  isSyncing = true;
+  registeredControllers.forEach(ctrl => {
+    if (ctrl !== sourceCtrl) {
+      ctrl.setValue(newValue, false);
+    }
+  });
+  isSyncing = false;
+}
+
+function buildSymbolPopover(popoverEl){
+  popoverEl.innerHTML='';
+  SYMBOL_OPTIONS.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.type='button';
+    btn.setAttribute('role','option');
+    btn.dataset.insert = opt.insert;
+    btn.innerHTML = `<span class="sym">${opt.sym}</span><span class="sym-name">${opt.name}</span>`;
+    popoverEl.appendChild(btn);
+  });
+}
+
+function wireEntryField(scope){
+  buildSymbolPopover(scope.popoverEl);
+
+  const controller = {
+    setValue(v, isUserDirectInput = false){
+      const field = scope.exprInput;
+      if (field.value !== v) {
+        const start = field.selectionStart;
+        const end = field.selectionEnd;
+        field.value = v;
+        if (isUserDirectInput && document.activeElement === field && start !== null) {
+          field.setSelectionRange(start, end);
+        }
+      }
+      clearTimeout(debounceTimer);
+      dispatch(false);
+    }
+  };
+  registeredControllers.push(controller);
+
+  function insertAtCursor(text){
+    const field = scope.exprInput;
+    const start = field.selectionStart ?? field.value.length;
+    const end = field.selectionEnd ?? field.value.length;
+    field.value = field.value.slice(0,start)+text+field.value.slice(end);
+    field.focus();
+    const caretOffset = text==='()' ? start+1 : start+text.length;
+    field.setSelectionRange(caretOffset, caretOffset);
+    dispatch(true);
+  }
+
+  function openPopover(){
+    scope.popoverEl.hidden=false;
+    scope.triggerEl.classList.add('open');
+    scope.triggerEl.setAttribute('aria-expanded','true');
+  }
+  function closePopover(){
+    scope.popoverEl.hidden=true;
+    scope.triggerEl.classList.remove('open');
+    scope.triggerEl.setAttribute('aria-expanded','false');
+  }
+  scope.triggerEl.addEventListener('click', e=>{
+    e.stopPropagation();
+    if(scope.popoverEl.hidden) openPopover(); else closePopover();
+  });
+  scope.popoverEl.addEventListener('click', e=>{
+    const btn = e.target.closest('button[data-insert]');
+    if(!btn) return;
+    insertAtCursor(btn.dataset.insert);
+    closePopover();
+  });
+  document.addEventListener('click', e=>{
+    if(!scope.popoverEl.hidden && !scope.fieldWrap.contains(e.target)) closePopover();
+  });
+
+  if(scope.decSelect){
+    scope.decSelect.addEventListener('change', ()=> dispatch(true));
+  }
+
+  function dispatch(shouldSync = true){
+    const raw = scope.exprInput.value;
+    if (shouldSync) {
+      syncAllFields(raw, controller);
+    }
+    const trimmed = raw.trim();
+    if(!trimmed){
+      hideError(scope.errorEl);
+      scope.resultWrap.style.display='none';
+      scope.labelEl.textContent='Calculation';
+      if(scope.decWrap) scope.decWrap.classList.remove('visible');
+      return;
+    }
+    
+    const hasDivOrDec = /[÷/.]/.test(trimmed);
+    if(scope.decWrap){
+      scope.decWrap.classList.toggle('visible', hasDivOrDec);
+    }
+
+    const simple = classifySimple(trimmed);
+    if(simple){
+      const aStr = normalizeNum(simple.aStr), bStr = normalizeNum(simple.bStr);
+      if(simple.op==='÷' && BigInt(bStr)===0n){ showError(scope.errorEl, scope.resultWrap, "The divisor can't be 0."); return; }
+      hideError(scope.errorEl);
+      scope.labelEl.textContent = OP_META[simple.op].name;
+      scope.onSimple(simple.op, aStr, bStr, scope.decSelect ? scope.decSelect.value : '2');
+      return;
+    }
+    const r = evaluateExpression(trimmed);
+    if(r.error){ showError(scope.errorEl, scope.resultWrap, r.error); return; }
+    hideError(scope.errorEl);
+    scope.labelEl.textContent='Multi-step';
+    scope.onComplex(trimmed, r.value, scope.decSelect ? scope.decSelect.value : '2');
+  }
+
+  let debounceTimer=null;
+  scope.exprInput.addEventListener('input', ()=>{
+    const v = scope.exprInput.value.replace(/[^0-9+\-−×÷*/^().√% ]/g,'');
+    if(scope.exprInput.value!==v){
+      const pos = scope.exprInput.selectionStart - 1;
+      scope.exprInput.value = v;
+      scope.exprInput.setSelectionRange(pos, pos);
+    }
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => dispatch(true), 150);
+  });
+  scope.exprInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); clearTimeout(debounceTimer); dispatch(true); } });
+
+  return controller;
+}
+
+/* ================================================================
+ *  CALCULATE TAB & FLOATING SOLUTION DRAWER
+ * ================================================================ */
+const caError = document.getElementById('caError');
+const caResultWrap = document.getElementById('caResultWrap');
+const caWorksheet = document.getElementById('caWorksheet');
+const caFinalAnswerBox = document.getElementById('caFinalAnswerBox');
+
+const solutionToggleBtn = document.getElementById('solutionToggleBtn');
+const solutionDrawer = document.getElementById('solutionDrawer');
+const soWorksheet = document.getElementById('soWorksheet');
+const soFinalAnswerBox = document.getElementById('soFinalAnswerBox');
+
+solutionToggleBtn.addEventListener('click', () => {
+  const isOpen = solutionDrawer.classList.toggle('open');
+  solutionToggleBtn.classList.toggle('expanded', isOpen);
+});
+
+let manualAnswerKey = {};
+
+function handleSolvedBasic(op, aStr, bStr, decSetting){
+  soWorksheet.innerHTML=''; soFinalAnswerBox.innerHTML='';
+  if(op==='+'){ const out=renderAddition(aStr,bStr); soWorksheet.appendChild(out.gridEl); renderFinalAnswerDisplay(soFinalAnswerBox, out.resultStr); }
+  else if(op==='-'){ const out=renderSubtraction(aStr,bStr); soWorksheet.appendChild(out.gridEl); renderFinalAnswerDisplay(soFinalAnswerBox, out.resultStr); }
+  else if(op==='×'){ const out=renderMultiplication(aStr,bStr); soWorksheet.appendChild(out.gridEl); renderFinalAnswerDisplay(soFinalAnswerBox, out.resultStr); }
+  else if(op==='÷'){
+    const out=divSigned(aStr,bStr,false,null,decSetting === 'auto'? 2 : parseInt(decSetting, 10));
+    soWorksheet.appendChild(out.gridEl);
+    renderFinalAnswerDisplay(soFinalAnswerBox, out.resultStr);
+  }
+  soFinalAnswerBox.classList.add('visible');
+}
+
+function handleSolvedComplex(exprRaw, value, decSetting){
+  soWorksheet.innerHTML=''; soFinalAnswerBox.innerHTML='';
+  try{
+    const {steps, finalValue} = solveExpressionSteps(exprRaw, false, null, decSetting);
+    if(steps.length===0){
+      const pre=document.createElement('pre'); pre.className='calc-pre';
+      pre.textContent = `${exprRaw} = ${finalValue}`;
+      soWorksheet.appendChild(pre);
+      renderFinalAnswerDisplay(soFinalAnswerBox, finalValue);
+    } else {
+      renderStepBlocks(soWorksheet, steps, false);
+      const finalLine = el('div','step-result-line step-final visible', `Answer = <b>${escapeHtml(finalValue)}</b>`);
+      soWorksheet.appendChild(finalLine);
+      renderFinalAnswerDisplay(soFinalAnswerBox, finalValue);
+    }
+  } catch(e){
+    const pre=document.createElement('pre'); pre.className='calc-pre';
+    pre.textContent = `${exprRaw} = ${formatExprValue(value, decSetting)}`;
+    soWorksheet.appendChild(pre);
+    renderFinalAnswerDisplay(soFinalAnswerBox, formatExprValue(value, decSetting));
+  }
+  soFinalAnswerBox.classList.add('visible');
+}
+
+function checkPracticeComplete(){
+  const cells = Array.from(caWorksheet.querySelectorAll('input.cell-input[data-order], input.ann-input[data-order]'));
+  if(cells.length){
+    const done = cells.filter(c=>c.classList.contains('right')).length;
+    if(done===cells.length) autofillManualFinal();
+  }
+}
+
+function autofillManualFinal(){
+  if(manualAnswerKey.quotient!==undefined){
+    renderFinalAnswerDisplay(caFinalAnswerBox, manualAnswerKey.quotient, manualAnswerKey.remainder);
+  } else if(manualAnswerKey.answer!==undefined){
+    renderFinalAnswerDisplay(caFinalAnswerBox, manualAnswerKey.answer);
+  }
+  caFinalAnswerBox.classList.add('visible');
+  celebrateConfetti(caFinalAnswerBox);
+}
+
+function setManualFinalAnswer(){
+  caFinalAnswerBox.innerHTML='';
+  caFinalAnswerBox.classList.remove('visible');
+}
+
+function setupManualAddition(aStr,bStr){
+  const orderRef = {n:1};
+  activeOnInputCb = checkPracticeComplete;
+  const res = addSigned(aStr, bStr, true, orderRef);
+  activeOnInputCb = null;
+  caWorksheet.appendChild(res.gridEl);
+
+  manualAnswerKey = {answer: res.resultStr};
+  setManualFinalAnswer();
+  setTimeout(()=> focusFirstEditable(caWorksheet), 50);
+}
+
+function setupManualSubtraction(aStr,bStr){
+  const orderRef = {n:1};
+  activeOnInputCb = checkPracticeComplete;
+  const res = subSigned(aStr, bStr, true, orderRef);
+  activeOnInputCb = null;
+  caWorksheet.appendChild(res.gridEl);
+
+  manualAnswerKey = {answer: res.resultStr};
+  setManualFinalAnswer();
+  setTimeout(()=> focusFirstEditable(caWorksheet), 50);
+}
+
+function setupManualMultiplication(aStr,bStr){
+  const orderRef = {n:1};
+  activeOnInputCb = checkPracticeComplete;
+  const res = mulSigned(aStr, bStr, true, orderRef);
+  activeOnInputCb = null;
+  caWorksheet.appendChild(res.gridEl);
+
+  manualAnswerKey = {answer: res.resultStr};
+  setManualFinalAnswer();
+  setTimeout(()=> focusFirstEditable(caWorksheet), 50);
+}
+
+function setupManualDivision(aStr,bStr, decSetting){
+  const orderRef = {n:1};
+  const maxDecs = decSetting === 'auto' ? 2 : (parseInt(decSetting, 10) || 2);
+  activeOnInputCb = checkPracticeComplete;
+  const res = divSigned(aStr, bStr, true, orderRef, maxDecs);
+  activeOnInputCb = null;
+  caWorksheet.appendChild(res.gridEl);
+
+  manualAnswerKey = {answer: res.resultStr};
+  setManualFinalAnswer();
+  setTimeout(()=> focusFirstEditable(caWorksheet), 50);
+}
+
+function handleCalcBasic(op, aStr, bStr, decSetting){
+  caWorksheet.innerHTML=''; caFinalAnswerBox.innerHTML='';
+  handleSolvedBasic(op, aStr, bStr, decSetting);
+  
+  if(op==='+') setupManualAddition(aStr,bStr);
+  else if(op==='-') setupManualSubtraction(aStr,bStr);
+  else if(op==='×') setupManualMultiplication(aStr,bStr);
+  else if(op==='÷') setupManualDivision(aStr,bStr, decSetting);
+  caResultWrap.style.display='block';
+}
+
+function handleCalcComplex(exprRaw, value, decSetting){
+  caWorksheet.innerHTML=''; caFinalAnswerBox.innerHTML='';
+  handleSolvedComplex(exprRaw, value, decSetting);
+  
+  try{
+    const orderRef = {n:1};
+    activeOnInputCb = checkPracticeComplete;
+    const {steps, finalValue} = solveExpressionSteps(exprRaw, true, orderRef, decSetting);
+    activeOnInputCb = null;
+    if(steps.length===0){
+      const pre=document.createElement('pre'); pre.className='calc-pre'; pre.textContent = exprRaw+' = ?';
+      caWorksheet.appendChild(pre);
+      manualAnswerKey = {answer: finalValue};
+      setManualFinalAnswer();
+    } else {
+      renderStepBlocks(caWorksheet, steps, true);
+      manualAnswerKey = {answer: finalValue};
+      setManualFinalAnswer();
+    }
+    setTimeout(()=> focusFirstEditable(caWorksheet), 50);
+  } catch(e){
+    activeOnInputCb = null;
+    caWorksheet.innerHTML='';
+    const pre=document.createElement('pre'); pre.className='calc-pre'; pre.textContent = exprRaw+' = ?';
+    caWorksheet.appendChild(pre);
+    manualAnswerKey = {answer: formatExprValue(value, decSetting)};
+    setManualFinalAnswer();
+  }
+  caResultWrap.style.display='block';
+}
+
+const caFieldCtrl = wireEntryField({
+  exprInput: document.getElementById('caExpr'),
+  fieldWrap: document.getElementById('caFieldWrap'),
+  triggerEl: document.getElementById('caSymbolTrigger'),
+  popoverEl: document.getElementById('caSymbolPopover'),
+  labelEl: document.getElementById('caLabel'),
+  decWrap: document.getElementById('caDecWrap'),
+  decSelect: document.getElementById('caDecSelect'),
+  errorEl: caError,
+  resultWrap: caResultWrap,
+  onSimple: handleCalcBasic,
+  onComplex: handleCalcComplex
+});
+
+/* ================================================================
+ *  HANDWRITE TAB
+ * ================================================================ */
+const wrError = document.getElementById('wrError');
+const wrResultWrap = document.getElementById('wrResultWrap');
+const wQuestionDisplay = document.getElementById('wQuestionDisplay');
+const wPadWrap = document.getElementById('wPadWrap');
+const wCanvas = document.getElementById('wCanvas');
+const hwUndoBtn = document.getElementById('hwUndoBtn');
+const hwClearBtn = document.getElementById('hwClearBtn');
+const hwSwatches = document.querySelectorAll('#hwSwatches .hw-swatch');
+const wFinalAnswerBox = document.getElementById('wFinalAnswerBox');
+let writeAnswerKey = {};
+
+const hw = { ctx:null, strokes:[], current:null, color:'#2F3438', drawing:false, dpr:1 };
+
+function hwResizeCanvas(){
+  const rect = wPadWrap.getBoundingClientRect();
+  if(rect.width<=0) return;
+  const cssHeight = 220;
+  hw.dpr = window.devicePixelRatio || 1;
+  wCanvas.width = Math.max(1, Math.round(rect.width*hw.dpr));
+  wCanvas.height = Math.round(cssHeight*hw.dpr);
+  wCanvas.style.width = rect.width+'px';
+  wCanvas.style.height = cssHeight+'px';
+  hw.ctx = wCanvas.getContext('2d');
+  hw.ctx.scale(hw.dpr, hw.dpr);
+  hw.ctx.lineCap='round';
+  hw.ctx.lineJoin='round';
+  hwRedraw();
+}
+function hwDrawStroke(stroke){
+  if(stroke.points.length<1) return;
+  hw.ctx.strokeStyle = stroke.color;
+  hw.ctx.lineWidth = 2.6;
+  hw.ctx.beginPath();
+  stroke.points.forEach((p,i)=>{ if(i===0) hw.ctx.moveTo(p.x,p.y); else hw.ctx.lineTo(p.x,p.y); });
+  hw.ctx.stroke();
+}
+function hwRedraw(){
+  if(!hw.ctx) return;
+  const rect = wPadWrap.getBoundingClientRect();
+  hw.ctx.clearRect(0,0,rect.width,220);
+  hw.strokes.forEach(hwDrawStroke);
+  wPadWrap.classList.toggle('empty', hw.strokes.length===0);
+}
+function hwClear(){
+  hw.strokes=[]; hw.current=null;
+  hwRedraw();
+  wPadWrap.classList.add('empty');
+}
+function hwPointFromEvent(e){
+  const rect = wCanvas.getBoundingClientRect();
+  return {x:e.clientX-rect.left, y:e.clientY-rect.top};
+}
+wCanvas.addEventListener('pointerdown', e=>{
+  e.preventDefault();
+  wCanvas.setPointerCapture(e.pointerId);
+  hw.drawing=true;
+  hw.current = {color:hw.color, points:[hwPointFromEvent(e)]};
+  hw.strokes.push(hw.current);
+  wPadWrap.classList.remove('empty');
+});
+wCanvas.addEventListener('pointermove', e=>{
+  if(!hw.drawing || !hw.current) return;
+  hw.current.points.push(hwPointFromEvent(e));
+  hwRedraw();
+});
+function hwEndStroke(){ hw.drawing=false; hw.current=null; }
+wCanvas.addEventListener('pointerup', hwEndStroke);
+wCanvas.addEventListener('pointercancel', hwEndStroke);
+wCanvas.addEventListener('pointerleave', ()=>{ if(hw.drawing) hwEndStroke(); });
+
+hwUndoBtn.addEventListener('click', ()=>{ hw.strokes.pop(); hwRedraw(); });
+hwClearBtn.addEventListener('click', hwClear);
+hwSwatches.forEach(sw=>{
+  sw.addEventListener('click', ()=>{
+    hwSwatches.forEach(s=>s.classList.remove('active'));
+    sw.classList.add('active');
+    hw.color = sw.dataset.color;
+  });
+});
+window.addEventListener('resize', hwResizeCanvas);
+
+function setWriteFinalAnswer(fields){
+  wFinalAnswerBox.innerHTML='';
+  fields.forEach((f,idx)=>{
+    const wrap = el('div','final-answer-item');
+    wrap.appendChild(el('span','label', f.label + ':'));
+    const val = document.createElement('input');
+    val.type='text';
+    val.className='value value-input';
+    val.setAttribute('inputmode','numeric');
+    val.setAttribute('autocomplete','off');
+    val.setAttribute('aria-label', f.label);
+    val.dataset.key = f.key;
+    val.dataset.expected = writeAnswerKey[f.key];
+    val.dataset.order = 100000+idx;
+    val.addEventListener('input', ()=>{
+      const v = val.value.replace(/[^0-9.\-]/g,'');
+      if(val.value!==v) val.value=v;
+      evaluateWriteAnswer(val);
+    });
+    val.addEventListener('keydown', e=>{ if(e.key==='Enter') e.preventDefault(); });
+    wrap.appendChild(val);
+    wFinalAnswerBox.appendChild(wrap);
+  });
+  wFinalAnswerBox.classList.add('visible');
+}
+
+function evaluateWriteAnswer(inputEl){
+  const typed = inputEl.value.trim();
+  const expected = inputEl.dataset.expected;
+  inputEl.classList.remove('correct','incorrect');
+  
+  if(typed === '') return;
+  if(typed === expected){
+    inputEl.classList.add('correct');
+    playCorrectSound();
+    focusNextEditable(inputEl, inputEl.closest('.result-wrap'));
+  } else {
+    inputEl.classList.add('incorrect');
+    playWrongSound();
+  }
+}
+
+function handleWriteBasic(op, aStr, bStr, decSetting){
+  wQuestionDisplay.textContent = `${aStr} ${op} ${bStr} = ?`;
+  hwClear();
+  wFinalAnswerBox.innerHTML='';
+
+  if(op==='+'){
+    const r = computeAddition(aStr,bStr);
+    const answer = ((r.finalCarry?String(r.finalCarry):'') + r.resultDigits.join('')).replace(/^0+(?=\d)/,'');
+    writeAnswerKey = {answer};
+    setWriteFinalAnswer([{label:'Answer', key:'answer'}]);
+  } else if(op==='-'){
+    const aBig=BigInt(aStr), bBig=BigInt(bStr);
+    const r = computeSubtraction(aBig,bBig);
+    let answer = r.resultDigits.join('').replace(/^0+(?=\d)/,''); if(answer==='') answer='0';
+    writeAnswerKey = {answer: (r.swapped?'-':'')+answer};
+    setWriteFinalAnswer([{label:'Answer', key:'answer'}]);
+  } else if(op==='×'){
+    const aBig=BigInt(aStr), bBig=BigInt(bStr);
+    const r = computeMultiplication(aBig,bBig);
+    writeAnswerKey = {answer:r.finalProduct};
+    setWriteFinalAnswer([{label:'Answer', key:'answer'}]);
+  } else if(op==='÷'){
+    const maxDecs = decSetting === 'auto' ? 2 : parseInt(decSetting, 10);
+    const res = divSigned(aStr, bStr, false, null, maxDecs);
+    writeAnswerKey = { answer: res.resultStr };
+    setWriteFinalAnswer([{label:'Answer', key:'answer'}]);
+  }
+  wrResultWrap.style.display='block';
+}
+
+function handleWriteComplex(exprRaw, value, decSetting){
+  wQuestionDisplay.textContent = `${exprRaw} = ?`;
+  hwClear();
+  wFinalAnswerBox.innerHTML='';
+  writeAnswerKey = {answer: formatExprValue(value, decSetting)};
+  setWriteFinalAnswer([{label:'Answer', key:'answer'}]);
+  wrResultWrap.style.display='block';
+}
+
+const wrFieldCtrl = wireEntryField({
+  exprInput: document.getElementById('wrExpr'),
+  fieldWrap: document.getElementById('wrFieldWrap'),
+  triggerEl: document.getElementById('wrSymbolTrigger'),
+  popoverEl: document.getElementById('wrSymbolPopover'),
+  labelEl: document.getElementById('wrLabel'),
+  decWrap: document.getElementById('wrDecWrap'),
+  decSelect: document.getElementById('wrDecSelect'),
+  errorEl: wrError,
+  resultWrap: wrResultWrap,
+  onSimple: handleWriteBasic,
+  onComplex: handleWriteComplex
+});
+
+/* ---------------------------------------------------------------- *
+ *  Tab Switching & Controls
+ * ---------------------------------------------------------------- */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='handwrite') requestAnimationFrame(hwResizeCanvas);
+    if(btn.dataset.tab==='calculate') setTimeout(()=> focusFirstEditable(caWorksheet), 50);
+  });
+});
+
+const fontBtns = document.querySelectorAll('#fontSizeGroup .fs-btn');
+fontBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    fontBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.documentElement.style.fontSize = btn.dataset.scale + '%';
+    requestAnimationFrame(hwResizeCanvas);
+  });
+});
+
+/* ---------------------------------------------------------------- *
+ *  Theme Switcher
+ * ---------------------------------------------------------------- */
+const themeToggleBtn = document.getElementById('themeToggleBtn');
+const themeIcon = document.getElementById('themeIcon');
+const root = document.documentElement;
+
+const sunSvg = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+const moonSvg = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+
+function updateThemeUI(mode) {
+  root.dataset.mode = mode;
+  if(mode === 'dark') {
+    themeIcon.innerHTML = sunSvg;
+    themeToggleBtn.setAttribute('title', 'Switch to Light Mode');
+  } else {
+    themeIcon.innerHTML = moonSvg;
+    themeToggleBtn.setAttribute('title', 'Switch to Dark Mode');
+  }
+}
+
+const initialMode = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+updateThemeUI(initialMode);
+
+themeToggleBtn.addEventListener('click', () => {
+  const nextMode = root.dataset.mode === 'dark' ? 'light' : 'dark';
+  updateThemeUI(nextMode);
+});
+
+// Initialize default calculation
+caFieldCtrl.setValue('2454/32+4');
+</script>
+</body>
+</html>
