@@ -1,2324 +1,1669 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<title>CalPad — show your work</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="description" content="CalPad — Notion-style step-by-step math solver and practice pad.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CalPad — solve it like paper</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  /* ============================================================
-     CalPad — Notion-Style Design System
-     ============================================================ */
-  :root{
-    --paper:#FFFFFF;
+  :root[data-theme="light"]{
+    --bg:#F4F3EF;
     --surface:#FFFFFF;
-    --surface-2:#F7F7F5;
-    --surface-3:#F0F0EF;
-    --line:#E9E9E7;
-    --line-strong:#D3D3D0;
-    --ink:#37352F;
-    --ink-soft:#787774;
-    --ink-faint:#9B9A97;
-    --brand:#2EAADC;
-    --brand-soft:#E8F6FC;
-    --brand-contrast:#FFFFFF;
-    --pen:#EB5757;
-    --pen-soft:#FDF2F2;
-    --good:#0F7B6C;
-    --good-soft:#EDF3EC;
-    --gold:#D9730D;
-
-    --radius-sm:4px;
-    --radius-md:6px;
-    --radius-lg:10px;
-    --radius-pill:999px;
-
-    --shadow-1:0 1px 2px rgba(15, 15, 15, 0.06);
-    --shadow-2:0 8px 24px -4px rgba(15, 15, 15, 0.12);
-
-    --font-ui:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
-    --font-mono:'JetBrains Mono', ui-monospace, monospace;
-
-    --fs-xs:0.75rem;
-    --fs-sm:0.85rem;
-    --fs-base:0.95rem;
-    --fs-md:1.05rem;
-    --fs-lg:1.25rem;
-
-    --cellw:18px;
-    --cellh:26px;
-    color-scheme:light;
+    --text:#232320;
+    --muted:#8A887E;
+    --muted-2:#CFCDC3;
+    --divider:#E9E7DF;
+    --tint:#0B7CFF;
+    --tint-soft:#E9F2FF;
+    --tint-line:#BFDCFF;
+    --accent:#1E9A6C;
+    --accent-soft:#E3F5EC;
+    --accent-line:#AEE0C8;
+    --danger:#E0463A;
+    --danger-soft:#FCEAE8;
+    --icon-bg:#EFEDE5;
+    --cell-bg:#FAFAF8;
+    --shadow: 0 1px 2px rgba(30,28,20,0.05), 0 12px 32px rgba(30,28,20,0.07);
   }
-
-  html[data-mode="dark"]{
-    --paper:#191919;
-    --surface:#202020;
-    --surface-2:#262626;
-    --surface-3:#2F2F2F;
-    --line:#2F2F2F;
-    --line-strong:#3F3F3F;
-    --ink:#E3E3E3;
-    --ink-soft:#9B9B9B;
-    --ink-faint:#6B6B6B;
-    --brand:#529CCA;
-    --brand-soft:#1C2C35;
-    --brand-contrast:#FFFFFF;
-    --pen:#FF6B6B;
-    --pen-soft:#381A1A;
-    --good:#2ECC71;
-    --good-soft:#183324;
-    --gold:#F2C94C;
-
-    --shadow-1:0 1px 3px rgba(0,0,0,0.4);
-    --shadow-2:0 12px 30px rgba(0,0,0,0.6);
-    color-scheme:dark;
+  :root[data-theme="dark"]{
+    --bg:#141414;
+    --surface:#1C1C1E;
+    --text:#F2F1ED;
+    --muted:#9A988F;
+    --muted-2:#48473F;
+    --divider:#2C2C2E;
+    --tint:#3D9BFF;
+    --tint-soft:#0F2740;
+    --tint-line:#1F4A6E;
+    --accent:#3FD996;
+    --accent-soft:#0F3527;
+    --accent-line:#1F5A3F;
+    --danger:#FF6B5E;
+    --danger-soft:#3A1E1A;
+    --icon-bg:#242426;
+    --cell-bg:#232326;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 14px 34px rgba(0,0,0,0.45);
   }
-
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
+  :focus-visible{ outline:2px solid var(--tint); outline-offset:2px; border-radius:4px; }
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+  html,body{margin:0;padding:0;width:100%;min-height:100vh;}
   body{
-    font-family:var(--font-ui);
-    color:var(--ink);
-    background:var(--paper);
-    font-size:var(--fs-base);
-    min-height:100vh;
-    padding-bottom:40px;
-    transition:background-color .15s ease, color .15s ease;
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system, BlinkMacSystemFont, 'Sora', 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    display:flex;
+    justify-content:center;
+    padding:28px 16px 60px;
+    transition:background .3s cubic-bezier(.16,1,.3,1), color .3s cubic-bezier(.16,1,.3,1);
   }
-  button, input, select{ font-family:inherit; font-size:inherit; }
-  button{ cursor:pointer; }
+  body.font-sm{ --scale:0.88; }
+  body.font-md{ --scale:1; }
+  body.font-lg{ --scale:1.18; }
 
-  /* ---------------- topbar ---------------- */
-  .topbar{
-    position:sticky; top:0; z-index:50;
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:10px 20px;
-    background:color-mix(in srgb, var(--paper) 92%, transparent);
-    backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--line);
-  }
-  .brand{ display:flex; align-items:center; gap:8px; }
-  .brand-mark{ width:24px; height:24px; flex:none; border-radius:var(--radius-sm); }
-  .brand-word{ font-weight:700; font-size:var(--fs-lg); letter-spacing:-0.02em; color:var(--ink); line-height:1; }
-  .brand-tag{ display:none; font-size:var(--fs-xs); color:var(--ink-faint); margin-top:2px; }
-  @media(min-width:640px){ .brand-tag{ display:block; } }
-
-  .top-actions{ display:flex; align-items:center; gap:10px; }
-  
-  .sound-select{
-    padding:4px 8px; border-radius:var(--radius-sm); border:1px solid var(--line-strong);
-    background:var(--surface); color:var(--ink); font-size:var(--fs-xs); font-weight:500; outline:none;
+  @media (max-width: 480px) {
+    body { padding: 8px 4px 20px; }
+    .app { border-radius: 16px; min-height: calc(100vh - 28px); }
   }
 
-  .fontsize-group{ display:flex; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius-sm); padding:2px; }
-  .fs-btn{
-    border:none; background:transparent; color:var(--ink-soft); font-weight:600; font-size:var(--fs-xs);
-    padding:2px 8px; border-radius:2px; transition:all 0.15s ease;
-  }
-  .fs-btn.active{ background:var(--surface); color:var(--ink); box-shadow:var(--shadow-1); }
-
-  .theme-toggle-btn{
-    width:32px; height:32px; border-radius:var(--radius-sm);
-    border:1px solid var(--line); background:var(--surface); color:var(--ink);
-    display:flex; align-items:center; justify-content:center; flex:none;
-    transition:all 0.15s ease;
-  }
-  .theme-toggle-btn:hover{ background:var(--surface-2); border-color:var(--line-strong); }
-
-  /* ---------------- shell & tabs ---------------- */
-  .shell{ max-width:780px; margin:0 auto; padding:20px 16px 8px; }
-
-  .tabs{ display:flex; gap:6px; border-bottom:1px solid var(--line); margin-bottom:18px; }
-  .tab-btn{
-    display:flex; align-items:center; gap:6px;
-    padding:6px 10px; border:none; background:transparent;
-    color:var(--ink-soft); font-weight:500; font-size:var(--fs-base);
-    border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.15s ease;
-    border-radius:var(--radius-sm) var(--radius-sm) 0 0;
-  }
-  .tab-btn svg{ width:15px; height:15px; flex:none; }
-  .tab-btn:hover{ color:var(--ink); background:var(--surface-2); }
-  .tab-btn.active{ color:var(--ink); font-weight:600; border-bottom-color:var(--ink); }
-
-  .tab-panel{ display:none; }
-  .tab-panel.active{ display:block; }
-
-  /* ---------------- entry card (Notion Callout Style) ---------------- */
-  .entry-card{
-    border:1px solid var(--line); border-radius:var(--radius-md); background:var(--surface-2);
-    padding:14px 16px; box-shadow:var(--shadow-1); margin-bottom:16px;
-  }
-  .entry-header{
-    display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; gap:8px;
-  }
-  .entry-label{
-    font-size:var(--fs-xs); font-weight:700; color:var(--ink-faint);
-    letter-spacing:.06em; text-transform:uppercase;
-  }
-  .decimal-opt-wrap{
-    display:none; align-items:center; gap:6px; font-size:var(--fs-xs); color:var(--ink-soft); font-weight:500;
-  }
-  .decimal-opt-wrap.visible{ display:flex; }
-  .decimal-select{
-    padding:2px 6px; border-radius:var(--radius-sm); border:1px solid var(--line-strong);
-    background:var(--surface); color:var(--ink); font-size:var(--fs-xs); font-weight:600; outline:none;
+  .app{
+    width:100%;
+    max-width:440px;
+    background:var(--surface);
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    border:1px solid var(--divider);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    min-height:640px;
+    position:relative;
   }
 
-  .entry-field-wrap{
-    position:relative; display:flex; align-items:stretch;
-    border:1px solid var(--line-strong); border-radius:var(--radius-sm); background:var(--surface);
-    overflow:visible; transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:24px 24px 14px;
   }
-  .entry-field-wrap:focus-within{ border-color:var(--brand); box-shadow:0 0 0 2px var(--brand-soft); }
-  .symbol-trigger{
-    flex:none; width:36px; display:flex; align-items:center; justify-content:center;
-    border:none; border-left:1px solid var(--line); background:transparent; color:var(--ink-soft);
-    font-family:var(--font-mono); font-weight:700; font-size:var(--fs-md);
+  .brand{
+    font-size:23px;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    color:var(--muted);
+    text-align:left;
   }
-  .symbol-trigger:hover{ color:var(--brand); background:var(--surface-2); }
-  .expr-field{
-    flex:1 1 0; min-width:0; border:none; background:transparent; outline:none;
-    padding:10px 12px; font-family:var(--font-mono); font-size:var(--fs-md); color:var(--ink);
+  .brand b{ color:var(--text); font-weight:700; }
+  .header-icons{ display:flex; gap:8px; }
+  .icon-btn{
+    width:40px;height:40px;
+    border-radius:50%;
+    border:none;
+    background:transparent;
+    color:var(--muted);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    font-size:15px;
+    font-weight:600;
+    font-style:italic;
+    transition:color .15s cubic-bezier(.16,1,.3,1), background .2s cubic-bezier(.16,1,.3,1), transform .12s cubic-bezier(.34,1.56,.64,1);
+    user-select:none;
+  }
+  .icon-btn:hover{ color:var(--text); background:var(--icon-bg); }
+  .icon-btn:active{ transform:scale(.9); }
+  .icon-btn svg{ width:19px;height:19px; }
+
+  .input-section{ padding:2px 24px 16px; }
+  .input-label{
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:9px;
+    letter-spacing:.02em;
+    text-align:left;
+  }
+  .input-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    border-bottom:1.5px solid var(--divider);
+    padding-bottom:13px;
+    position:relative;
+    transition:border-color .2s cubic-bezier(.16,1,.3,1);
+  }
+  .input-row:focus-within{ border-bottom-color:var(--tint); }
+  #expr-input{
+    flex:1;
+    border:none;
+    outline:none;
+    background:transparent;
+    font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
+    font-weight:600;
+    font-size:23px;
+    letter-spacing:-0.01em;
+    color:var(--text);
+    min-width:0;
+    text-align:left;
+    caret-color:auto;
+  }
+  #expr-input::placeholder{ color:var(--muted); }
+  .fx-wrap{ position:relative; flex-shrink:0; }
+  .fx-btn{
+    border:none;
+    background:transparent;
+    color:var(--muted-2);
+    font-style:italic;
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:18px;
+    cursor:pointer;
+    padding:4px;
+  }
+  .fx-btn:hover{ color:var(--accent); }
+
+  .go-btn{
+    border:none;
+    background:var(--tint);
+    color:#fff;
+    border-radius:50%;
+    width:34px;
+    height:34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:transform .12s cubic-bezier(.34,1.56,.64,1), background .15s ease;
+  }
+  .go-btn:hover{ background:var(--tint); opacity:0.9; }
+  .go-btn:active{ transform:scale(0.92); }
+  .go-btn svg{ width:16px; height:16px; fill:currentColor; }
+
+  .fx-menu{
+    display:none;
+    position:absolute;
+    top:calc(100% + 10px);
+    right:-10px;
+    background:var(--surface);
+    border:1px solid var(--divider);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    padding:10px;
+    grid-template-columns:repeat(4, 1fr);
+    gap:6px;
+    z-index:30;
+    width:232px;
+  }
+  .fx-menu.open{ display:grid; }
+  .fx-menu button{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    border:1px solid var(--divider);
+    background:var(--icon-bg);
+    border-radius:10px;
+    padding:9px 2px 7px;
+    cursor:pointer;
+    color:var(--text);
+  }
+  .fx-menu button:hover{ border-color:var(--tint-line); background:var(--tint-soft); }
+  .fx-menu button:focus-visible{ border-color:var(--tint); }
+  .fx-menu button:active{ transform:scale(.94); }
+  .fx-menu .sym{ font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1; font-size:17px; font-weight:700; }
+  .fx-menu .lbl{ font-size:8.5px; color:var(--muted); letter-spacing:.01em; }
+  .fx-menu-title{
+    grid-column:1 / -1;
+    font-size:11px;
+    font-weight:600;
+    color:var(--muted);
+    text-align:left;
+    padding:2px 4px 6px;
+    letter-spacing:.02em;
   }
 
-  .symbol-popover{
-    position:absolute; top:calc(100% + 6px); right:0; z-index:30;
-    background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--radius-md);
-    box-shadow:var(--shadow-2); padding:6px; display:grid; grid-template-columns:repeat(2,1fr);
-    gap:4px; min-width:220px;
+  .error-msg{
+    display:none;
+    margin:10px 24px 0;
+    padding:10px 12px;
+    background:var(--danger-soft);
+    color:var(--danger);
+    border-radius:10px;
+    font-size:13px;
+    text-align:left;
   }
-  .symbol-popover[hidden]{ display:none; }
-  .symbol-popover button{
-    display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:var(--radius-sm);
-    border:none; background:transparent; text-align:left; color:var(--ink);
-  }
-  .symbol-popover button:hover{ background:var(--surface-2); }
-  .symbol-popover .sym{ font-family:var(--font-mono); font-weight:700; font-size:var(--fs-md); width:20px; flex:none; }
+  .error-msg.show{ display:block; }
 
-  .error{
-    margin-top:10px; font-size:var(--fs-sm); color:var(--pen); background:var(--pen-soft);
-    border:1px solid var(--pen); border-radius:var(--radius-sm); padding:8px 12px; display:none;
-  }
-
-  /* ---------------- Solution Bar & Drawer (Moved Bottom Right) ---------------- */
-  .result-wrap{ position:relative; }
-  .solution-toolbar{
-    display:flex; align-items:center; justify-content:flex-end; margin-top:12px; margin-bottom:12px;
-  }
-  .solution-toggle-btn{
-    display:inline-flex; align-items:center; gap:6px;
-    padding:6px 14px; border-radius:var(--radius-pill);
-    border:1px solid var(--line-strong); background:var(--surface-2);
-    color:var(--ink); font-weight:600; font-size:var(--fs-xs);
-    box-shadow:var(--shadow-1); transition:all 0.15s ease;
-  }
-  .solution-toggle-btn:hover{ background:var(--surface-3); border-color:var(--ink-soft); }
-  .solution-toggle-btn svg{ width:14px; height:14px; transition:transform 0.2s ease; }
-  .solution-toggle-btn.expanded svg{ transform:rotate(180deg); }
-
-  .solution-drawer{
-    display:none; border:1px solid var(--line-strong); border-radius:var(--radius-md);
-    background:var(--surface-2); padding:16px; margin-top:12px; margin-bottom:16px;
-    box-shadow:var(--shadow-1); animation: fadeIn 0.2s ease;
-  }
-  .solution-drawer.open{ display:block; }
-  @keyframes fadeIn{ from{ opacity:0; transform:translateY(-4px); } to{ opacity:1; transform:translateY(0); } }
-
-  /* ---- Tight digit grid ---- */
-  .worksheet{ overflow-x:auto; padding:4px 2px; }
-  .num-grid{ display:flex; flex-direction:column; align-items:flex-end; font-family:var(--font-mono); width:max-content; }
-  .grid-row{ display:flex; align-items:center; position:relative; }
-  .row-prefix{ width:16px; text-align:left; font-size:var(--fs-md); color:var(--ink-soft); flex:none; font-weight:700; }
-  .cell{ width:var(--cellw); height:var(--cellh); position:relative; display:flex; align-items:center; justify-content:center; }
-  .cell .main{ font-size:1rem; font-weight:600; color:var(--ink); line-height:var(--cellh); letter-spacing:normal; }
-  .cell .main.pen{ color:var(--pen); }
-  .cell .main.struck{ text-decoration:line-through; text-decoration-color:var(--pen); text-decoration-thickness:2px; color:var(--ink-faint); }
-
-  .rule-row{ border-top:1.5px solid var(--ink); margin:0; width:100%; height:1px; }
-  .row-op .main{ font-weight:700; }
-  .row-final .main{ font-weight:700; color:var(--good); }
-
-  .bottom-summary-wrap{ display:none; flex-direction:column; gap:8px; margin-top:16px; }
-  .bottom-summary-wrap.visible{ display:flex; }
-  .bottom-summary-row{ display:flex; flex-wrap:wrap; gap:16px; align-items:baseline; }
-  .final-answer-item{ display:inline-flex; align-items:baseline; gap:6px; font-family:var(--font-mono); }
-  .final-answer-item .label{ font-weight:600; font-size:var(--fs-sm); color:var(--ink-soft); font-family:var(--font-ui); }
-  .final-answer-item .value{ font-weight:700; font-size:1.15rem; color:var(--good); background:none; border:none; padding:0; }
-
-  /* Meme comment banner */
-  .meme-banner{
-    font-size:var(--fs-sm); font-weight:600; color:var(--good);
-    background:var(--good-soft); padding:8px 12px; border-radius:var(--radius-sm);
-    border:1px solid var(--good); display:inline-block; margin-top:6px;
-    animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  @keyframes popIn { 0%{ transform:scale(0.9); opacity:0; } 100%{ transform:scale(1); opacity:1; } }
-
-  pre.calc-pre{ font-family:var(--font-mono); font-size:0.95rem; line-height:1.8; margin:0; white-space:pre; color:var(--ink); letter-spacing:normal; }
-  pre.calc-pre .rule{ color:var(--ink); font-weight:700; }
-  pre.calc-pre .q{ color:var(--good); font-weight:700; }
-
-  .step-block{ margin:0 0 16px; padding-bottom:12px; border-bottom:1px solid var(--line); display:block; }
-  .step-block.step-hidden{ display:none !important; }
-  .step-block:last-of-type{ margin-bottom:0; border-bottom:none; }
-  .step-heading{ font-weight:500; font-size:var(--fs-xs); color:var(--ink-soft); margin-bottom:8px; line-height:1.5; }
-  .step-heading .num{ color:var(--ink); font-weight:700; margin-right:4px; }
-  .step-subexpr{ font-family:var(--font-mono); font-size:0.95rem; color:var(--ink-soft); margin-bottom:8px; padding-left:1.2em; line-height:1.6; }
-  .step-subexpr u.step-hl{ text-decoration:none; border-bottom:2px solid var(--brand); color:var(--ink); font-weight:700; padding-bottom:1px; }
-  .step-result-line{ font-family:var(--font-mono); font-size:0.95rem; color:var(--ink); margin-top:8px; padding-left:1.2em; display:none; }
-  .step-result-line.visible{ display:block; }
-  .step-result-line b{ color:var(--good); }
-
-  /* ---- Editable Digit Cells ---- */
-  input.cell-input{
-    width:100%; height:100%; text-align:center; font-family:var(--font-mono); font-weight:600;
-    font-size:1rem; color:var(--ink); background:transparent; border:none;
-    border-bottom:1.5px solid var(--line-strong); padding:0; outline:none; caret-color:var(--brand);
-    transition:all 0.15s ease;
-  }
-  input.cell-input:focus{ border-bottom-color:var(--brand); background:var(--brand-soft); }
-  input.cell-input.right,
-  input.cell-input.wrong,
-  input.cell-input.filled {
-    border-bottom-color: transparent !important;
-  }
-  input.cell-input.wrong {
-    color: var(--pen) !important;
-    font-weight: 700;
-    background: var(--pen-soft);
-    border-radius: 2px;
+  main{
+    flex:1;
+    padding:6px 24px 10px;
+    overflow-y:auto;
+    overflow-x:auto;
   }
 
-  /* ---- Dynamic Carry-Over Input Boxes ---- */
-  input.ann-input{
-    position:absolute; top:-2px; right:-1px; left:auto; width:15px; height:16px;
-    font-family:var(--font-mono); font-style:italic; font-weight:600; font-size:0.75rem; color:var(--brand);
-    text-align:center; border:1px dotted var(--line-strong); border-radius:2px;
-    background:var(--surface); padding:0; outline:none; caret-color:var(--brand); z-index:10;
-    opacity:0; pointer-events:none; transform:scale(0.85); transition:all 0.15s ease;
-  }
-  input.ann-input.carry-box{
-    position:absolute; top:-1px; right:0; left:auto;
-    border:1px dotted var(--line-strong); color:var(--brand);
-  }
-  input.ann-input.active-step,
-  input.ann-input:focus,
-  input.ann-input.right,
-  input.ann-input.wrong,
-  input.ann-input.filled {
-    opacity:1;
-    pointer-events:auto;
-    transform:scale(1);
-  }
-  input.ann-input:focus{ border-color:var(--brand); border-style:solid; background:var(--surface); }
-  input.ann-input.right{ color:var(--good); border-color:transparent; background:transparent; }
-  input.ann-input.wrong{ color:var(--pen) !important; border-color:var(--pen); border-style:solid; background:var(--pen-soft); }
+  .steps{ display:flex; flex-direction:column; gap:0; text-align:left; }
+  .step{ animation: rise .35s ease both; padding-bottom:26px; }
+  .step + .step{ border-top:1.5px dotted var(--muted-2); padding-top:24px; margin-top:2px; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
 
-  /* Handwrite Canvas */
-  .handwrite-toolbar{ display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap; }
-  .hw-btn{
-    font-weight:600; font-size:var(--fs-xs); color:var(--ink-soft); background:var(--surface);
-    border:1px solid var(--line-strong); border-radius:var(--radius-pill); padding:4px 10px;
+  .step-title{
+    font-size:calc(13.5px * var(--scale, 1));
+    color:var(--muted);
+    margin-bottom:11px;
+    font-style:italic;
+    display:flex;
+    align-items:center;
+    gap:6px;
   }
-  .hw-btn:hover{ border-color:var(--brand); color:var(--brand); }
-  .hw-swatches{ display:flex; gap:6px; align-items:center; }
-  .hw-swatch{ width:16px; height:16px; border-radius:50%; border:2px solid transparent; cursor:pointer; }
-  .hw-swatch.active{ border-color:var(--ink); }
-  .write-question{ font-family:var(--font-mono); font-size:1rem; font-weight:700; margin:10px 0 4px; color:var(--ink); }
-  .handwrite-pad-wrap{
-    position:relative; min-height:220px; border:1px dashed var(--line-strong); border-radius:var(--radius-md);
-    margin-top:10px; background:var(--surface-2); touch-action:none; overflow:hidden;
+  .step-title b{
+    font-style:normal;
+    color:var(--muted);
+    font-weight:600;
   }
-  .handwrite-pad-wrap canvas{ display:block; width:100%; height:220px; cursor:crosshair; }
-  .handwrite-pad-wrap.empty::before{
-    content:attr(data-placeholder); position:absolute; left:14px; top:14px; color:var(--ink-faint);
-    font-size:var(--fs-base); pointer-events:none;
+  .step-title .hl{
+    font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
+    font-weight:700;
+    font-style:italic;
+    color:var(--text);
   }
+  .step-check{
+    display:none;
+    width:16px;height:16px;
+    border-radius:50%;
+    background:var(--accent);
+    color:var(--surface);
+    align-items:center;
+    justify-content:center;
+    font-size:10px;
+    flex-shrink:0;
+  }
+  .step.step-done .step-check{ display:inline-flex; }
+
+  .work{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:flex-end;
+    font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
+    font-size:calc(17.5px * var(--scale, 1));
+    color:var(--text);
+    line-height:1.6;
+  }
+  .work .row{ white-space:nowrap; text-align:right; }
+  .work .row.narrow{ letter-spacing:1px; }
+  .work .rule{
+    align-self:flex-end;
+    border-top:1.5px dashed var(--muted-2);
+    margin:3px 0;
+  }
+  .work .final-rule{
+    align-self:stretch;
+    border-top:2px solid var(--text);
+    margin:5px 0 3px;
+    width:100%;
+  }
+
+  .arith-grid{
+    display:inline-grid;
+    grid-auto-rows:min-content;
+    row-gap:7px;
+    column-gap:5px;
+    font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
+    font-size:calc(17.5px * var(--scale, 1));
+    color:var(--text);
+    max-width:100%;
+  }
+  .arith-grid > div{ display:flex; align-items:center; justify-content:center; }
+  .a-sym{ justify-content:flex-start; color:var(--text); }
+  .a-static{ justify-content:center; }
+  .a-static.result{ color:var(--accent); font-weight:inherit; }
+  .a-final-rule{ align-self:stretch; border-top:2px solid var(--text); margin:2px 0 1px; width:100%; }
+  .a-dotted-rule{ align-self:stretch; border-top:1.5px dotted var(--muted-2); margin:3px 0 5px; width:100%; }
+  .a-carry-cell{ padding-bottom:4px; }
+  .a-carry-cell input{
+    width:100%;
+    max-width:2.4ch;
+    border:none;
+    border-bottom:1px dashed var(--muted-2);
+    background:transparent;
+    text-align:center;
+    font-style:italic;
+    font-size:0.72em;
+    color:var(--muted);
+    padding:0 0 2px;
+    outline:none;
+    font-family:inherit;
+  }
+  .a-carry-cell input:focus{ border-bottom-color:var(--tint); color:var(--tint); }
+  .a-cell .cell{ padding:0; }
+
+  .division-grid{
+    display:inline-grid;
+    grid-auto-rows:min-content;
+    row-gap:6px;
+    column-gap:3px;
+    font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
+    font-size:calc(17.5px * var(--scale, 1));
+    color:var(--text);
+    max-width:100%;
+  }
+  .division-grid > div{ display:flex; align-items:baseline; }
+  .q-cell{ justify-content:center; padding-bottom:3px; }
+  .q-static{ color:var(--text); justify-content:center; }
+  .prefix-cell{ justify-content:flex-start; padding-right:2px; white-space:nowrap; }
+  .bracket-cell{
+    justify-content:flex-start;
+    border-top:2px solid var(--text);
+    padding-top:2px;
+  }
+  .d-cell{
+    justify-content:center;
+    border-top:2px solid var(--text);
+    padding-top:2px;
+  }
+  .row-rule{ align-self:center; border-top:1.5px dashed var(--muted-2); height:0; }
+  .op-row{ justify-content:flex-end; gap:1px; }
+  .op-sign{ padding-right:2px; }
+  .num-row{ justify-content:flex-end; }
+
+  .cell{
+    font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
+    font-weight:inherit;
+    font-size:calc(17.5px * var(--scale, 1));
+    text-align:center;
+    background:transparent;
+    color:var(--tint);
+    border:none;
+    border-bottom:1.5px dashed var(--muted-2);
+    border-radius:0;
+    padding:0;
+    margin:0;
+    min-width:0;
+    outline:none;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .cell:focus{ border-bottom-color:var(--tint); color:var(--tint); }
+  .cell.correct{
+    border-bottom-color:transparent;
+    background:transparent;
+    color:var(--accent);
+  }
+  .cell.incorrect{
+    border-bottom-color:var(--danger);
+    background:transparent;
+    color:var(--danger);
+    animation:shake .3s ease;
+  }
+  @keyframes shake{
+    0%,100%{ transform:translateX(0); }
+    25%{ transform:translateX(-4px); }
+    75%{ transform:translateX(4px); }
+  }
+
+  .answer-card{
+    margin-top:6px;
+    background:var(--accent-soft);
+    border:1px solid var(--accent-line);
+    border-radius:16px;
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    animation: rise .4s ease both;
+    position:relative;
+  }
+  .answer-card.hidden{ display:none; }
+  .answer-card .ans-info { display:flex; flex-direction:column; align-items:flex-start; }
+  .answer-card .label{
+    font-size:13px;
+    color:var(--muted);
+  }
+  .answer-card .value{
+    font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
+    font-size:29px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    color:var(--accent);
+  }
+  .answer-card .card-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .answer-card .card-close-btn:hover { color: var(--text); }
+
+  .confetti-piece{
+    position:absolute;
+    width:6px;height:10px;
+    border-radius:1px;
+    animation: confetti-fall .9s ease-out forwards;
+    pointer-events:none;
+  }
+  @keyframes confetti-fall{
+    0%{ transform:translateY(0) rotate(0deg); opacity:1; }
+    100%{ transform:translateY(70px) rotate(220deg); opacity:0; }
+  }
+
+  /* Handwriting Modal View */
+  .handwriting-overlay {
+    display: none;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-radius: 24px;
+    z-index: 50;
+    flex-direction: column;
+    padding: 16px;
+  }
+  .handwriting-overlay.open { display: flex; }
+  .hw-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .hw-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .hw-close-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--divider);
+    background: var(--icon-bg);
+    color: var(--muted);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hw-canvas-container {
+    flex: 1;
+    border: 1px dashed var(--muted-2);
+    border-radius: 12px;
+    position: relative;
+    background: var(--cell-bg);
+    touch-action: none;
+  }
+  #hw-canvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+  }
+  .hw-tools {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    justify-content: flex-end;
+  }
+  .hw-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--divider);
+    background: var(--icon-bg);
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  footer{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 24px 22px;
+    border-top:1px solid var(--divider);
+  }
+  .pencil-btn{
+    width:44px;height:44px;
+    border-radius:13px;
+    border:1px solid var(--divider);
+    background:var(--icon-bg);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    color:var(--muted);
+    transition:background .18s cubic-bezier(.16,1,.3,1), color .18s cubic-bezier(.16,1,.3,1), border-color .18s ease, transform .12s cubic-bezier(.34,1.56,.64,1);
+  }
+  .pencil-btn:active{ transform:scale(.92); }
+  .pencil-btn svg{ width:19px;height:19px; }
+
+  .solution-btn{
+    padding:10px 22px;
+    border-radius:999px;
+    border:1px solid var(--divider);
+    background:var(--tint);
+    border-color:var(--tint);
+    color:#fff;
+    font-family:'Sora',sans-serif;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .solution-btn:active{ transform:scale(.96); }
+
+  main::-webkit-scrollbar{ width:6px; }
+  main::-webkit-scrollbar-thumb{ background:var(--divider); border-radius:3px; }
 </style>
+<base target="_blank">
 </head>
-<body>
+<body class="font-md">
+<div class="app" id="app" data-theme="light">
 
-<div class="topbar">
-  <div class="brand">
-    <svg class="brand-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <rect x="1" y="1" width="30" height="30" rx="6" fill="var(--brand)"/>
-      <path d="M10 10H14.5V22" stroke="var(--brand-contrast)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      <path d="M14.5 10H23" stroke="var(--brand-contrast)" stroke-width="2.4" stroke-linecap="round"/>
-      <circle cx="20" cy="16" r="1.6" fill="var(--brand-contrast)"/>
-      <circle cx="20" cy="20" r="1.6" fill="var(--brand-contrast)"/>
-    </svg>
-    <div>
-      <div class="brand-word">CalPad</div>
-      <div class="brand-tag">show your work, one step at a time</div>
+  <header>
+    <div class="brand"><b>Cal</b>Pad</div>
+    <div class="header-icons">
+      <button class="icon-btn" id="font-btn" title="Text size" aria-label="Change text size">A</button>
+      <button class="icon-btn" id="theme-btn" title="Day / night mode" aria-label="Toggle day and night mode">
+        <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+      </button>
     </div>
-  </div>
+  </header>
 
-  <div class="top-actions">
-    <div class="sound-select-wrap">
-      <select class="sound-select" id="soundPresetSelect">
-        <option value="arcade">🔊 Meme Arcade</option>
-        <option value="mario">🎮 Mario & Boing</option>
-        <option value="anime">✨ Anime Sparkle</option>
-        <option value="off">🔇 Mute</option>
-      </select>
-    </div>
-
-    <div class="fontsize-group" id="fontSizeGroup">
-      <button class="fs-btn" data-scale="90" type="button" title="Small Text">S</button>
-      <button class="fs-btn active" data-scale="100" type="button" title="Medium Text">M</button>
-      <button class="fs-btn" data-scale="112" type="button" title="Large Text">L</button>
-    </div>
-
-    <button class="theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="Toggle dark/day mode">
-      <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
-    </button>
-  </div>
-</div>
-
-<div class="shell">
-  <div class="tabs" role="tablist">
-    <button class="tab-btn active" data-tab="calculate" type="button" role="tab">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h.01M12 19h.01M16 19h.01"/></svg>
-      Calculate
-    </button>
-    <button class="tab-btn" data-tab="handwrite" type="button" role="tab">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5.5-1.5L20 4a2.1 2.1 0 0 0-3-3L5.5 12.5 4 18z"/></svg>
-      Handwrite
-    </button>
-  </div>
-
-  <!-- ============== CALCULATE TAB ============== -->
-  <div class="tab-panel active" id="panel-calculate">
-    <div class="entry-card">
-      <div class="entry-header">
-        <div class="entry-label" id="caLabel">Calculation</div>
-        <div class="decimal-opt-wrap" id="caDecWrap">
-          <label for="caDecSelect">Decimals:</label>
-          <select class="decimal-select" id="caDecSelect">
-            <option value="auto">Auto</option>
-            <option value="1">.0</option>
-            <option value="2" selected>.00</option>
-            <option value="3">.000</option>
-          </select>
+  <div class="input-section">
+    <div class="input-label">Calculate</div>
+    <div class="input-row">
+      <input id="expr-input" type="text" inputmode="decimal" value="245/32" placeholder="e.g. 245/32" autocomplete="off" spellcheck="false" aria-label="Calculation input" autofocus>
+      <div class="fx-wrap">
+        <button class="fx-btn" id="fx-btn" title="Insert symbol" aria-label="Insert a mathematical symbol" aria-haspopup="true" aria-expanded="false">ƒx</button>
+        <div class="fx-menu" id="fx-menu" role="menu" aria-label="Insert symbol">
+          <div class="fx-menu-title">Insert symbol</div>
+          <button data-insert="+" data-back="0" aria-label="Addition"><span class="sym">+</span><span class="lbl">Add</span></button>
+          <button data-insert="-" data-back="0" aria-label="Subtraction"><span class="sym">−</span><span class="lbl">Subtract</span></button>
+          <button data-insert="*" data-back="0" aria-label="Multiplication"><span class="sym">×</span><span class="lbl">Multiply</span></button>
+          <button data-insert="/" data-back="0" aria-label="Division"><span class="sym">÷</span><span class="lbl">Divide</span></button>
+          <button data-insert="()" data-back="1" aria-label="Brackets"><span class="sym">( )</span><span class="lbl">Brackets</span></button>
+          <button data-insert="²" data-back="0" aria-label="Square"><span class="sym">x²</span><span class="lbl">Square</span></button>
+          <button data-insert="√" data-back="0" aria-label="Square root"><span class="sym">√</span><span class="lbl">Sq Root</span></button>
+          <button data-insert="%" data-back="0" aria-label="Percent"><span class="sym">%</span><span class="lbl">Percent</span></button>
+          <button data-insert="^" data-back="0" aria-label="Power"><span class="sym">xⁿ</span><span class="lbl">Power</span></button>
         </div>
       </div>
-      <div class="entry-field-wrap" id="caFieldWrap">
-        <input class="expr-field" id="caExpr" type="text" placeholder="2454/32+4" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <button class="symbol-trigger" id="caSymbolTrigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Insert symbol">∑</button>
-        <div class="symbol-popover" id="caSymbolPopover" role="listbox" hidden></div>
-      </div>
-    </div>
-
-    <div class="error" id="caError"></div>
-
-    <div class="result-wrap" id="caResultWrap">
-      <!-- Main Practice Working Canvas -->
-      <div class="worksheet" id="caWorksheet"></div>
-      <div class="bottom-summary-wrap" id="caFinalAnswerBox"></div>
-
-      <!-- Solution Toolbar positioned at Bottom Right -->
-      <div class="solution-toolbar">
-        <button class="solution-toggle-btn" id="solutionToggleBtn" type="button">
-          <span>💡 Full Solution</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-      </div>
-
-      <!-- Collapsible Solution Drawer -->
-      <div class="solution-drawer" id="solutionDrawer">
-        <div class="worksheet" id="soWorksheet"></div>
-        <div class="bottom-summary-wrap" id="soFinalAnswerBox"></div>
-      </div>
+      <button class="go-btn" id="go-btn" title="Calculate" aria-label="Calculate">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
     </div>
   </div>
 
-  <!-- ============== HANDWRITE TAB ============== -->
-  <div class="tab-panel" id="panel-handwrite">
-    <div class="entry-card">
-      <div class="entry-header">
-        <div class="entry-label" id="wrLabel">Calculation</div>
-        <div class="decimal-opt-wrap" id="wrDecWrap">
-          <label for="wrDecSelect">Decimals:</label>
-          <select class="decimal-select" id="wrDecSelect">
-            <option value="auto">Auto</option>
-            <option value="1">.0</option>
-            <option value="2" selected>.00</option>
-          </select>
-        </div>
-      </div>
-      <div class="entry-field-wrap" id="wrFieldWrap">
-        <input class="expr-field" id="wrExpr" type="text" placeholder="2454/32+4" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <button class="symbol-trigger" id="wrSymbolTrigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Insert symbol">∑</button>
-        <div class="symbol-popover" id="wrSymbolPopover" role="listbox" hidden></div>
-      </div>
-    </div>
+  <div class="error-msg" id="error-msg"></div>
 
-    <div class="error" id="wrError"></div>
-    <div class="result-wrap" id="wrResultWrap">
-      <div class="write-question" id="wQuestionDisplay"></div>
-      <div class="handwrite-toolbar">
-        <div class="hw-swatches" id="hwSwatches">
-          <span class="hw-swatch active" data-color="#2F3438" style="background:#2F3438"></span>
-          <span class="hw-swatch" data-color="#EF4444" style="background:#EF4444"></span>
-          <span class="hw-swatch" data-color="#2563EB" style="background:#2563EB"></span>
-        </div>
-        <button class="hw-btn" id="hwUndoBtn" type="button">Undo</button>
-        <button class="hw-btn" id="hwClearBtn" type="button">Clear</button>
-      </div>
-      <div class="handwrite-pad-wrap empty" id="wPadWrap" data-placeholder="Write your working here...">
-        <canvas id="wCanvas"></canvas>
-      </div>
-      <div class="bottom-summary-wrap" id="wFinalAnswerBox"></div>
+  <main>
+    <div id="content"></div>
+  </main>
+
+  <footer>
+    <button class="pencil-btn" id="practice-btn" title="Handwriting mode" aria-label="Toggle handwriting mode">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
+    </button>
+    <button class="solution-btn" id="solution-btn">Reveal</button>
+  </footer>
+
+  <div class="handwriting-overlay" id="hw-overlay">
+    <div class="hw-header">
+      <span class="hw-title">Handwriting Scratchpad</span>
+      <button class="hw-close-btn" id="hw-close-btn" title="Close" aria-label="Close Scratchpad">✕</button>
+    </div>
+    <div class="hw-canvas-container" id="hw-canvas-container">
+      <canvas id="hw-canvas"></canvas>
+    </div>
+    <div class="hw-tools">
+      <button class="hw-btn" id="hw-undo-btn">Undo</button>
+      <button class="hw-btn" id="hw-clear-btn">Clear Canvas</button>
     </div>
   </div>
+
 </div>
 
 <script>
-/* ---------------------------------------------------------------- *
- *  Web Audio API Synthesizer (Appreciative Clap, Hurray & Meme Sounds)
- * ---------------------------------------------------------------- */
-let audioCtx = null;
-function getAudioContext(){
-  if(!audioCtx){ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-  if(audioCtx.state === 'suspended') audioCtx.resume();
-  return audioCtx;
+(function(){
+
+/* ================= THEME / FONT ================= */
+const app = document.getElementById('app');
+const themeBtn = document.getElementById('theme-btn');
+const themeIcon = document.getElementById('theme-icon');
+const fontBtn = document.getElementById('font-btn');
+
+const SUN_PATH = '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>';
+const MOON_PATH = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path>';
+
+let theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', theme);
+  app.setAttribute('data-theme', theme);
+  themeIcon.innerHTML = theme === 'light' ? SUN_PATH : MOON_PATH;
 }
-
-const MEME_COMMENTS = [
-  "Absolute Gigachad Math Move! 🧠🔥",
-  "Mind = Blown 🤯 Big Brain Energy!",
-  "Math Wiz Mode Activated! ⚡️💻",
-  "Zero Mistakes! Simply Iconic 👑",
-  "Calculated with Precision! 🎯👏",
-  "Hurray! You Done It! 🎉🥳"
-];
-
-function triggerMemeExperience(targetEl) {
-  const container = targetEl || document.querySelector('.tab-panel.active .result-wrap') || document.body;
-  const existingMeme = container.querySelector('.meme-banner');
-  if (existingMeme) existingMeme.remove();
-  const randomMeme = MEME_COMMENTS[Math.floor(Math.random() * MEME_COMMENTS.length)];
-  const memeEl = el('div', 'meme-banner', randomMeme);
-  container.appendChild(memeEl);
-}
-
-document.getElementById('soundPresetSelect').addEventListener('change', (e) => {
-  if (e.target.value !== 'off') {
-    playClapSound();
-    triggerMemeExperience();
-  }
+applyTheme();
+themeBtn.addEventListener('click', () => {
+  theme = theme === 'light' ? 'dark' : 'light';
+  applyTheme();
 });
 
-function playClapSound(){
-  const preset = document.getElementById('soundPresetSelect').value;
-  if(preset === 'off') return;
-  const ctx = getAudioContext();
-  const now = ctx.currentTime;
+const fontSizes = ['font-sm','font-md','font-lg'];
+let fontIdx = 1;
+fontBtn.addEventListener('click', () => {
+  document.body.classList.remove(fontSizes[fontIdx]);
+  fontIdx = (fontIdx + 1) % fontSizes.length;
+  document.body.classList.add(fontSizes[fontIdx]);
+});
 
-  // Clapping Noise Effect
-  for(let i = 0; i < 18; i++){
-    const burstTime = now + (i * 0.035) + (Math.random() * 0.015);
-    const bufferSize = ctx.sampleRate * 0.04;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let j = 0; j < bufferSize; j++) {
-      data[j] = Math.random() * 2 - 1;
-    }
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
+/* ================= FX SYMBOL MENU ================= */
+const fxBtn = document.getElementById('fx-btn');
+const fxMenu = document.getElementById('fx-menu');
 
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.value = 1100 + Math.random() * 1000;
+function toggleFxMenu(open){
+  const isOpen = open !== undefined ? open : !fxMenu.classList.contains('open');
+  fxMenu.classList.toggle('open', isOpen);
+  fxBtn.setAttribute('aria-expanded', isOpen);
+}
 
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.2, burstTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, burstTime + 0.04);
-
-    noise.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-
-    noise.start(burstTime);
-    noise.stop(burstTime + 0.04);
+fxBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleFxMenu();
+});
+document.addEventListener('click', () => toggleFxMenu(false));
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    toggleFxMenu(false);
+    hwOverlay.classList.remove('open');
   }
-
-  // Hurray Fanfare Tones
-  [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(freq, now + 0.2 + idx * 0.08);
-    gain.gain.setValueAtTime(0.15, now + 0.2 + idx * 0.08);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + idx * 0.08 + 0.25);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(now + 0.2 + idx * 0.08); osc.stop(now + 0.2 + idx * 0.08 + 0.25);
+});
+fxMenu.addEventListener('click', (e) => e.stopPropagation());
+fxMenu.querySelectorAll('button[data-insert]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    insertSymbol(btn.dataset.insert, parseInt(btn.dataset.back || '0', 10));
+    toggleFxMenu(false);
   });
+});
+
+function insertSymbol(text, back){
+  const start = input.selectionStart ?? input.value.length;
+  const end = input.selectionEnd ?? input.value.length;
+  const before = input.value.slice(0, start);
+  const after = input.value.slice(end);
+  input.value = before + text + after;
+  const newPos = start + text.length - back;
+  input.focus();
+  input.setSelectionRange(newPos, newPos);
+  solve(input.value.trim());
 }
 
-function playCorrectSound(){
-  const preset = document.getElementById('soundPresetSelect').value;
-  if(preset === 'off') return;
-  const ctx = getAudioContext();
-  const now = ctx.currentTime;
-
-  if(preset === 'mario'){
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(987.77, now);
-    osc.frequency.setValueAtTime(1318.51, now + 0.08);
-    gain.gain.setValueAtTime(0.15, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(now); osc.stop(now + 0.35);
-  } else if(preset === 'anime'){
-    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now + idx*0.04);
-      gain.gain.setValueAtTime(0.12, now + idx*0.04);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + idx*0.04 + 0.2);
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(now + idx*0.04); osc.stop(now + idx*0.04 + 0.2);
-    });
-  } else {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(523.25, now);
-    osc.frequency.setValueAtTime(659.25, now + 0.06);
-    osc.frequency.setValueAtTime(783.99, now + 0.12);
-    gain.gain.setValueAtTime(0.18, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(now); osc.stop(now + 0.3);
-  }
+/* ================= NUMBER HELPERS ================= */
+function decimalsOf(str){
+  const i = str.indexOf('.');
+  return i === -1 ? 0 : str.length - i - 1;
+}
+function formatNum(n){
+  if (!isFinite(n)) return 'undefined';
+  let r = Math.round((n + Number.EPSILON) * 1e6) / 1e6;
+  if (Object.is(r, -0)) r = 0;
+  return String(r);
+}
+function padDecimals(str, places){
+  let neg = str.startsWith('-');
+  if(neg) str = str.slice(1);
+  let [i, f=''] = str.split('.');
+  while(f.length < places) f += '0';
+  return (neg?'-':'') + i + (places>0 ? '.'+f : '');
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 }
 
-function playWrongSound(){
-  const preset = document.getElementById('soundPresetSelect').value;
-  if(preset === 'off') return;
-  const ctx = getAudioContext();
-  const now = ctx.currentTime;
-
-  if(preset === 'mario'){
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(300, now);
-    osc.frequency.exponentialRampToValueAtTime(80, now + 0.25);
-    gain.gain.setValueAtTime(0.2, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(now); osc.stop(now + 0.25);
-  } else if(preset === 'anime'){
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(160, now);
-    osc.frequency.linearRampToValueAtTime(110, now + 0.3);
-    gain.gain.setValueAtTime(0.18, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(now); osc.stop(now + 0.3);
-  } else {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(130, now);
-    gain.gain.setValueAtTime(0.18, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(now); osc.stop(now + 0.22);
-  }
-}
-
-function celebrateConfetti(anchorEl){
-  if(!anchorEl) return;
-  playClapSound();
-  
-  const rect = anchorEl.getBoundingClientRect();
-  const originX = rect.left + rect.width/2 + window.scrollX;
-  const originY = rect.top + window.scrollY;
-  const container = document.createElement('div');
-  container.style.cssText = 'position:absolute; left:0; top:0; width:1px; height:1px; overflow:visible; pointer-events:none; z-index:9999;';
-  document.body.appendChild(container);
-
-  const colors = ['#2EAADC','#0F7B6C','#EB5757','#D9730D','#9B51E0'];
-  for(let i=0; i<36; i++){
-    const piece = document.createElement('div');
-    const size = 5 + Math.random()*5;
-    piece.style.cssText = `position:absolute; left:${originX + (Math.random()-0.5)*60}px; top:${originY}px; width:${size}px; height:${size*0.4}px; background:${colors[Math.floor(Math.random()*colors.length)]}; opacity:0.95; border-radius:${Math.random()<0.5?'2px':'50%'};`;
-    const dx = (Math.random()-0.5)*260;
-    const dy = -80 - Math.random()*120;
-    const rot = (Math.random()-0.5)*720;
-    container.appendChild(piece);
-    if(typeof piece.animate === 'function'){
-      piece.animate([
-        { transform:'translate(0,0) rotate(0deg)', opacity:1 },
-        { transform:`translate(${dx}px, ${dy}px) rotate(${rot}deg)`, opacity:0 }
-      ], { duration:800+Math.random()*600, easing:'cubic-bezier(.25,.46,.45,.94)', fill:'forwards' });
+/* ================= TOKENIZER ================= */
+function tokenize(expr){
+  expr = expr.replace(/\s+/g,'').replace(/×/g,'*').replace(/÷/g,'/').replace(/x²/gi,'²');
+  const tokens = [];
+  let i = 0;
+  while(i < expr.length){
+    const ch = expr[i];
+    if(ch === '(' || ch === ')'){ tokens.push(ch); i++; continue; }
+    if(ch === '\u00B2' || ch === '\u221A' || ch === '%'){ tokens.push(ch); i++; continue; }
+    if(ch === '^'){ tokens.push(ch); i++; continue; }
+    if('+-*/'.includes(ch)){
+      const prev = tokens[tokens.length-1];
+      const isUnary = (ch==='-' || ch==='+') && (prev===undefined || prev==='(' || '+-*/^'.includes(prev));
+      if(isUnary){
+        let j = i+1, sign = ch==='-' ? '-' : '';
+        let num = sign;
+        while(j<expr.length && /[0-9.]/.test(expr[j])){ num += expr[j]; j++; }
+        if(num === '' || num === '-') throw new Error('Invalid expression');
+        tokens.push(num);
+        i = j;
+        continue;
+      }
+      tokens.push(ch); i++; continue;
     }
-  }
-  setTimeout(() => container.remove(), 1500);
-}
-
-/* ---------------------------------------------------------------- *
- *  Operator metadata & Helpers
- * ---------------------------------------------------------------- */
-const OP_META = {
-  '+': {name:'Addition'},
-  '-': {name:'Subtraction'},
-  '×': {name:'Multiplication'},
-  '÷': {name:'Division'}
-};
-
-const SYMBOL_OPTIONS = [
-  {insert:'+',  sym:'+',  name:'Add'},
-  {insert:'−',  sym:'−',  name:'Subtract'},
-  {insert:'×',  sym:'×',  name:'Multiply'},
-  {insert:'÷',  sym:'÷',  name:'Divide'},
-  {insert:'()', sym:'( )', name:'Brackets'},
-  {insert:'√',  sym:'√',  name:'Square root'},
-  {insert:'^2', sym:'x²', name:'Square'},
-  {insert:'^',  sym:'^',  name:'Power'},
-  {insert:'%',  sym:'%',  name:'Percent'}
-];
-
-function normalizeNum(str){ return str.replace(/^0+(?=\d)/,''); }
-function trimDecimal(s){ return s.replace(/\.0+$/,'').replace(/(\.\d*?[1-9])0+$/,'$1'); }
-function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function showError(errEl, resultWrapEl, msg){
-  errEl.textContent = msg;
-  errEl.style.display='block';
-  if(resultWrapEl) resultWrapEl.style.display='none';
-}
-function hideError(errEl){ errEl.style.display='none'; }
-
-function classifySimple(raw){
-  const m = raw.match(/^(\d+)\s*([+\-−×x\*÷\/])\s*(\d+)$/i);
-  if(!m) return null;
-  let op = m[2];
-  if(op==='x'||op==='X'||op==='*'||op==='×') op='×';
-  else if(op==='÷'||op==='/') op='÷';
-  else if(op==='+') op='+';
-  else op='-';
-  return {op, aStr:m[1], bStr:m[3]};
-}
-
-function splitSign(s){
-  s = s.toString().trim();
-  if(s.startsWith('-')){ return {sign:'-', mag:s.slice(1)}; }
-  return {sign:'+', mag:s};
-}
-function cmpMag(a,b){
-  a = a.replace(/^0+/,'')||'0'; b = b.replace(/^0+/,'')||'0';
-  if(a.length>b.length) return 1;
-  if(a.length<b.length) return -1;
-  if(a>b) return 1;
-  if(a<b) return -1;
-  return 0;
-}
-
-/* ---------------------------------------------------------------- *
- *  Multi-step expression evaluator
- * ---------------------------------------------------------------- */
-function tokenizeExpr(raw){
-  const s = raw.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/√/g,'#').replace(/,/g,'')
-    .replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
-  const tokens=[]; let i=0;
-  while(i<s.length){
-    const c=s[i];
-    if(/\s/.test(c)){ i++; continue; }
-    if(/[0-9.]/.test(c)){ let j=i; while(j<s.length && /[0-9.]/.test(s[j])) j++; tokens.push({t:'num', v:parseFloat(s.slice(i,j))}); i=j; continue; }
-    if(c==='#'){ tokens.push({t:'sqrt'}); i++; continue; }
-    if('+-*/^()'.includes(c)){ tokens.push({t:c}); i++; continue; }
-    throw new Error(`"${c}" isn't a symbol CalPad understands.`);
+    if(/[0-9.]/.test(ch)){
+      let j=i, num='';
+      while(j<expr.length && /[0-9.]/.test(expr[j])){ num+=expr[j]; j++; }
+      tokens.push(num);
+      i=j;
+      continue;
+    }
+    throw new Error('Unrecognized character "'+ch+'"');
   }
   return tokens;
 }
-function insertImplicitMultiplication(tokens){
-  const out=[];
-  for(const tok of tokens){
-    if(out.length){
-      const prev = out[out.length-1];
-      const prevEndsValue = prev.t==='num' || prev.t===')';
-      const curStartsValue = tok.t==='num' || tok.t==='(' || tok.t==='sqrt';
-      if(prevEndsValue && curStartsValue) out.push({t:'*'});
-    }
-    out.push(tok);
+
+const OP_NAMES = { '+':'Add', '-':'Subtract', '*':'Multiply', '/':'Divide', '^':'Power' };
+const OP_SYMBOLS = { '+':'+', '-':'\u2212', '*':'\u00D7', '/':'\u00F7', '^':'^' };
+
+function tokensToDisplayText(tokens){
+  return tokens.map(t => ('+-*/^'.includes(t) && t.length===1) ? OP_SYMBOLS[t] : t).join(' ');
+}
+
+function quickEval(tokens){
+  let pos = 0;
+  const peek = () => tokens[pos];
+  function parseExpr(){
+    let v = parseTerm();
+    while(peek()==='+' || peek()==='-'){ const op=tokens[pos++]; const r=parseTerm(); v = op==='+' ? v+r : v-r; }
+    return v;
   }
-  return out;
-}
-function evaluateExpression(raw){
-  try{
-    const trimmed = raw.trim();
-    if(!trimmed) return {error:'Type a calculation to begin.'};
-    const tokens = insertImplicitMultiplication(tokenizeExpr(trimmed));
-    let pos=0;
-    const peek = ()=>tokens[pos];
-    const next = ()=>tokens[pos++];
-    function parseExpr(){
-      let v=parseTerm();
-      while(peek() && (peek().t==='+'||peek().t==='-')){
-        const op=next().t; const r=parseTerm();
-        v = op==='+' ? v+r : v-r;
-      }
-      return v;
-    }
-    function parseTerm(){
-      let v=parseFactor();
-      while(peek() && (peek().t==='*'||peek().t==='/')){
-        const op=next().t; const r=parseFactor();
-        if(op==='/'){ if(r===0) throw new Error("Can't divide by zero."); v=v/r; } else v=v*r;
-      }
-      return v;
-    }
-    function parseFactor(){
-      if(peek() && peek().t==='-'){ next(); return -parseFactor(); }
-      if(peek() && peek().t==='+'){ next(); return parseFactor(); }
-      return parsePow();
-    }
-    function parsePow(){
-      let v=parseUnary();
-      if(peek() && peek().t==='^'){
-        next();
-        if(!peek()) throw new Error('A power (^) needs a number after it.');
-        const r=parseFactor();
-        v=Math.pow(v,r);
-      }
-      return v;
-    }
-    function parseUnary(){
-      if(peek() && peek().t==='sqrt'){
-        next();
-        if(!peek()) throw new Error('A square root (√) needs a number after it.');
-        const v=parseUnary();
-        if(v<0) throw new Error("Can't take the square root of a negative number.");
-        return Math.sqrt(v);
-      }
-      return parsePrimary();
-    }
-    function parsePrimary(){
-      const tk=next();
-      if(!tk) throw new Error('That expression looks incomplete.');
-      if(tk.t==='num') return tk.v;
-      if(tk.t==='('){
-        const v=parseExpr();
-        const c=next();
-        if(!c || c.t!==')') throw new Error('Missing a closing bracket.');
-        return v;
-      }
-      throw new Error('Could not read that expression.');
-    }
-    const value = parseExpr();
-    if(pos!==tokens.length) throw new Error('Could not read that expression.');
-    if(!isFinite(value)) throw new Error('That expression is not valid.');
-    return {value};
-  } catch(e){
-    return {error: e.message || 'Could not read that expression.'};
+  function parseTerm(){
+    let v = parsePower();
+    while(peek()==='*' || peek()==='/'){ const op=tokens[pos++]; const r=parsePower(); v = op==='*' ? v*r : v/r; }
+    return v;
   }
+  function parsePower(){
+    let v = parsePostfix();
+    while(peek()==='^'){ pos++; const r=parsePostfix(); v = Math.pow(v, r); }
+    return v;
+  }
+  function parsePostfix(){
+    let v = parsePrefix();
+    while(peek()==='\u00B2' || peek()==='%'){ const op=tokens[pos++]; v = op==='\u00B2' ? v*v : v/100; }
+    return v;
+  }
+  function parsePrefix(){
+    if(peek()==='\u221A'){ pos++; return Math.sqrt(parsePrefix()); }
+    return parseAtom();
+  }
+  function parseAtom(){
+    if(peek()==='('){ pos++; const v=parseExpr(); if(peek()===')') pos++; return v; }
+    const t = tokens[pos++];
+    return parseFloat(t);
+  }
+  return parseExpr();
 }
-function formatExprValue(v, decSetting){
-  if(Number.isInteger(v)) return String(v);
-  if(decSetting === 'auto') return String(Math.round(v*100)/100);
-  const places = parseInt(decSetting, 10) || 2;
-  return v.toFixed(places);
+
+/* ================= WORK MODELS ================= */
+function buildAddSubModel(aStr, bStr, op, resultStr){
+  const dec = Math.max(decimalsOf(aStr), decimalsOf(bStr));
+  const a = padDecimals(aStr, dec);
+  const b = padDecimals(bStr, dec);
+  const r = padDecimals(resultStr, dec);
+  const sym = op === '+' ? '+' : '\u2212';
+  const width = Math.max(a.length, b.length, r.length);
+  const rows = [
+    { kind:'carry' },
+    { kind:'dotted-rule' },
+    { kind:'given', text:a },
+    { kind:'given', text:b, sym },
+    { kind:'final-rule' },
+    { kind:'blank', text:r }
+  ];
+  return { resultStr: r, isGrid:true, grid:{ width, prefixCols:1, rows } };
 }
 
-/* ---------------------------------------------------------------- *
- *  Grid helpers
- * ---------------------------------------------------------------- */
-function el(tag, cls, html){
-  const e=document.createElement(tag);
-  if(cls) e.className=cls;
-  if(html!==undefined) e.innerHTML=html;
-  return e;
-}
+function buildMultiplyModel(aStr, bStr){
+  const negA = aStr.startsWith('-'), negB = bStr.startsWith('-');
+  aStr = aStr.replace('-',''); bStr = bStr.replace('-','');
+  const decA = decimalsOf(aStr), decB = decimalsOf(bStr);
+  const intA = aStr.replace('.','').replace(/^0+(?=\d)/,'') || '0';
+  const intB = bStr.replace('.','').replace(/^0+(?=\d)/,'') || '0';
+  const bigA = BigInt(intA), bigB = BigInt(intB);
+  const totalDec = decA + decB;
 
-let activeOnInputCb = null;
-
-function buildRow(prefix, cells, rowClass, prefixWidthPx){
-  const row = el('div','grid-row '+(rowClass||''));
-  const prefixDiv = el('div','row-prefix', prefix||'');
-  if(prefixWidthPx) prefixDiv.style.width = prefixWidthPx+'px';
-  row.appendChild(prefixDiv);
-  cells.forEach(c=>{
-    const cell = el('div','cell');
-
-    if(c.editableCarry){
-      const carryInput = document.createElement('input');
-      carryInput.type='text';
-      carryInput.className='ann-input carry-box';
-      carryInput.setAttribute('inputmode','numeric');
-      carryInput.setAttribute('pattern','[0-9]*');
-      carryInput.setAttribute('maxlength','1');
-      carryInput.setAttribute('autocomplete','off');
-      carryInput.setAttribute('autocapitalize','off');
-      carryInput.setAttribute('spellcheck','false');
-      carryInput.setAttribute('aria-label','carry digit');
-      if(c.carryOrder!==undefined) carryInput.dataset.order = c.carryOrder;
-      makeDigitEditable(carryInput, c.carryExpected, null, activeOnInputCb);
-      cell.appendChild(carryInput);
+  const bDigits = intB.split('').reverse();
+  const showPartials = bDigits.length > 1;
+  let productSum = 0n;
+  const partialStrs = [];
+  if(showPartials){
+    for(let i=0; i<bDigits.length; i++){
+      const d = BigInt(bDigits[i]);
+      if(d === 0n) continue;
+      const partial = bigA * d * (10n ** BigInt(i));
+      productSum += partial;
+      partialStrs.push(partial.toString());
     }
-
-    if(c.editableAnnLeft){
-      const annInput = document.createElement('input');
-      annInput.type='text';
-      annInput.className='ann-input ann-left';
-      annInput.setAttribute('inputmode','numeric');
-      annInput.setAttribute('pattern','[0-9]*');
-      annInput.setAttribute('maxlength','1');
-      annInput.setAttribute('autocomplete','off');
-      annInput.setAttribute('autocapitalize','off');
-      annInput.setAttribute('spellcheck','false');
-      annInput.setAttribute('aria-label','borrow carry-over digit');
-      if(c.annLeftOrder!==undefined) annInput.dataset.order = c.annLeftOrder;
-      makeDigitEditable(annInput, c.annLeftExpected, null, activeOnInputCb);
-      cell.appendChild(annInput);
-    } else if(c.annLeft) {
-      cell.appendChild(el('div','ann ann-left', c.annLeft));
-    }
-
-    if(c.editableAnnRight){
-      const annInput = document.createElement('input');
-      annInput.type='text';
-      annInput.className='ann-input ann-right';
-      annInput.setAttribute('inputmode','numeric');
-      annInput.setAttribute('pattern','[0-9]*');
-      annInput.setAttribute('maxlength','1');
-      annInput.setAttribute('autocomplete','off');
-      annInput.setAttribute('autocapitalize','off');
-      annInput.setAttribute('spellcheck','false');
-      annInput.setAttribute('aria-label','borrow reduced digit');
-      if(c.annRightOrder!==undefined) annInput.dataset.order = c.annRightOrder;
-      makeDigitEditable(annInput, c.annRightExpected, null, activeOnInputCb);
-      cell.appendChild(annInput);
-    } else if(c.annRight) {
-      cell.appendChild(el('div','ann ann-right', c.annRight));
-    }
-
-    let hintEl=null;
-    if(c.hint){
-      hintEl = el('div','balance-hint hidden', c.hint);
-      cell.appendChild(hintEl);
-    }
-    
-    if(c.editable){
-      const input = document.createElement('input');
-      input.type='text';
-      input.className = 'main cell-input'+(c.pen?' pen':'');
-      input.setAttribute('inputmode','numeric');
-      input.setAttribute('pattern','[0-9.]*');
-      input.setAttribute('maxlength','1');
-      input.setAttribute('autocomplete','off');
-      input.setAttribute('autocapitalize','off');
-      input.setAttribute('spellcheck','false');
-      input.setAttribute('aria-label','digit to fill in');
-      if(c.order!==undefined) input.dataset.order = c.order;
-      makeDigitEditable(input, c.expected, hintEl, activeOnInputCb);
-      cell.appendChild(input);
-    } else {
-      const mainCls = 'main'+(c.strike?' struck':'')+(c.pen?' pen':'');
-      cell.appendChild(el('div', mainCls, c.digit===undefined?'':c.digit));
-    }
-    row.appendChild(cell);
-  });
-  return row;
-}
-
-function ruleRow(width, prefixWidthPx){
-  const wrap = el('div','grid-row');
-  const prefixDiv = el('div','row-prefix','');
-  if(prefixWidthPx) prefixDiv.style.width = prefixWidthPx+'px';
-  wrap.appendChild(prefixDiv);
-  const rule = el('div','rule-row');
-  const w = `calc(${width} * var(--cellw))`;
-  rule.style.width = w;
-  const holder = el('div');
-  holder.style.width = w;
-  holder.appendChild(rule);
-  wrap.appendChild(holder);
-  return wrap;
-}
-
-function partialRuleRow(totalWidth, startCol, span, prefixWidthPx){
-  const wrap = el('div','grid-row');
-  const prefixDiv = el('div','row-prefix','');
-  if(prefixWidthPx) prefixDiv.style.width = prefixWidthPx+'px';
-  wrap.appendChild(prefixDiv);
-  const lead = el('div','div-spacer');
-  lead.style.width = `calc(${startCol} * var(--cellw))`;
-  wrap.appendChild(lead);
-  const rule = el('div','rule-row');
-  rule.style.width = `calc(${span} * var(--cellw))`;
-  wrap.appendChild(rule);
-  const trailCols = totalWidth-startCol-span;
-  if(trailCols>0){
-    const trail = el('div','div-spacer');
-    trail.style.width = `calc(${trailCols} * var(--cellw))`;
-    wrap.appendChild(trail);
-  }
-  return wrap;
-}
-
-function blankCells(n){ return Array.from({length:n}, ()=>({digit:''})); }
-
-/* ---------------------------------------------------------------- *
- *  Addition Engine
- * ---------------------------------------------------------------- */
-function computeAddition(aStr,bStr){
-  const width = Math.max(aStr.length,bStr.length);
-  const a = aStr.padStart(width,'0');
-  const b = bStr.padStart(width,'0');
-  let carry=0;
-  const carryIn=new Array(width).fill(0);
-  const resultDigits=new Array(width).fill(0);
-  for(let i=width-1;i>=0;i--){
-    carryIn[i]=carry;
-    const sum=Number(a[i])+Number(b[i])+carry;
-    resultDigits[i]=sum%10;
-    carry=Math.floor(sum/10);
-  }
-  return {a,b,width,carryIn,resultDigits,finalCarry:carry};
-}
-
-function addMagRender(aStr,bStr,editable,orderRef){
-  const r = computeAddition(aStr,bStr);
-  const extra = r.finalCarry>0 ? 1 : 0;
-  const totalW = r.width+extra;
-  const grid = el('div','num-grid');
-
-  const carryCells = blankCells(totalW);
-  for(let i=0;i<r.width;i++){
-    if(r.carryIn[i]>0) {
-      carryCells[i+extra] = editable ? {
-        digit:'', editableCarry:true, carryExpected:String(r.carryIn[i]), carryOrder:orderRef.n++
-      } : {digit:'', annRight:String(r.carryIn[i])};
-    }
-  }
-  grid.appendChild(buildRow('', carryCells, 'row-carry'));
-
-  const aCells = blankCells(totalW);
-  for(let i=0;i<r.width;i++) aCells[i+extra]={digit:r.a[i]};
-  grid.appendChild(buildRow('', aCells, 'row-plain'));
-
-  const bCells = blankCells(totalW);
-  for(let i=0;i<r.width;i++) bCells[i+extra]={digit:r.b[i]};
-  grid.appendChild(buildRow('+', bCells, 'row-op'));
-
-  grid.appendChild(ruleRow(totalW));
-
-  const resCells = blankCells(totalW);
-  if(extra) {
-    resCells[0] = editable ? {digit:'', editable:true, expected:String(r.finalCarry), order:orderRef.n++} : {digit:String(r.finalCarry), pen:true};
-  }
-  for(let i=0;i<r.width;i++) {
-    resCells[i+extra] = editable ? {digit:'', editable:true, expected:String(r.resultDigits[i]), order:orderRef.n++} : {digit:String(r.resultDigits[i])};
-  }
-  grid.appendChild(buildRow('', resCells, 'row-final'));
-
-  const answer = (extra?String(r.finalCarry):'') + r.resultDigits.join('');
-  return {gridEl:grid, resultStr:answer};
-}
-
-function renderAddition(aStr,bStr){
-  return addMagRender(aStr,bStr,false,null);
-}
-
-/* ---------------------------------------------------------------- *
- *  Subtraction Engine
- * ---------------------------------------------------------------- */
-function computeSubtraction(aBig,bBig){
-  let swapped=false;
-  if(aBig<bBig){ [aBig,bBig]=[bBig,aBig]; swapped=true; }
-  const width = aBig.toString().length;
-  const a = aBig.toString().padStart(width,'0');
-  const b = bBig.toString().padStart(width,'0');
-  let borrow=0;
-  const borrowIn=new Array(width).fill(0);
-  const borrowOut=new Array(width).fill(0);
-  const resultDigits=new Array(width).fill(0);
-  for(let i=width-1;i>=0;i--){
-    borrowIn[i]=borrow;
-    let top=Number(a[i])-borrow;
-    if(top<Number(b[i])){ top+=10; borrow=1; } else { borrow=0; }
-    borrowOut[i]=borrow;
-    resultDigits[i]=top-Number(b[i]);
-  }
-  return {a,b,width,borrowIn,borrowOut,resultDigits,swapped};
-}
-
-function subMagRender(aStr,bStr,editable,orderRef){
-  const aBig=BigInt(aStr), bBig=BigInt(bStr);
-  const r = computeSubtraction(aBig,bBig);
-  const grid = el('div','num-grid');
-
-  const topCells = [];
-  for(let i=0;i<r.width;i++){
-    topCells.push(editable ? {
-      digit:r.a[i],
-      editableAnnLeft: !!r.borrowOut[i],
-      annLeftExpected: '1',
-      annLeftOrder: orderRef.n++,
-      editableAnnRight: !!r.borrowIn[i],
-      annRightExpected: String(Number(r.a[i])-1),
-      annRightOrder: orderRef.n++,
-      strike: !!r.borrowIn[i]
-    } : {
-      digit:r.a[i],
-      annLeft: r.borrowOut[i]? '1' : '',
-      annRight: r.borrowIn[i] ? String(Number(r.a[i])-1) : '',
-      strike: !!r.borrowIn[i]
-    });
-  }
-  grid.appendChild(buildRow('', topCells, 'row-plain'));
-
-  const botCells = r.b.split('').map(d=>({digit:d}));
-  grid.appendChild(buildRow('−', botCells, 'row-op'));
-
-  grid.appendChild(ruleRow(r.width));
-
-  const resCells = r.resultDigits.map((d,i)=> editable ? {digit:'', editable:true, expected:String(d), order:orderRef.n++} : {digit:String(d)});
-  grid.appendChild(buildRow('', resCells, 'row-final'));
-
-  let answer = r.resultDigits.join('').replace(/^0+(?=\d)/,'');
-  if(answer==='') answer='0';
-  return {gridEl:grid, resultStr:(r.swapped?'-':'')+answer};
-}
-
-function renderSubtraction(aStr,bStr){
-  return subMagRender(aStr,bStr,false,null);
-}
-
-/* ---------------------------------------------------------------- *
- *  Multiplication Engine
- * ---------------------------------------------------------------- */
-function computeMultiplication(aBig,bBig){
-  const bStr=bBig.toString();
-  const partials=[];
-  for(let k=0;k<bStr.length;k++){
-    const digit=BigInt(bStr[bStr.length-1-k]);
-    if(digit===0n) continue;
-    const product = aBig*digit*(10n**BigInt(k));
-    partials.push({digit:digit.toString(), place:k, value:product.toString()});
-  }
-  const finalProduct=(aBig*bBig).toString();
-  return {aStr:aBig.toString(), bStr, partials, finalProduct};
-}
-
-function computeSingleDigitMultiplyCarries(numStr, digitChar){
-  const digit = Number(digitChar);
-  const width = numStr.length;
-  const carryIn = new Array(width).fill(0);
-  const resultDigits = new Array(width).fill(0);
-  let carry = 0;
-  for(let i=width-1;i>=0;i--){
-    carryIn[i] = carry;
-    const prod = Number(numStr[i])*digit + carry;
-    resultDigits[i] = prod % 10;
-    carry = Math.floor(prod/10);
-  }
-  return {width, carryIn, resultDigits, finalCarry:carry};
-}
-
-function mulMagRender(aStr,bStr,editable,orderRef){
-  const aBig=BigInt(aStr), bBig=BigInt(bStr);
-  const r = computeMultiplication(aBig,bBig);
-  const width = r.finalProduct.length;
-  const grid = el('div','num-grid');
-
-  grid.appendChild(buildRow('', padPlain(r.aStr,width), 'row-plain'));
-  grid.appendChild(buildRow('×', padPlain(r.bStr,width), 'row-op'));
-  grid.appendChild(ruleRow(width));
-
-  if(r.partials.length>1){
-    r.partials.forEach(p=>{
-      const cells = padPlain(p.value,width);
-      if(editable){
-        cells.forEach(c => {
-          if(c.digit !== ''){
-            c.editable = true;
-            c.expected = c.digit;
-            c.digit = '';
-            c.order = orderRef.n++;
-          }
-        });
-      }
-      grid.appendChild(buildRow('', cells, 'row-plain'));
-    });
-    grid.appendChild(ruleRow(width));
-    const sum = sumRowsWithCarries(r.partials.map(p=>p.value), width);
-    grid.appendChild(buildRow('', sum.carryCells, 'row-carry'));
-    
-    const finalCells = sum.resultCells;
-    if(editable){
-      finalCells.forEach(c => {
-        if(c.digit !== ''){
-          c.editable = true;
-          c.expected = c.digit;
-          c.digit = '';
-          c.order = orderRef.n++;
-        }
-      });
-    }
-    grid.appendChild(buildRow('', finalCells, 'row-final'));
   } else {
-    const finalCells = padPlain(r.finalProduct,width);
-    if(editable){
-      finalCells.forEach(c => {
-        if(c.digit !== ''){
-          c.editable = true;
-          c.expected = c.digit;
-          c.digit = '';
-          c.order = orderRef.n++;
-        }
-      });
-    }
-    grid.appendChild(buildRow('', finalCells, 'row-final'));
+    productSum = bigA * bigB;
   }
 
-  return {gridEl:grid, resultStr:r.finalProduct};
-}
-
-function renderMultiplication(aStr,bStr){
-  return mulMagRender(aStr,bStr,false,null);
-}
-
-function padPlain(str,width){
-  const p = str.padStart(width,' ');
-  return p.split('').map(ch=>({digit: ch===' '?'':ch}));
-}
-
-function sumRowsWithCarries(numberStrings, width){
-  const padded = numberStrings.map(s=>s.padStart(width,'0'));
-  let carry=0;
-  const carryIn=new Array(width).fill(0);
-  const resultDigits=new Array(width).fill(0);
-  for(let i=width-1;i>=0;i--){
-    carryIn[i]=carry;
-    let colSum=carry;
-    for(const p of padded) colSum+=Number(p[i]);
-    resultDigits[i]=colSum%10;
-    carry=Math.floor(colSum/10);
-  }
-  const carryCells = Array.from({length:width},(_, i)=> ({digit:'', annRight: carryIn[i]>0?String(carryIn[i]):''}));
-  const resultCells = resultDigits.map(d=>({digit:String(d)}));
-  return {carryCells, resultCells, finalCarry:carry};
-}
-
-/* ---------------------------------------------------------------- *
- *  Division Engine
- * ---------------------------------------------------------------- */
-function computeLongDivisionDecimal(dividendStr, divisorStr, maxFractionDigits){
-  maxFractionDigits = maxFractionDigits===undefined?2:maxFractionDigits;
-  let dParts = divisorStr.split('.');
-  const shift = (dParts[1]||'').length;
-  let divisorDigits = ((dParts[0]||'0')+(dParts[1]||'')).replace(/^0+(?=\d)/,'');
-  if(divisorDigits==='') divisorDigits='0';
-  const divisorBig = BigInt(divisorDigits);
-  if(divisorBig===0n) throw new Error("Can't divide by zero.");
-
-  let aParts = dividendStr.split('.');
-  let aInt = aParts[0]||'0', aFrac = aParts[1]||'';
-  if(aFrac.length < shift){
-    aInt = aInt + aFrac + '0'.repeat(shift-aFrac.length);
-    aFrac = '';
+  let productStr = productSum.toString();
+  let resultStr;
+  if(totalDec > 0){
+    while(productStr.length <= totalDec) productStr = '0' + productStr;
+    const cut = productStr.length - totalDec;
+    resultStr = productStr.slice(0,cut) + '.' + productStr.slice(cut);
   } else {
-    aInt = aInt + aFrac.slice(0,shift);
-    aFrac = aFrac.slice(shift);
+    resultStr = productStr;
   }
-  const knownDigits = (aInt+aFrac).split('');
-  const intLen = aInt.length;
+  const resultNum = parseFloat(resultStr) * ((negA !== negB) ? -1 : 1);
+  const displayResult = formatNum(resultNum);
 
-  let remainder = 0n;
-  let started = false;
-  let firstStartedIndex = -1;
-  const quotientChars = [];
+  const allStrs = [intA, intB, displayResult, ...partialStrs];
+  const width = Math.max(...allStrs.map(s => s.length));
+
+  const rows = [
+    { kind:'given', text:intA },
+    { kind:'given', text:intB, sym:'\u00D7' },
+    { kind:'final-rule' }
+  ];
+  if(showPartials){
+    partialStrs.forEach(p => {
+      rows.push({ kind:'carry' });
+      rows.push({ kind:'blank', text:p });
+    });
+    rows.push({ kind:'final-rule' });
+  } else {
+    rows.push({ kind:'carry' });
+  }
+  rows.push({ kind:'blank', text:displayResult });
+
+  return { resultStr: displayResult, isGrid:true, grid:{ width, prefixCols:1, rows } };
+}
+
+function buildDivisionModel(aStr, bStr){
+  const negA = aStr.startsWith('-'), negB = bStr.startsWith('-');
+  aStr = aStr.replace('-',''); bStr = bStr.replace('-','');
+  const resultSign = (negA !== negB) ? -1 : 1;
+
+  let [bInt, bFrac=''] = bStr.split('.');
+  const shift = bFrac.length;
+  const divisorStr = (bInt + bFrac).replace(/^0+(?=\d)/,'') || '0';
+  const divisor = parseInt(divisorStr, 10);
+
+  if(divisor === 0){
+    return { resultStr:null, error:true, isDivision:false, lines:[
+      { type:'tokens', tokens:[{text:'Cannot divide by zero'}] }
+    ]};
+  }
+
+  let [aInt, aFrac=''] = aStr.split('.');
+  let combined = aInt + aFrac;
+  const dotPos = aInt.length;
+  let newDotPos = dotPos + shift;
+  while(combined.length < newDotPos) combined += '0';
+  let newAInt = combined.slice(0, newDotPos).replace(/^0+(?=\d)/,'') || '0';
+  let newAFrac = combined.slice(newDotPos);
+
+  const L = newAInt.length;
+  const intDigits = newAInt.split('');
   const steps = [];
-  let openStep = null;
-  const usedDigits = [];
-  let fracAppended = 0;
-  let i=0;
-  const hardCap = knownDigits.length + maxFractionDigits + 2;
+  let current = 0;
+  let leadingStarted = false;
+  const quotientIntDigits = [];
 
-  while(true){
-    let digit;
-    if(i < knownDigits.length){
-      digit = knownDigits[i];
-    } else {
-      if(started && remainder===0n) break;
-      if(fracAppended>=maxFractionDigits) break;
-      digit='0';
-      fracAppended++;
-    }
-    usedDigits.push(digit);
-    remainder = remainder*10n + BigInt(digit);
-
-    if(!started){
-      if(remainder>=divisorBig){ started=true; firstStartedIndex=i; }
-      else { i++; continue; }
-    }
-
-    if(remainder>=divisorBig){
-      if(openStep){ openStep.afterValue=remainder.toString(); openStep.afterCol=i; openStep=null; }
-      const qd = remainder/divisorBig;
-      const product = qd*divisorBig;
-      quotientChars[i]=qd.toString();
-      remainder = remainder-product;
-      const step = {col:i, product:product.toString(), afterValue:null, afterCol:null};
-      steps.push(step);
-      openStep=step;
-    } else {
-      quotientChars[i]='0';
-    }
-
-    if(remainder===0n){
-      if(i+1 < knownDigits.length){
-      } else {
-        if(openStep){ openStep.afterValue='0'; openStep.afterCol=i; openStep=null; }
-        break;
-      }
-    }
-    if(i>=hardCap) break;
-    i++;
+  for(let k=0; k<intDigits.length; k++){
+    current = current*10 + Number(intDigits[k]);
+    if(!leadingStarted && current < divisor){ continue; }
+    const preValue = current;
+    const qd = Math.floor(current/divisor);
+    current = current - qd*divisor;
+    quotientIntDigits.push(qd);
+    leadingStarted = true;
+    steps.push({ qd, preValue, product: qd*divisor, remainder: current, endCol: k });
   }
-  if(openStep){ openStep.afterValue = remainder.toString(); openStep.afterCol = i; }
+  if(!leadingStarted){ quotientIntDigits.push(0); }
 
-  return {quotientChars, steps, firstStartedIndex, finalRemainder:remainder, started, usedDigits, intLen, divisorDigits,
-    truncated: (started && remainder!==0n && fracAppended>=maxFractionDigits)};
-}
-
-function divMagRender(aMag,bMag,editable,orderRef,maxFractionDigits){
-  const d = computeLongDivisionDecimal(aMag,bMag,maxFractionDigits);
-  const divisorDisplay = d.divisorDigits;
-  const prefixLen = divisorDisplay.length+3;
-  const grid = el('div','num-grid');
-  const intLen = d.intLen;
-  const hasDot = d.usedDigits.length > intLen;
-  const totalCols = prefixLen + d.usedDigits.length + (hasDot ? 1 : 0);
-  const dividendStart = prefixLen;
-
-  function absCol(idx){
-    let c = dividendStart + idx;
-    if(hasDot && idx >= intLen) c += 1;
-    return c;
-  }
-  const dotAbsCol = hasDot ? dividendStart + intLen : -1;
-
-  function placeDigits(cellsArr, str, endIdx, isEditable, orderRefRef, isPen = false){
-    const startIdx = endIdx - str.length + 1;
-    for(let k=0; k<str.length; k++){
-      const idx = startIdx + k;
-      const col = absCol(idx);
-      cellsArr[col] = isEditable
-        ? {digit:'', editable:true, expected:str[k], order:orderRefRef.n++}
-        : {digit:str[k], pen:isPen};
+  const maxDecimals = 2;
+  const quotientDecDigits = [];
+  const hasDecimalPoint = current !== 0;
+  if(current !== 0){
+    let bringDown = newAFrac.split('');
+    let count = 0;
+    while(current !== 0 && count < maxDecimals){
+      const digit = bringDown.length ? bringDown.shift() : '0';
+      current = current*10 + Number(digit);
+      const preValue = current;
+      const qd = Math.floor(current/divisor);
+      current = current - qd*divisor;
+      quotientDecDigits.push(qd);
+      steps.push({ qd, preValue, product: qd*divisor, remainder: current, endCol: L + 1 + count });
+      count++;
     }
   }
 
-  if(!d.started){
-    const rawLen = aMag.replace('.','').length || 1;
-    const totalColsSimple = prefixLen + rawLen;
-    const qCells = blankCells(totalColsSimple);
-    if(editable) qCells[totalColsSimple-1] = {digit:'', editable:true, expected:'0', order:orderRef.n++};
-    else qCells[totalColsSimple-1] = {digit:'0'};
-    grid.appendChild(buildRow('', qCells, 'row-final'));
-    grid.appendChild(partialRuleRow(totalColsSimple, totalColsSimple-1, 1));
-    const dCells = blankCells(totalColsSimple);
-    for(let k=0;k<divisorDisplay.length;k++) dCells[k]={digit:divisorDisplay[k]};
-    dCells[divisorDisplay.length]={digit:')'};
-    const aDigitsOnly = aMag.replace('.','');
-    for(let k=0;k<aDigitsOnly.length;k++) dCells[totalColsSimple-aDigitsOnly.length+k]={digit:aDigitsOnly[k]};
-    grid.appendChild(buildRow('', dCells, 'row-plain'));
-    return {gridEl:grid, resultStr:'0'};
-  }
+  const quotientStr = quotientIntDigits.join('') + (quotientDecDigits.length ? '.'+quotientDecDigits.join('') : '');
+  const resultNum = parseFloat(quotientStr) * resultSign;
+  const displayResult = formatNum(resultNum);
 
-  let dispFirstIndex = d.firstStartedIndex;
-  if(dispFirstIndex >= intLen) dispFirstIndex = intLen-1;
-  if(dispFirstIndex<0) dispFirstIndex=0;
+  const colOffset = resultSign === -1 ? 1 : 0;
+  const visibleFracLen = newAFrac.length;
+  const totalDividendCols = colOffset + L + (hasDecimalPoint ? 1 : 0) + Math.max(visibleFracLen, quotientDecDigits.length);
+  const prefixCols = String(divisor).length + 2;
 
-  // Quotient row
-  const qCells = blankCells(totalCols);
-  if(hasDot) qCells[dotAbsCol] = {digit:'.'};
-  for(let idx=dispFirstIndex; idx<d.usedDigits.length; idx++){
-    const val = (d.quotientChars[idx]!==undefined && d.quotientChars[idx]!==null) ? d.quotientChars[idx] : '0';
-    qCells[absCol(idx)] = editable ? {digit:'', editable:true, expected:val, order:orderRef.n++} : {digit:val};
-  }
-  grid.appendChild(buildRow('', qCells, 'row-final'));
-
-  // Quotient separator
-  grid.appendChild(partialRuleRow(totalCols, absCol(dispFirstIndex), totalCols - absCol(dispFirstIndex)));
-
-  // Dividend row
-  const dCells = blankCells(totalCols);
-  for(let k=0;k<divisorDisplay.length;k++) dCells[k]={digit:divisorDisplay[k]};
-  dCells[divisorDisplay.length]={digit:')'};
-  if(hasDot) dCells[dotAbsCol]={digit:'.'};
-  for(let idx=0; idx<d.usedDigits.length; idx++) dCells[absCol(idx)]={digit:d.usedDigits[idx]};
-  grid.appendChild(buildRow('', dCells, 'row-plain'));
-
-  // Steps rows
-  d.steps.forEach((step,idx)=>{
-    const sd = computeSingleDigitMultiplyCarries(divisorDisplay, d.quotientChars[step.col] || '1');
-    const carryCells = blankCells(totalCols);
-    let anyCarry = false;
-    const prodStartIdx = step.col - step.product.length + 1;
-    
-    for(let cIdx=0; cIdx<sd.width; cIdx++){
-      if(sd.carryIn[cIdx] > 0){
-        anyCarry = true;
-        const colIdx = prodStartIdx + cIdx;
-        carryCells[absCol(colIdx)] = {
-          digit:'',
-          editableCarry: editable,
-          carryExpected: String(sd.carryIn[cIdx]),
-          carryOrder: orderRef ? orderRef.n++ : 0
-        };
-      }
-    }
-    if(anyCarry && editable) {
-      grid.appendChild(buildRow('', carryCells, 'row-carry'));
-    }
-
-    // Product row
-    const prodCells = blankCells(totalCols);
-    if(hasDot) prodCells[dotAbsCol] = {digit:''};
-    placeDigits(prodCells, step.product, step.col, editable, orderRef, true);
-    const firstProdCol = absCol(prodStartIdx);
-    if(firstProdCol - 1 >= 0) prodCells[firstProdCol - 1] = {digit:'−', pen:true};
-    grid.appendChild(buildRow('', prodCells, 'row-plain'));
-
-    // Rule under product
-    const ruleStart = Math.max(firstProdCol - 1, 0);
-    const ruleSpan = absCol(step.col) - ruleStart + 1;
-    grid.appendChild(partialRuleRow(totalCols, ruleStart, ruleSpan));
-
-    // Remainder / brought down row
-    const isLast = idx === d.steps.length - 1;
-    const afterCells = blankCells(totalCols);
-    if(hasDot) afterCells[dotAbsCol] = {digit:''};
-    placeDigits(afterCells, step.afterValue, step.afterCol, editable, orderRef, false);
-    grid.appendChild(buildRow('', afterCells, isLast ? 'row-final' : 'row-plain'));
+  const quotientCells = [];
+  if(colOffset) quotientCells.push({ col:0, kind:'text', text:'\u2212' });
+  
+  quotientIntDigits.forEach((d,k) => {
+    let targetCol = colOffset + (steps[k] ? steps[k].endCol : k);
+    quotientCells.push({ col: targetCol, kind:'blank', expected:String(d) });
   });
 
-  let qStr='';
-  for(let idx=dispFirstIndex; idx<d.usedDigits.length; idx++){
-    qStr += (d.quotientChars[idx]!==undefined && d.quotientChars[idx]!==null) ? d.quotientChars[idx] : '0';
+  if(quotientDecDigits.length){
+    quotientCells.push({ col: colOffset+L, kind:'text', text:'.' });
+    quotientDecDigits.forEach((d,j) => quotientCells.push({ col: colOffset+L+1+j, kind:'blank', expected:String(d) }));
   }
-  let withPoint = qStr;
-  if(hasDot){
-    const relPoint = intLen - dispFirstIndex;
-    withPoint = qStr.slice(0,relPoint)+'.'+qStr.slice(relPoint);
+
+  const dividendChars = [];
+  newAInt.split('').forEach((c,k) => dividendChars.push({ col: colOffset+k, char:c }));
+  if(newAFrac){
+    dividendChars.push({ col: colOffset+L, char:'.' });
+    newAFrac.split('').forEach((c,j) => dividendChars.push({ col: colOffset+L+1+j, char:c }));
   }
-  const resultStr = trimDecimal(withPoint);
-  return {gridEl:grid, resultStr};
+
+  const gridRows = [];
+  steps.forEach((s, i) => {
+    const endCol = colOffset + s.endCol;
+    if(i > 0){
+      gridRows.push({ kind:'bringdown', endCol, expected:String(s.preValue), len:String(s.preValue).length });
+    }
+    gridRows.push({ kind:'subtract', endCol, expected:String(s.product), len:String(s.product).length+1 });
+    gridRows.push({ kind:'rule', endCol, len:String(s.product).length+1 });
+    if(i === steps.length-1){
+      gridRows.push({ kind:'remainder', endCol, expected:String(s.remainder), len:String(s.remainder).length });
+    }
+  });
+
+  return {
+    resultStr: displayResult,
+    isDivision: true,
+    grid: { totalCols: prefixCols+totalDividendCols, prefixCols, displayDivisor: String(divisor), dividendChars, quotientCells, rows:gridRows }
+  };
 }
 
-/* ---- signed wrappers ---- */
-function addSigned(aS,bS,editable,orderRef){
-  const A=splitSign(aS), B=splitSign(bS);
-  if(A.sign===B.sign){
-    const r = addMagRender(A.mag,B.mag,editable,orderRef);
-    return {resultStr:(A.sign==='-'&&r.resultStr!=='0'?'-':'')+r.resultStr, gridEl:r.gridEl, kind:'add', mags:[A.mag,B.mag]};
+function buildSqrtModel(value){
+  const lower = Math.floor(Math.sqrt(value));
+  const lowerSq = lower*lower;
+  if(Number.isInteger(value) && lowerSq === value){
+    const r = String(lower);
+    return { resultStr:r, lines:[
+      { type:'tokens', tokens:[{text: lower+' \u00D7 '+lower+' = '+value}] },
+      { type:'final-rule' },
+      { type:'tokens', tokens:[{blank:true, expected:r}] }
+    ]};
   }
-  const cmp = cmpMag(A.mag,B.mag);
-  if(cmp===0){
-    const r = subMagRender(A.mag,B.mag,editable,orderRef);
-    return {resultStr:'0', gridEl:r.gridEl, kind:'sub', mags:[A.mag,B.mag]};
-  }
-  const bigger = cmp>0?A:B, smaller = cmp>0?B:A;
-  const r = subMagRender(bigger.mag, smaller.mag, editable, orderRef);
-  return {resultStr:(bigger.sign==='-'&&r.resultStr!=='0'?'-':'')+r.resultStr, gridEl:r.gridEl, kind:'sub', mags:[bigger.mag,smaller.mag]};
-}
-function subSigned(aS,bS,editable,orderRef){
-  const B=splitSign(bS);
-  const negB = B.mag==='0' ? '0' : (B.sign==='-'?'':'-')+B.mag;
-  return addSigned(aS, negB, editable, orderRef);
-}
-function mulSigned(aS,bS,editable,orderRef){
-  const A=splitSign(aS), B=splitSign(bS);
-  const r = mulMagRender(A.mag,B.mag,editable,orderRef);
-  const sign = (A.sign!==B.sign && r.resultStr!=='0') ? '-':'';
-  return {resultStr:sign+r.resultStr, gridEl:r.gridEl, kind:'mul', mags:[A.mag,B.mag]};
-}
-function divSigned(aS,bS,editable,orderRef, maxDecs){
-  const A=splitSign(aS), B=splitSign(bS);
-  const r = divMagRender(A.mag,B.mag,editable,orderRef, maxDecs);
-  const sign = (A.sign!==B.sign && r.resultStr!=='0') ? '-':'';
-  return {resultStr:sign+r.resultStr, gridEl:r.gridEl, kind:'div', mags:[A.mag,B.mag]};
+  const upper = lower+1;
+  const upperSq = upper*upper;
+  const approx = formatNum(Math.round(Math.sqrt(value)*100)/100);
+  return { resultStr:approx, lines:[
+    { type:'tokens', tokens:[{text: lower+'\u00B2 = '+lowerSq}] },
+    { type:'tokens', tokens:[{text: upper+'\u00B2 = '+upperSq}] },
+    { type:'tokens', tokens:[{text: 'so it is between '+lower+' and '+upper}] },
+    { type:'final-rule' },
+    { type:'tokens', tokens:[{blank:true, expected:approx}] }
+  ]};
 }
 
-/* ---- tokenizer + order-of-operations reducer ---- */
-function displayOpSymbol(t){
-  if(t==='*') return '×';
-  if(t==='/') return '÷';
-  if(t==='-') return '−';
-  return '+';
-}
-function tokenizePositions(s){
-  const tokens=[]; let i=0;
-  while(i<s.length){
-    const c=s[i];
-    if(/\s/.test(c)){ i++; continue; }
-    if(/[0-9.]/.test(c)){ let j=i; while(j<s.length && /[0-9.]/.test(s[j])) j++; tokens.push({t:'num', v:s.slice(i,j)}); i=j; continue; }
-    if('+-*/()'.includes(c)){ tokens.push({t:c}); i++; continue; }
-    throw new Error(`"${c}" isn't a symbol this solver understands.`);
+function buildPowerModel(baseStr, expStr){
+  const base = parseFloat(baseStr);
+  const exp = parseFloat(expStr);
+
+  if(!Number.isInteger(exp) || exp < 0){
+    const r = formatNum(Math.pow(base, exp));
+    return { resultStr:r, lines:[
+      { type:'tokens', tokens:[{text: baseStr+'^'+expStr+' = '+r}] },
+      { type:'final-rule' },
+      { type:'tokens', tokens:[{blank:true, expected:r}] }
+    ]};
   }
-  return tokens;
+  if(exp === 0){
+    return { resultStr:'1', lines:[
+      { type:'tokens', tokens:[{text:'Any non-zero number to the power 0 equals 1'}] },
+      { type:'final-rule' },
+      { type:'tokens', tokens:[{blank:true, expected:'1'}] }
+    ]};
+  }
+  if(exp === 1){
+    const r = formatNum(base);
+    return { resultStr:r, lines:[
+      { type:'tokens', tokens:[{text: baseStr+'^1 = '+baseStr}] },
+      { type:'final-rule' },
+      { type:'tokens', tokens:[{blank:true, expected:r}] }
+    ]};
+  }
+  const factors = Array(exp).fill(baseStr).join(' \u00D7 ');
+  const r = formatNum(Math.pow(base, exp));
+  return { resultStr:r, lines:[
+    { type:'tokens', tokens:[{text: factors}] },
+    { type:'final-rule' },
+    { type:'tokens', tokens:[{blank:true, expected:r}] }
+  ]};
 }
-function foldUnary(tokens){
-  const out=[];
-  for(let k=0;k<tokens.length;k++){
-    const tok=tokens[k];
-    if(tok.t==='-'||tok.t==='+'){
-      const prev = out[out.length-1];
-      const isUnaryPos = !prev || ['+','-','*','/','('].includes(prev.t);
-      if(isUnaryPos && tokens[k+1] && tokens[k+1].t==='num'){
-        const sign = tok.t==='-' ? '-' : '';
-        out.push({t:'num', v: sign+tokens[k+1].v});
-        k++;
+
+/* ================= REDUCTION ENGINE ================= */
+function findLastParenOpen(tokens, beforeIdx){
+  for(let i=beforeIdx-1; i>=0; i--){ if(tokens[i] === '(') return i; }
+  return -1;
+}
+function findMatchingClose(tokens, openIdx){
+  let d=0;
+  for(let k=openIdx;k<tokens.length;k++){
+    if(tokens[k]==='(') d++;
+    else if(tokens[k]===')'){ d--; if(d===0) return k; }
+  }
+  return -1;
+}
+function findMatchingOpenFrom(tokens, closeIdx){
+  let d=0;
+  for(let k=closeIdx;k>=0;k--){
+    if(tokens[k]===')') d++;
+    else if(tokens[k]==='('){ d--; if(d===0) return k; }
+  }
+  return -1;
+}
+function findOpIndex(tokens, start, end){
+  for(let i=start;i<end;i++){ if(tokens[i]==='^') return i; }
+  for(let i=start;i<end;i++){ if(tokens[i]==='*' || tokens[i]==='/') return i; }
+  for(let i=start;i<end;i++){ if(tokens[i]==='+' || tokens[i]==='-') return i; }
+  return -1;
+}
+
+function computeOp(a, b, op){
+  const av = parseFloat(a), bv = parseFloat(b);
+  if(op === '+'){ const r = formatNum(av+bv); return { result:r, model:buildAddSubModel(a,b,'+',r) }; }
+  if(op === '-'){ const r = formatNum(av-bv); return { result:r, model:buildAddSubModel(a,b,'-',r) }; }
+  if(op === '*'){ const m = buildMultiplyModel(a,b); return { result:m.resultStr, model:m }; }
+  if(op === '/'){ const d = buildDivisionModel(a,b); if(d.error) throw new Error('Cannot divide by zero'); return { result:d.resultStr, model:d }; }
+  if(op === '^'){ const m = buildPowerModel(a,b); return { result:m.resultStr, model:m }; }
+  throw new Error('Unknown operator');
+}
+
+function displayExpr(tokens, hlStart, hlEnd){
+  return tokens.map((t,i) => {
+    let text = t;
+    if('+-*/^'.includes(t) && t.length===1) text = OP_SYMBOLS[t];
+    const isHl = i>=hlStart && i<=hlEnd;
+    return isHl ? `<span class="hl">${escapeHtml(text)}</span>` : escapeHtml(text);
+  }).join(' ');
+}
+
+function reduce(tokens){
+  const steps = [];
+  let guard = 0;
+  while(guard++ < 60){
+    let uIdx = -1;
+    for(let k=0;k<tokens.length;k++){
+      if(tokens[k]==='\u00B2' || tokens[k]==='%' || tokens[k]==='\u221A'){ uIdx = k; break; }
+    }
+    if(uIdx !== -1){
+      const sym = tokens[uIdx];
+      if(sym === '\u221A'){
+        let spliceEnd, operandValue, operandDisplay;
+        if(tokens[uIdx+1] === '('){
+          const closeIdx = findMatchingClose(tokens, uIdx+1);
+          if(closeIdx === -1) throw new Error('Unmatched parenthesis');
+          const sub = tokens.slice(uIdx+2, closeIdx);
+          operandValue = quickEval(sub);
+          operandDisplay = '(' + tokensToDisplayText(sub) + ')';
+          spliceEnd = closeIdx;
+        } else {
+          const num = tokens[uIdx+1];
+          if(num === undefined) throw new Error('Invalid expression after \u221A');
+          operandValue = parseFloat(num);
+          operandDisplay = num;
+          spliceEnd = uIdx+1;
+        }
+        if(operandValue < 0) throw new Error('Cannot take square root of negative number');
+        const model = buildSqrtModel(operandValue);
+        const exprHtml = `<span class="hl">\u221A${escapeHtml(operandDisplay)}</span>`;
+        steps.push({ opName:'Square Root', exprHtml, model });
+        tokens.splice(uIdx, spliceEnd-uIdx+1, model.resultStr);
+        continue;
+      } else {
+        let spliceStart, operandValue, operandDisplay;
+        if(tokens[uIdx-1] === ')'){
+          const openIdx = findMatchingOpenFrom(tokens, uIdx-1);
+          if(openIdx === -1) throw new Error('Unmatched parenthesis');
+          const sub = tokens.slice(openIdx+1, uIdx-1);
+          operandValue = quickEval(sub);
+          operandDisplay = '(' + tokensToDisplayText(sub) + ')';
+          spliceStart = openIdx;
+        } else {
+          const num = tokens[uIdx-1];
+          if(num === undefined) throw new Error('Invalid expression before symbol');
+          operandValue = parseFloat(num);
+          operandDisplay = num;
+          spliceStart = uIdx-1;
+        }
+        let model, opName;
+        if(sym === '\u00B2'){ model = buildMultiplyModel(String(operandValue), String(operandValue)); opName = 'Square'; }
+        else { model = buildDivisionModel(String(operandValue), '100'); opName = 'Percent'; }
+        const exprHtml = `<span class="hl">${escapeHtml(operandDisplay)}${sym==='\u00B2'?'\u00B2':'%'}</span>`;
+        steps.push({ opName, exprHtml, model });
+        tokens.splice(spliceStart, uIdx-spliceStart+1, model.resultStr);
         continue;
       }
     }
-    out.push(tok);
-  }
-  return out;
-}
-function exprTextFromTokens(tokens){
-  return tokens.map(tk=> tk.t==='num' ? tk.v : displayOpSymbol(tk.t)).join(' ');
-}
-function exprHighlightHtml(tokens, hlStart, hlEnd){
-  const texts = tokens.map(tk=> tk.t==='num' ? escapeHtml(tk.v) : displayOpSymbol(tk.t));
-  const before = texts.slice(0,hlStart).join(' ');
-  const mid = texts.slice(hlStart,hlEnd+1).join(' ');
-  const after = texts.slice(hlEnd+1).join(' ');
-  return [before, `<u class="step-hl">${mid}</u>`, after].filter(x=>x!=='').join(' ');
-}
-function reduceFlatTokens(tokens, stepsOut, forceLabel, editable, orderRef, wrapContext, maxDecs){
-  wrapContext = wrapContext || (html=>html);
-  tokens = tokens.slice();
-  for(let pass=0; pass<2; pass++){
-    const isTarget = pass===0 ? (t)=> t==='*'||t==='/' : (t)=> t==='+'||t==='-';
-    let idx;
-    while((idx = tokens.findIndex(tk=> tk.t!=='num' && isTarget(tk.t))) !== -1){
-      const left = tokens[idx-1], opTok = tokens[idx], right = tokens[idx+1];
-      if(!left || left.t!=='num' || !right || right.t!=='num'){
-        throw new Error('That expression looks incomplete.');
+
+    let closeIdx = tokens.indexOf(')');
+    let start = 0, end = tokens.length;
+    let hadParen = false;
+    if(closeIdx !== -1){
+      const openIdx = findLastParenOpen(tokens, closeIdx);
+      if(openIdx === -1) throw new Error('Unmatched parenthesis');
+      const inner = tokens.slice(openIdx+1, closeIdx);
+      if(inner.length === 1){
+        tokens.splice(openIdx, closeIdx-openIdx+1, inner[0]);
+        continue;
       }
-      let stepResult;
-      if(opTok.t==='+') stepResult = addSigned(left.v, right.v, editable, orderRef);
-      else if(opTok.t==='-') stepResult = subSigned(left.v, right.v, editable, orderRef);
-      else if(opTok.t==='*') stepResult = mulSigned(left.v, right.v, editable, orderRef);
-      else stepResult = divSigned(left.v, right.v, editable, orderRef, maxDecs);
-
-      const fullBeforeHtml = wrapContext(exprHighlightHtml(tokens, idx-1, idx+1));
-      const before = exprTextFromTokens(tokens);
-      tokens.splice(idx-1, 3, {t:'num', v:stepResult.resultStr});
-      const after = exprTextFromTokens(tokens);
-
-      const labelMap = {'+':'Add','-':'Subtract','*':'Multiply','/':'Divide'};
-      stepsOut.push({
-        label: forceLabel || labelMap[opTok.t],
-        opSymbol: displayOpSymbol(opTok.t),
-        aStr: left.v, bStr: right.v,
-        resultStr: stepResult.resultStr,
-        gridEl: stepResult.gridEl,
-        exprBefore: before, exprAfter: after,
-        fullBeforeHtml
-      });
+      start = openIdx+1; end = closeIdx; hadParen = true;
     }
-  }
-  if(tokens.length!==1 || tokens[0].t!=='num') throw new Error('Could not fully solve that expression.');
-  return tokens[0].v;
-}
-function solveExpressionSteps(raw, editable, orderRef, decSetting){
-  const steps=[];
-  let s = raw.trim().replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/,/g,'');
-  if(!s) throw new Error('Type a calculation to begin.');
-  s = s.replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
-  s = s.replace(/\(\s*-/g, '(0-');
-
-  const maxDecs = decSetting === 'auto' ? 2 : (parseInt(decSetting, 10) || 2);
-
-  function resolveBrackets(str){
-    let guard=0;
-    while(str.indexOf('(')!==-1){
-      guard++; if(guard>50) throw new Error('Too many nested brackets.');
-      const m = str.match(/\(([^()]*)\)/);
-      if(!m) throw new Error('Mismatched brackets.');
-      const innerRaw = m[1];
-      if(!innerRaw.trim()) throw new Error('Empty brackets.');
-      const innerTokens = foldUnary(tokenizePositions(innerRaw));
-      if(innerTokens.length===0) throw new Error('Empty brackets.');
-      const prefix = str.slice(0,m.index), suffix = str.slice(m.index+m[0].length);
-      const toDisplay = (t)=> t.replace(/\*/g,'×').replace(/\//g,'÷').replace(/-/g,'−');
-      const wrapContext = (innerHtml)=> escapeHtml(toDisplay(prefix)) + '(' + innerHtml + ')' + escapeHtml(toDisplay(suffix));
-      let innerResult;
-      if(innerTokens.length===1 && innerTokens[0].t==='num'){
-        innerResult = innerTokens[0].v;
-      } else {
-        innerResult = reduceFlatTokens(innerTokens, steps, 'Solve the brackets', editable, orderRef, wrapContext, maxDecs);
-      }
-      str = str.slice(0,m.index) + innerResult + str.slice(m.index+m[0].length);
-      const beforeChar = str[m.index-1];
-      const afterIdx = m.index + innerResult.length;
-      const afterChar = str[afterIdx];
-      const needsMultBefore = beforeChar!==undefined && /[0-9)]/.test(beforeChar);
-      const needsMultAfter = afterChar!==undefined && /[0-9(]/.test(afterChar);
-      if(needsMultBefore || needsMultAfter){
-        const withStars = (needsMultBefore?'*':'') + innerResult + (needsMultAfter?'*':'');
-        str = str.slice(0,m.index) + withStars + str.slice(afterIdx);
-      }
+    const opIdx = findOpIndex(tokens, start, end);
+    if(opIdx === -1){
+      if(hadParen) throw new Error('Invalid expression inside parentheses');
+      break;
     }
-    return str;
-  }
+    const left = tokens[opIdx-1];
+    const op = tokens[opIdx];
+    const right = tokens[opIdx+1];
+    if(left===undefined || right===undefined) throw new Error('Invalid expression');
 
-  const flat = resolveBrackets(s);
-  const tokens = foldUnary(tokenizePositions(flat));
-  if(tokens.length===0) throw new Error('Type a calculation to begin.');
-  let finalValue;
-  if(tokens.length===1 && tokens[0].t==='num'){
-    finalValue = tokens[0].v;
-  } else {
-    finalValue = reduceFlatTokens(tokens, steps, null, editable, orderRef, null, maxDecs);
-  }
-  return {steps, finalValue: trimDecimal(finalValue)};
-}
+    const exprHtml = displayExpr(tokens, opIdx-1, opIdx+1);
+    const { result, model } = computeOp(left, right, op);
 
-/* ---- Step Orchestrator ---- */
-function renderStepBlocks(container, steps, isCalculateTab = false){
-  container.innerHTML='';
-  steps.forEach((s,i)=>{
-    const block = el('div','step-block' + (isCalculateTab && i > 0 ? ' step-hidden' : ''));
-    block.dataset.stepIndex = i;
-    
-    const headingDiv = el('div','step-heading');
-    headingDiv.dataset.fullLabel = s.label;
-    headingDiv.dataset.stepNum = i + 1;
-    headingDiv.innerHTML = `<span class="num">Step ${i+1}:</span> ${escapeHtml(s.label)}`;
-    
-    block.appendChild(headingDiv);
-    block.appendChild(el('div','step-subexpr', s.fullBeforeHtml));
-    const wsHolder = el('div','worksheet');
-    wsHolder.appendChild(s.gridEl);
-    block.appendChild(wsHolder);
-    
-    const resLine = el('div','step-result-line' + (isCalculateTab ? '' : ' visible'), `= ${escapeHtml(s.exprAfter)}`);
-    block.appendChild(resLine);
-    container.appendChild(block);
-  });
-}
+    steps.push({ opName: OP_NAMES[op], exprHtml, model });
+    tokens.splice(opIdx-1, 3, result);
 
-/* ---------------------------------------------------------------- *
- *  Focus Navigation & Dynamic Step Reveal
- * ---------------------------------------------------------------- */
-function updateActiveStepCarryVisibility(containerEl, currentOrder) {
-  if(!containerEl) return;
-  const numCurrent = Number(currentOrder);
-  const allInputs = Array.from(containerEl.querySelectorAll('input[data-order]'));
-  
-  allInputs.forEach(input => {
-    const inputOrder = Number(input.dataset.order);
-    if(input.classList.contains('ann-input')) {
-      if(inputOrder <= numCurrent || input.value !== '') {
-        input.classList.add('active-step');
-      }
-    }
-  });
-}
-
-function focusNextEditable(currentEl, containerEl){
-  if(!containerEl) return;
-  const all = Array.from(containerEl.querySelectorAll('input[data-order]'));
-  const visible = all.filter(el => !el.closest('.step-block.step-hidden'));
-  visible.sort((a,b)=> Number(a.dataset.order)-Number(b.dataset.order));
-  const idx = visible.indexOf(currentEl);
-  
-  if(idx > -1 && idx + 1 < visible.length){
-    const nxt = visible[idx+1];
-    updateActiveStepCarryVisibility(containerEl, nxt.dataset.order);
-    nxt.focus(); nxt.select();
-  } else {
-    currentEl.blur();
-    checkStepCompletionAndAdvance(currentEl.closest('.step-block') || containerEl);
-  }
-}
-
-function checkStepCompletionAndAdvance(stepBlockEl) {
-  if(!stepBlockEl) return;
-  const stepInputs = Array.from(stepBlockEl.querySelectorAll('input[data-order]'));
-  if(!stepInputs.length) return;
-  
-  const allStepCorrect = stepInputs.every(inp => inp.classList.contains('right'));
-  if(allStepCorrect){
-    const resLine = stepBlockEl.querySelector('.step-result-line');
-    if(resLine) resLine.classList.add('visible');
-
-    celebrateConfetti(stepBlockEl);
-
-    const nextStep = stepBlockEl.nextElementSibling;
-    if(nextStep && nextStep.classList.contains('step-block')){
-      nextStep.classList.remove('step-hidden');
-      setTimeout(() => focusFirstEditable(nextStep), 60);
-    }
-  }
-}
-
-function focusFirstEditable(containerEl){
-  if(!containerEl) return;
-  const all = Array.from(containerEl.querySelectorAll('input[data-order]'));
-  const visible = all.filter(el => !el.closest('.step-block.step-hidden'));
-  if(visible.length){
-    visible.sort((a,b)=> Number(a.dataset.order)-Number(b.dataset.order));
-    const first = visible[0];
-    updateActiveStepCarryVisibility(containerEl, first.dataset.order);
-    first.focus();
-    first.select();
-  }
-}
-
-function focusPrevEditable(currentEl, containerEl){
-  if(!containerEl) return;
-  const all = Array.from(containerEl.querySelectorAll('input[data-order]'));
-  const visible = all.filter(el => !el.closest('.step-block.step-hidden'));
-  visible.sort((a,b)=> Number(a.dataset.order)-Number(b.dataset.order));
-  const idx = visible.indexOf(currentEl);
-  if(idx > 0){
-    const prev = visible[idx-1];
-    if(!prev.readOnly){
-      prev.value='';
-      prev.classList.remove('right','wrong','filled');
-    }
-    updateActiveStepCarryVisibility(containerEl, prev.dataset.order);
-    prev.focus(); prev.select();
-  }
-}
-
-function makeDigitEditable(inputEl, expected, hintEl, onInputCb){
-  inputEl.dataset.expected = expected===undefined ? '' : String(expected);
-  
-  inputEl.addEventListener('input', ()=>{
-    const v = inputEl.value.replace(/[^0-9.]/g,'').slice(-1);
-    if(inputEl.value!==v) inputEl.value=v;
-    
-    inputEl.classList.remove('wrong','right','filled');
-    
-    if(v !== ''){
-      inputEl.classList.add('filled');
-      if(v === inputEl.dataset.expected){
-        inputEl.classList.add('right');
-        if(hintEl) hintEl.classList.add('hidden');
-        playCorrectSound();
-        focusNextEditable(inputEl, inputEl.closest('.result-wrap'));
-      } else {
-        inputEl.classList.add('wrong');
-        if(hintEl) hintEl.classList.remove('hidden');
-        playWrongSound();
-      }
-    } else if(hintEl){
-      hintEl.classList.add('hidden');
-    }
-    if(onInputCb) onInputCb();
-  });
-
-  inputEl.addEventListener('keydown', e=>{
-    if(e.key==='Enter'){ e.preventDefault(); return; }
-    if(e.key==='Backspace' && inputEl.value===''){
-      e.preventDefault();
-      focusPrevEditable(inputEl, inputEl.closest('.result-wrap'));
-    }
-  });
-
-  inputEl.addEventListener('focus', ()=>{
-    updateActiveStepCarryVisibility(inputEl.closest('.result-wrap'), inputEl.dataset.order);
-    inputEl.select();
-  });
-}
-
-function renderFinalAnswerDisplay(container, mainValue, remainder){
-  container.innerHTML='';
-  const row = el('div','bottom-summary-row');
-  const wrap = el('div','final-answer-item');
-  wrap.appendChild(el('span','label', remainder!==undefined?'Quotient:':'Answer:'));
-  wrap.appendChild(el('span','value', mainValue));
-  row.appendChild(wrap);
-  if(remainder!==undefined && remainder!=='0'){
-    const rwrap = el('div','final-answer-item');
-    rwrap.appendChild(el('span','label','Remainder:'));
-    rwrap.appendChild(el('span','value', remainder));
-    row.appendChild(rwrap);
-  }
-  container.appendChild(row);
-
-  const randomMeme = MEME_COMMENTS[Math.floor(Math.random() * MEME_COMMENTS.length)];
-  container.appendChild(el('div','meme-banner', randomMeme));
-}
-
-/* ---------------------------------------------------------------- *
- *  Synchronized Entry Controller
- * ---------------------------------------------------------------- */
-let isSyncing = false;
-const registeredControllers = [];
-
-function syncAllFields(newValue, sourceCtrl) {
-  if (isSyncing) return;
-  isSyncing = true;
-  registeredControllers.forEach(ctrl => {
-    if (ctrl !== sourceCtrl) {
-      ctrl.setValue(newValue, false);
-    }
-  });
-  isSyncing = false;
-}
-
-function buildSymbolPopover(popoverEl){
-  popoverEl.innerHTML='';
-  SYMBOL_OPTIONS.forEach(opt=>{
-    const btn = document.createElement('button');
-    btn.type='button';
-    btn.setAttribute('role','option');
-    btn.dataset.insert = opt.insert;
-    btn.innerHTML = `<span class="sym">${opt.sym}</span><span class="sym-name">${opt.name}</span>`;
-    popoverEl.appendChild(btn);
-  });
-}
-
-function wireEntryField(scope){
-  buildSymbolPopover(scope.popoverEl);
-
-  const controller = {
-    setValue(v, isUserDirectInput = false){
-      const field = scope.exprInput;
-      if (field.value !== v) {
-        const start = field.selectionStart;
-        const end = field.selectionEnd;
-        field.value = v;
-        if (isUserDirectInput && document.activeElement === field && start !== null) {
-          field.setSelectionRange(start, end);
+    if(hadParen){
+      closeIdx = tokens.indexOf(')');
+      const openIdx = findLastParenOpen(tokens, closeIdx);
+      if (openIdx !== -1) {
+        const inner = tokens.slice(openIdx+1, closeIdx);
+        if(inner.length === 1){
+          tokens.splice(openIdx, closeIdx-openIdx+1, inner[0]);
         }
       }
-      clearTimeout(debounceTimer);
-      dispatch(false);
     }
-  };
-  registeredControllers.push(controller);
-
-  function insertAtCursor(text){
-    const field = scope.exprInput;
-    const start = field.selectionStart ?? field.value.length;
-    const end = field.selectionEnd ?? field.value.length;
-    field.value = field.value.slice(0,start)+text+field.value.slice(end);
-    field.focus();
-    const caretOffset = text==='()' ? start+1 : start+text.length;
-    field.setSelectionRange(caretOffset, caretOffset);
-    dispatch(true);
   }
-
-  function openPopover(){
-    scope.popoverEl.hidden=false;
-    scope.triggerEl.classList.add('open');
-    scope.triggerEl.setAttribute('aria-expanded','true');
-  }
-  function closePopover(){
-    scope.popoverEl.hidden=true;
-    scope.triggerEl.classList.remove('open');
-    scope.triggerEl.setAttribute('aria-expanded','false');
-  }
-  scope.triggerEl.addEventListener('click', e=>{
-    e.stopPropagation();
-    if(scope.popoverEl.hidden) openPopover(); else closePopover();
-  });
-  scope.popoverEl.addEventListener('click', e=>{
-    const btn = e.target.closest('button[data-insert]');
-    if(!btn) return;
-    insertAtCursor(btn.dataset.insert);
-    closePopover();
-  });
-  document.addEventListener('click', e=>{
-    if(!scope.popoverEl.hidden && !scope.fieldWrap.contains(e.target)) closePopover();
-  });
-
-  if(scope.decSelect){
-    scope.decSelect.addEventListener('change', ()=> dispatch(true));
-  }
-
-  function dispatch(shouldSync = true){
-    const raw = scope.exprInput.value;
-    if (shouldSync) {
-      syncAllFields(raw, controller);
-    }
-    const trimmed = raw.trim();
-    if(!trimmed){
-      hideError(scope.errorEl);
-      scope.resultWrap.style.display='none';
-      scope.labelEl.textContent='Calculation';
-      if(scope.decWrap) scope.decWrap.classList.remove('visible');
-      return;
-    }
-    
-    const hasDivOrDec = /[÷/.]/.test(trimmed);
-    if(scope.decWrap){
-      scope.decWrap.classList.toggle('visible', hasDivOrDec);
-    }
-
-    const simple = classifySimple(trimmed);
-    if(simple){
-      const aStr = normalizeNum(simple.aStr), bStr = normalizeNum(simple.bStr);
-      if(simple.op==='÷' && BigInt(bStr)===0n){ showError(scope.errorEl, scope.resultWrap, "The divisor can't be 0."); return; }
-      hideError(scope.errorEl);
-      scope.labelEl.textContent = OP_META[simple.op].name;
-      scope.onSimple(simple.op, aStr, bStr, scope.decSelect ? scope.decSelect.value : '2');
-      return;
-    }
-    const r = evaluateExpression(trimmed);
-    if(r.error){ showError(scope.errorEl, scope.resultWrap, r.error); return; }
-    hideError(scope.errorEl);
-    scope.labelEl.textContent='Multi-step';
-    scope.onComplex(trimmed, r.value, scope.decSelect ? scope.decSelect.value : '2');
-  }
-
-  let debounceTimer=null;
-  scope.exprInput.addEventListener('input', ()=>{
-    const v = scope.exprInput.value.replace(/[^0-9+\-−×÷*/^().√% ]/g,'');
-    if(scope.exprInput.value!==v){
-      const pos = scope.exprInput.selectionStart - 1;
-      scope.exprInput.value = v;
-      scope.exprInput.setSelectionRange(pos, pos);
-    }
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => dispatch(true), 150);
-  });
-  scope.exprInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); clearTimeout(debounceTimer); dispatch(true); } });
-
-  return controller;
+  if(tokens.length !== 1) throw new Error('Could not fully solve expression');
+  return { steps, finalResult: tokens[0] };
 }
 
-/* ================================================================
- *  CALCULATE TAB & FLOATING SOLUTION DRAWER
- * ================================================================ */
-const caError = document.getElementById('caError');
-const caResultWrap = document.getElementById('caResultWrap');
-const caWorksheet = document.getElementById('caWorksheet');
-const caFinalAnswerBox = document.getElementById('caFinalAnswerBox');
+/* ================= RENDERING ================= */
+const content = document.getElementById('content');
+const errorMsg = document.getElementById('error-msg');
+const input = document.getElementById('expr-input');
+const solutionBtn = document.getElementById('solution-btn');
+const practiceBtn = document.getElementById('practice-btn');
+const goBtn = document.getElementById('go-btn');
 
-const solutionToggleBtn = document.getElementById('solutionToggleBtn');
-const solutionDrawer = document.getElementById('solutionDrawer');
-const soWorksheet = document.getElementById('soWorksheet');
-const soFinalAnswerBox = document.getElementById('soFinalAnswerBox');
+let currentSteps = null;
+let currentFinal = null;
+let isRevealed = false;
 
-solutionToggleBtn.addEventListener('click', () => {
-  const isOpen = solutionDrawer.classList.toggle('open');
-  solutionToggleBtn.classList.toggle('expanded', isOpen);
+function showError(msg){ errorMsg.textContent = '\u26A0\uFE0F  ' + msg; errorMsg.classList.add('show'); }
+function clearError(){ errorMsg.classList.remove('show'); }
+
+solutionBtn.addEventListener('click', () => {
+  if (isRevealed) {
+    hideAllCells();
+  } else {
+    revealAllCells();
+  }
 });
 
-let manualAnswerKey = {};
+goBtn.addEventListener('click', () => {
+  solve(input.value.trim());
+});
 
-function handleSolvedBasic(op, aStr, bStr, decSetting){
-  soWorksheet.innerHTML=''; soFinalAnswerBox.innerHTML='';
-  if(op==='+'){ const out=renderAddition(aStr,bStr); soWorksheet.appendChild(out.gridEl); renderFinalAnswerDisplay(soFinalAnswerBox, out.resultStr); }
-  else if(op==='-'){ const out=renderSubtraction(aStr,bStr); soWorksheet.appendChild(out.gridEl); renderFinalAnswerDisplay(soFinalAnswerBox, out.resultStr); }
-  else if(op==='×'){ const out=renderMultiplication(aStr,bStr); soWorksheet.appendChild(out.gridEl); renderFinalAnswerDisplay(soFinalAnswerBox, out.resultStr); }
-  else if(op==='÷'){
-    const out=divSigned(aStr,bStr,false,null,decSetting === 'auto'? 2 : parseInt(decSetting, 10));
-    soWorksheet.appendChild(out.gridEl);
-    renderFinalAnswerDisplay(soFinalAnswerBox, out.resultStr);
+function fireConfetti(){
+  const card = document.querySelector('.answer-card');
+  if(!card) return;
+  const colors = ['#249A70','#F0997B','#378ADD','#EF9F27','#D4537E'];
+  for(let i=0;i<16;i++){
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = (10 + Math.random()*80) + '%';
+    p.style.top = '10%';
+    p.style.background = colors[i % colors.length];
+    p.style.animationDelay = (Math.random()*0.15) + 's';
+    card.appendChild(p);
+    setTimeout(()=>p.remove(), 1100);
   }
-  soFinalAnswerBox.classList.add('visible');
 }
 
-function handleSolvedComplex(exprRaw, value, decSetting){
-  soWorksheet.innerHTML=''; soFinalAnswerBox.innerHTML='';
-  try{
-    const {steps, finalValue} = solveExpressionSteps(exprRaw, false, null, decSetting);
-    if(steps.length===0){
-      const pre=document.createElement('pre'); pre.className='calc-pre';
-      pre.textContent = `${exprRaw} = ${finalValue}`;
-      soWorksheet.appendChild(pre);
-      renderFinalAnswerDisplay(soFinalAnswerBox, finalValue);
+function tokenToHtml(tok, registry, stepIdx, narrow, fillWidth, orderState, explicitOrder){
+  if(tok.text !== undefined) return escapeHtml(tok.text);
+  const idx = registry.length;
+  const expected = tok.expected;
+  const ml = expected.length;
+  const inputMode = /[-.]/.test(expected) ? 'text' : 'numeric';
+  registry.push({ expected, stepIdx });
+  const style = fillWidth ? 'width:100%' : `width:${Math.max(ml,1)}ch`;
+  const order = explicitOrder !== undefined ? explicitOrder : (orderState ? orderState.n++ : idx);
+  return `<input type="text" class="cell" data-cell-idx="${idx}" data-order="${order}" data-step="${stepIdx}" data-answer="${escapeHtml(expected)}" inputmode="${inputMode}" maxlength="${ml}" autocomplete="off" style="${style}" aria-label="Step result field">`;
+}
+
+function computeDivisionOrder(g, startN){
+  let n = startN;
+  const quotientOrder = {};
+  const rowDigitOrders = {};
+
+  g.quotientCells.forEach((c, idx) => {
+    if(c.kind === 'blank') quotientOrder[idx] = n++;
+  });
+
+  g.rows.forEach((r, rIdx) => {
+    if(r.kind === 'rule') return;
+    const digits = String(r.expected).split('');
+    rowDigitOrders[rIdx] = [];
+    digits.forEach(() => rowDigitOrders[rIdx].push(n++));
+  });
+
+  return { quotientOrder, rowDigitOrders, n };
+}
+
+function renderDivisionGrid(model, registry, stepIdx, orderState){
+  const g = model.grid;
+  const divOrder = computeDivisionOrder(g, orderState.n);
+  orderState.n = divOrder.n;
+
+  let html = `<div class="division-grid" style="grid-template-columns:repeat(${g.totalCols}, 1ch);">`;
+
+  g.quotientCells.forEach((c, idx) => {
+    const s = g.prefixCols + c.col + 1;
+    const style = `grid-column:${s} / ${s+1}; grid-row:1;`;
+    if(c.kind === 'text'){
+      html += `<div class="q-cell q-static" style="${style}">${escapeHtml(c.text)}</div>`;
     } else {
-      renderStepBlocks(soWorksheet, steps, false);
-      const finalLine = el('div','step-result-line step-final visible', `Answer = <b>${escapeHtml(finalValue)}</b>`);
-      soWorksheet.appendChild(finalLine);
-      renderFinalAnswerDisplay(soFinalAnswerBox, finalValue);
+      const ord = divOrder.quotientOrder[idx];
+      html += `<div class="q-cell" style="${style}">${tokenToHtml({blank:true, expected:c.expected}, registry, stepIdx, true, true, orderState, ord)}</div>`;
     }
-  } catch(e){
-    const pre=document.createElement('pre'); pre.className='calc-pre';
-    pre.textContent = `${exprRaw} = ${formatExprValue(value, decSetting)}`;
-    soWorksheet.appendChild(pre);
-    renderFinalAnswerDisplay(soFinalAnswerBox, formatExprValue(value, decSetting));
-  }
-  soFinalAnswerBox.classList.add('visible');
-}
-
-function checkPracticeComplete(){
-  const cells = Array.from(caWorksheet.querySelectorAll('input.cell-input[data-order], input.ann-input[data-order]'));
-  if(cells.length){
-    const done = cells.filter(c=>c.classList.contains('right')).length;
-    if(done===cells.length) autofillManualFinal();
-  }
-}
-
-function autofillManualFinal(){
-  if(manualAnswerKey.quotient!==undefined){
-    renderFinalAnswerDisplay(caFinalAnswerBox, manualAnswerKey.quotient, manualAnswerKey.remainder);
-  } else if(manualAnswerKey.answer!==undefined){
-    renderFinalAnswerDisplay(caFinalAnswerBox, manualAnswerKey.answer);
-  }
-  caFinalAnswerBox.classList.add('visible');
-  celebrateConfetti(caFinalAnswerBox);
-}
-
-function setManualFinalAnswer(){
-  caFinalAnswerBox.innerHTML='';
-  caFinalAnswerBox.classList.remove('visible');
-}
-
-function setupManualAddition(aStr,bStr){
-  const orderRef = {n:1};
-  activeOnInputCb = checkPracticeComplete;
-  const res = addSigned(aStr, bStr, true, orderRef);
-  activeOnInputCb = null;
-  caWorksheet.appendChild(res.gridEl);
-
-  manualAnswerKey = {answer: res.resultStr};
-  setManualFinalAnswer();
-  setTimeout(()=> focusFirstEditable(caWorksheet), 50);
-}
-
-function setupManualSubtraction(aStr,bStr){
-  const orderRef = {n:1};
-  activeOnInputCb = checkPracticeComplete;
-  const res = subSigned(aStr, bStr, true, orderRef);
-  activeOnInputCb = null;
-  caWorksheet.appendChild(res.gridEl);
-
-  manualAnswerKey = {answer: res.resultStr};
-  setManualFinalAnswer();
-  setTimeout(()=> focusFirstEditable(caWorksheet), 50);
-}
-
-function setupManualMultiplication(aStr,bStr){
-  const orderRef = {n:1};
-  activeOnInputCb = checkPracticeComplete;
-  const res = mulSigned(aStr, bStr, true, orderRef);
-  activeOnInputCb = null;
-  caWorksheet.appendChild(res.gridEl);
-
-  manualAnswerKey = {answer: res.resultStr};
-  setManualFinalAnswer();
-  setTimeout(()=> focusFirstEditable(caWorksheet), 50);
-}
-
-function setupManualDivision(aStr,bStr, decSetting){
-  const orderRef = {n:1};
-  const maxDecs = decSetting === 'auto' ? 2 : (parseInt(decSetting, 10) || 2);
-  activeOnInputCb = checkPracticeComplete;
-  const res = divSigned(aStr, bStr, true, orderRef, maxDecs);
-  activeOnInputCb = null;
-  caWorksheet.appendChild(res.gridEl);
-
-  manualAnswerKey = {answer: res.resultStr};
-  setManualFinalAnswer();
-  setTimeout(()=> focusFirstEditable(caWorksheet), 50);
-}
-
-function handleCalcBasic(op, aStr, bStr, decSetting){
-  caWorksheet.innerHTML=''; caFinalAnswerBox.innerHTML='';
-  handleSolvedBasic(op, aStr, bStr, decSetting);
-  
-  if(op==='+') setupManualAddition(aStr,bStr);
-  else if(op==='-') setupManualSubtraction(aStr,bStr);
-  else if(op==='×') setupManualMultiplication(aStr,bStr);
-  else if(op==='÷') setupManualDivision(aStr,bStr, decSetting);
-  caResultWrap.style.display='block';
-}
-
-function handleCalcComplex(exprRaw, value, decSetting){
-  caWorksheet.innerHTML=''; caFinalAnswerBox.innerHTML='';
-  handleSolvedComplex(exprRaw, value, decSetting);
-  
-  try{
-    const orderRef = {n:1};
-    activeOnInputCb = checkPracticeComplete;
-    const {steps, finalValue} = solveExpressionSteps(exprRaw, true, orderRef, decSetting);
-    activeOnInputCb = null;
-    if(steps.length===0){
-      const pre=document.createElement('pre'); pre.className='calc-pre'; pre.textContent = exprRaw+' = ?';
-      caWorksheet.appendChild(pre);
-      manualAnswerKey = {answer: finalValue};
-      setManualFinalAnswer();
-    } else {
-      renderStepBlocks(caWorksheet, steps, true);
-      manualAnswerKey = {answer: finalValue};
-      setManualFinalAnswer();
-    }
-    setTimeout(()=> focusFirstEditable(caWorksheet), 50);
-  } catch(e){
-    activeOnInputCb = null;
-    caWorksheet.innerHTML='';
-    const pre=document.createElement('pre'); pre.className='calc-pre'; pre.textContent = exprRaw+' = ?';
-    caWorksheet.appendChild(pre);
-    manualAnswerKey = {answer: formatExprValue(value, decSetting)};
-    setManualFinalAnswer();
-  }
-  caResultWrap.style.display='block';
-}
-
-const caFieldCtrl = wireEntryField({
-  exprInput: document.getElementById('caExpr'),
-  fieldWrap: document.getElementById('caFieldWrap'),
-  triggerEl: document.getElementById('caSymbolTrigger'),
-  popoverEl: document.getElementById('caSymbolPopover'),
-  labelEl: document.getElementById('caLabel'),
-  decWrap: document.getElementById('caDecWrap'),
-  decSelect: document.getElementById('caDecSelect'),
-  errorEl: caError,
-  resultWrap: caResultWrap,
-  onSimple: handleCalcBasic,
-  onComplex: handleCalcComplex
-});
-
-/* ================================================================
- *  HANDWRITE TAB
- * ================================================================ */
-const wrError = document.getElementById('wrError');
-const wrResultWrap = document.getElementById('wrResultWrap');
-const wQuestionDisplay = document.getElementById('wQuestionDisplay');
-const wPadWrap = document.getElementById('wPadWrap');
-const wCanvas = document.getElementById('wCanvas');
-const hwUndoBtn = document.getElementById('hwUndoBtn');
-const hwClearBtn = document.getElementById('hwClearBtn');
-const hwSwatches = document.querySelectorAll('#hwSwatches .hw-swatch');
-const wFinalAnswerBox = document.getElementById('wFinalAnswerBox');
-let writeAnswerKey = {};
-
-const hw = { ctx:null, strokes:[], current:null, color:'#2F3438', drawing:false, dpr:1 };
-
-function hwResizeCanvas(){
-  const rect = wPadWrap.getBoundingClientRect();
-  if(rect.width<=0) return;
-  const cssHeight = 220;
-  hw.dpr = window.devicePixelRatio || 1;
-  wCanvas.width = Math.max(1, Math.round(rect.width*hw.dpr));
-  wCanvas.height = Math.round(cssHeight*hw.dpr);
-  wCanvas.style.width = rect.width+'px';
-  wCanvas.style.height = cssHeight+'px';
-  hw.ctx = wCanvas.getContext('2d');
-  hw.ctx.scale(hw.dpr, hw.dpr);
-  hw.ctx.lineCap='round';
-  hw.ctx.lineJoin='round';
-  hwRedraw();
-}
-function hwDrawStroke(stroke){
-  if(stroke.points.length<1) return;
-  hw.ctx.strokeStyle = stroke.color;
-  hw.ctx.lineWidth = 2.6;
-  hw.ctx.beginPath();
-  stroke.points.forEach((p,i)=>{ if(i===0) hw.ctx.moveTo(p.x,p.y); else hw.ctx.lineTo(p.x,p.y); });
-  hw.ctx.stroke();
-}
-function hwRedraw(){
-  if(!hw.ctx) return;
-  const rect = wPadWrap.getBoundingClientRect();
-  hw.ctx.clearRect(0,0,rect.width,220);
-  hw.strokes.forEach(hwDrawStroke);
-  wPadWrap.classList.toggle('empty', hw.strokes.length===0);
-}
-function hwClear(){
-  hw.strokes=[]; hw.current=null;
-  hwRedraw();
-  wPadWrap.classList.add('empty');
-}
-function hwPointFromEvent(e){
-  const rect = wCanvas.getBoundingClientRect();
-  return {x:e.clientX-rect.left, y:e.clientY-rect.top};
-}
-wCanvas.addEventListener('pointerdown', e=>{
-  e.preventDefault();
-  wCanvas.setPointerCapture(e.pointerId);
-  hw.drawing=true;
-  hw.current = {color:hw.color, points:[hwPointFromEvent(e)]};
-  hw.strokes.push(hw.current);
-  wPadWrap.classList.remove('empty');
-});
-wCanvas.addEventListener('pointermove', e=>{
-  if(!hw.drawing || !hw.current) return;
-  hw.current.points.push(hwPointFromEvent(e));
-  hwRedraw();
-});
-function hwEndStroke(){ hw.drawing=false; hw.current=null; }
-wCanvas.addEventListener('pointerup', hwEndStroke);
-wCanvas.addEventListener('pointercancel', hwEndStroke);
-wCanvas.addEventListener('pointerleave', ()=>{ if(hw.drawing) hwEndStroke(); });
-
-hwUndoBtn.addEventListener('click', ()=>{ hw.strokes.pop(); hwRedraw(); });
-hwClearBtn.addEventListener('click', hwClear);
-hwSwatches.forEach(sw=>{
-  sw.addEventListener('click', ()=>{
-    hwSwatches.forEach(s=>s.classList.remove('active'));
-    sw.classList.add('active');
-    hw.color = sw.dataset.color;
   });
-});
-window.addEventListener('resize', hwResizeCanvas);
 
-function setWriteFinalAnswer(fields){
-  wFinalAnswerBox.innerHTML='';
-  fields.forEach((f,idx)=>{
-    const wrap = el('div','final-answer-item');
-    wrap.appendChild(el('span','label', f.label + ':'));
-    const val = document.createElement('input');
-    val.type='text';
-    val.className='value value-input';
-    val.setAttribute('inputmode','numeric');
-    val.setAttribute('autocomplete','off');
-    val.setAttribute('aria-label', f.label);
-    val.dataset.key = f.key;
-    val.dataset.expected = writeAnswerKey[f.key];
-    val.dataset.order = 100000+idx;
-    val.addEventListener('input', ()=>{
-      const v = val.value.replace(/[^0-9.\-]/g,'');
-      if(val.value!==v) val.value=v;
-      evaluateWriteAnswer(val);
+  html += `<div class="prefix-cell" style="grid-column:1 / ${Math.max(1,g.prefixCols-1)}; grid-row:2;">${escapeHtml(g.displayDivisor)}</div>`;
+  html += `<div class="bracket-cell" style="grid-column:${Math.max(1,g.prefixCols-1)} / ${g.prefixCols+1}; grid-row:2;">)</div>`;
+  g.dividendChars.forEach(c => {
+    const s = g.prefixCols + c.col + 1;
+    html += `<div class="d-cell" style="grid-column:${s} / ${s+1}; grid-row:2;">${escapeHtml(c.char)}</div>`;
+  });
+
+  let rowNum = 3;
+  g.rows.forEach((r, rIdx) => {
+    const endLine = g.prefixCols + r.endCol + 2;
+    const startLine = Math.max(1, endLine - r.len);
+    const style = `grid-column:${startLine} / ${endLine}; grid-row:${rowNum};`;
+    if(r.kind === 'rule'){
+      html += `<div class="row-rule" style="${style}"></div>`;
+    } else if(r.kind === 'subtract'){
+      const orders = divOrder.rowDigitOrders[rIdx];
+      const digits = String(r.expected).split('');
+      const digitStart = startLine + 1;
+      html += `<div class="op-sign" style="grid-column:${startLine} / ${startLine+1}; grid-row:${rowNum}; display:flex; align-items:baseline; justify-content:flex-end;">\u2212</div>`;
+      digits.forEach((d, i) => {
+        const col = digitStart + i;
+        html += `<div style="grid-column:${col} / ${col+1}; grid-row:${rowNum}; display:flex; align-items:baseline; justify-content:center;">${tokenToHtml({blank:true, expected:d}, registry, stepIdx, false, true, orderState, orders[i])}</div>`;
+      });
+    } else {
+      const orders = divOrder.rowDigitOrders[rIdx];
+      const digits = String(r.expected).split('');
+      const digitStart = startLine;
+      digits.forEach((d, i) => {
+        const col = digitStart + i;
+        html += `<div style="grid-column:${col} / ${col+1}; grid-row:${rowNum}; display:flex; align-items:baseline; justify-content:center;">${tokenToHtml({blank:true, expected:d}, registry, stepIdx, false, true, orderState, orders[i])}</div>`;
+      });
+    }
+    rowNum++;
+  });
+
+  html += '</div>';
+  return html;
+}
+
+function computeGridOrder(rows, width, startN){
+  let n = startN;
+  let groupId = -1;
+  let pending = null;
+  const carryOrder = {};
+  const digitOrder = {};
+  rows.forEach((r, rowIdx) => {
+    if(r.kind === 'carry'){ groupId++; pending = groupId; return; }
+    if(r.kind !== 'blank') return;
+    const padded = ' '.repeat(Math.max(0, width - r.text.length)) + r.text;
+    const activeCols = [];
+    for(let c=padded.length-1; c>=0; c--){ if(/[0-9]/.test(padded[c])) activeCols.push(c); }
+    activeCols.forEach((c, i) => {
+      if(pending !== null && i > 0){ carryOrder[`${pending}:${c}`] = n++; }
+      digitOrder[`${rowIdx}:${c}`] = n++;
     });
-    val.addEventListener('keydown', e=>{ if(e.key==='Enter') e.preventDefault(); });
-    wrap.appendChild(val);
-    wFinalAnswerBox.appendChild(wrap);
+    pending = null;
   });
-  wFinalAnswerBox.classList.add('visible');
+  return { carryOrder, digitOrder, n };
 }
 
-function evaluateWriteAnswer(inputEl){
-  const typed = inputEl.value.trim();
-  const expected = inputEl.dataset.expected;
-  inputEl.classList.remove('correct','incorrect');
+function renderColumnGrid(g, registry, stepIdx, orderState){
+  const prefixCols = g.prefixCols || 1;
+  const totalCols = prefixCols + g.width;
+  const { carryOrder, digitOrder, n } = computeGridOrder(g.rows, g.width, orderState.n);
+  orderState.n = n;
+  let html = `<div class="arith-grid" style="grid-template-columns:repeat(${totalCols}, 1ch);">`;
+  let rowNum = 1;
+  let groupId = -1;
+  g.rows.forEach((r, rowIdx) => {
+    if(r.kind === 'final-rule'){
+      html += `<div class="a-final-rule" style="grid-column:1 / ${totalCols+1}; grid-row:${rowNum};"></div>`;
+      rowNum++; return;
+    }
+    if(r.kind === 'dotted-rule'){
+      html += `<div class="a-dotted-rule" style="grid-column:1 / ${totalCols+1}; grid-row:${rowNum};"></div>`;
+      rowNum++; return;
+    }
+    if(r.kind === 'carry'){
+      groupId++;
+      for(let c=0; c<g.width; c++){
+        const col = prefixCols + c + 1;
+        const ord = carryOrder[`${groupId}:${c}`];
+        const orderAttr = ord !== undefined ? ` data-order="${ord}"` : '';
+        html += `<div class="a-carry-cell" style="grid-column:${col} / ${col+1}; grid-row:${rowNum};"><input type="text" class="carry-input" maxlength="1" inputmode="numeric" autocomplete="off" aria-label="Carry-over"${orderAttr}></div>`;
+      }
+      rowNum++; return;
+    }
+    const padded = ' '.repeat(Math.max(0, g.width - r.text.length)) + r.text;
+    if(r.sym){
+      html += `<div class="a-sym" style="grid-column:1 / ${prefixCols+1}; grid-row:${rowNum};">${escapeHtml(r.sym)}</div>`;
+    }
+    const colRange = [];
+    for(let c=0; c<padded.length; c++) colRange.push(c);
+    if(r.kind === 'blank') colRange.reverse();
+    colRange.forEach(c => {
+      const ch = padded[c];
+      if(ch === ' ') return;
+      const col = prefixCols + c + 1;
+      const style = `grid-column:${col} / ${col+1}; grid-row:${rowNum};`;
+      if(r.kind === 'given' || !/[0-9]/.test(ch)){
+        const cls = r.kind === 'blank' ? 'a-static result' : 'a-static';
+        html += `<div class="${cls}" style="${style}">${escapeHtml(ch)}</div>`;
+      } else {
+        const ord = r.kind === 'blank' ? digitOrder[`${rowIdx}:${c}`] : undefined;
+        html += `<div class="a-cell" style="${style}">${tokenToHtml({blank:true, expected:ch}, registry, stepIdx, false, true, orderState, ord)}</div>`;
+      }
+    });
+    rowNum++;
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderLines(lines, registry, stepIdx, orderState){
+  let html = '<div class="work">';
+  lines.forEach(line => {
+    if(line.type === 'rule') html += '<div class="rule" style="width:100%"></div>';
+    else if(line.type === 'final-rule') html += '<div class="final-rule"></div>';
+    else if(line.type === 'bracket'){
+      html += `<div class="div-row"><span>${escapeHtml(line.divisor)}</span><span class="div-bracket">) ${escapeHtml(line.dividend)}</span></div>`;
+    } else if(line.type === 'tokens'){
+      const rowClass = line.narrow ? 'row narrow' : 'row';
+      const inner = line.tokens.map(t => tokenToHtml(t, registry, stepIdx, line.narrow, undefined, orderState)).join('');
+      html += `<div class="${rowClass}">${inner}</div>`;
+    }
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderSteps(){
+  const registry = [];
+  const orderState = { n: 0 };
+  isRevealed = false;
+  solutionBtn.textContent = 'Reveal';
+
+  let html = '<div class="steps">';
+  currentSteps.forEach((s, idx) => {
+    html += `<div class="step" data-step-wrap="${idx}">`;
+    html += `<div class="step-title"><span class="step-check">\u2713</span>Step${idx+1}: <b>${s.opName}</b>&nbsp; ${s.exprHtml}</div>`;
+    html += s.model.isDivision
+      ? renderDivisionGrid(s.model, registry, idx, orderState)
+      : s.model.isGrid
+        ? renderColumnGrid(s.model.grid, registry, idx, orderState)
+        : renderLines(s.model.lines, registry, idx, orderState);
+    html += `</div>`;
+  });
+  html += `<div class="answer-card hidden" id="answer-card">
+      <div class="ans-info">
+        <span class="label">Answer</span>
+        <span class="value">${escapeHtml(currentFinal)}</span>
+      </div>
+      <button class="card-close-btn" id="answer-card-close" title="Close" aria-label="Close Answer">✕</button>
+    </div>`;
+  html += `</div>`;
+  content.innerHTML = html;
+
+  document.getElementById('answer-card-close').addEventListener('click', () => {
+    hideAllCells();
+  });
+
+  setupPracticeInputs();
+}
+
+content.addEventListener('input', (e) => {
+  if(e.target.classList.contains('carry-input')){
+    e.target.value = e.target.value.replace(/[^0-9]/g,'');
+  }
+});
+
+function setupPracticeInputs(){
+  const inputs = Array.from(content.querySelectorAll('.cell[data-order], .carry-input[data-order]'))
+    .sort((a, b) => Number(a.dataset.order) - Number(b.dataset.order));
+
+  inputs.forEach((el, i) => {
+    const isCarry = el.classList.contains('carry-input');
+    el.addEventListener('input', () => {
+      if(isCarry) handleCarryInput(el, inputs);
+      else handleCellInput(el, inputs);
+    });
+    el.addEventListener('keydown', (e) => {
+      if(isCarry && e.key === 'Enter'){ e.preventDefault(); advanceTo(el, inputs); }
+      if(e.key === 'Backspace' && el.value === ''){
+        let p = i-1;
+        while(p >= 0 && inputs[p].disabled) p--;
+        if(p >= 0) inputs[p].focus();
+      }
+    });
+  });
+  if(inputs.length) inputs[0].focus();
+}
+
+function advanceTo(el, inputs){
+  const i = inputs.indexOf(el);
+  let n = i+1;
+  while(n < inputs.length && inputs[n].disabled) n++;
+  if(n < inputs.length) inputs[n].focus();
+}
+
+function handleCarryInput(el, inputs){
+  el.value = el.value.replace(/[^0-9]/g, '').slice(0, 1);
+  if(el.value.length >= 1) advanceTo(el, inputs);
+}
+
+function handleCellInput(el, inputs){
+  let val = el.value.replace(/[^0-9\-.]/g,'');
+  el.value = val;
+  const maxLen = parseInt(el.maxLength, 10);
+  if(val.length < maxLen) return;
+
+  const expected = el.dataset.answer;
+  if(val === expected){
+    el.classList.remove('incorrect');
+    el.classList.add('correct');
+    el.disabled = true;
+    markStepDone(el);
+    const i = inputs.indexOf(el);
+    let n = i+1;
+    while(n < inputs.length && inputs[n].disabled) n++;
+    if(n < inputs.length){ inputs[n].focus(); }
+    else { onAllComplete(); }
+  } else {
+    el.classList.add('incorrect');
+    setTimeout(() => { el.value=''; el.classList.remove('incorrect'); }, 550);
+  }
+}
+
+function markStepDone(el){
+  const wrap = el.closest('.step');
+  if(!wrap) return;
+  const cells = wrap.querySelectorAll('.cell');
+  const done = Array.from(cells).every(c => c.classList.contains('correct'));
+  wrap.classList.toggle('step-done', done);
+}
+
+function revealAllCells(){
+  const cells = Array.from(content.querySelectorAll('.cell:not(.correct)'));
+  cells.forEach(el => {
+    el.value = el.dataset.answer;
+    el.classList.remove('incorrect');
+    el.classList.add('correct');
+    el.disabled = true;
+    markStepDone(el);
+  });
+  Array.from(content.querySelectorAll('.carry-input')).forEach(el => { el.disabled = true; });
+  onAllComplete();
+  isRevealed = true;
+  solutionBtn.textContent = 'Close';
+}
+
+function hideAllCells(){
+  const cells = Array.from(content.querySelectorAll('.cell'));
+  cells.forEach(el => {
+    el.value = '';
+    el.classList.remove('correct', 'incorrect');
+    el.disabled = false;
+    markStepDone(el);
+  });
+  Array.from(content.querySelectorAll('.carry-input')).forEach(el => {
+    el.value = '';
+    el.disabled = false;
+  });
+  const answerCard = document.getElementById('answer-card');
+  if(answerCard) answerCard.classList.add('hidden');
+  isRevealed = false;
+  solutionBtn.textContent = 'Reveal';
+}
+
+function onAllComplete(){
+  const answerCard = document.getElementById('answer-card');
+  if(answerCard) answerCard.classList.remove('hidden');
+  fireConfetti();
+}
+
+function solve(expr){
+  clearError();
+  if(!expr) return;
+  if(!/^[0-9+\-*/().\s\u00B2\u221A%^]+$/.test(expr)){
+    showError('Use only numbers and + \u2212 \u00D7 \u00F7 ( ) \u00B2 \u221A % ^');
+    return;
+  }
+  try{
+    const tokens = tokenize(expr);
+    if(tokens.length === 0) throw new Error('Nothing to calculate');
+    let steps, finalResult;
+    if(tokens.length === 1){
+      steps = [];
+      finalResult = formatNum(parseFloat(tokens[0]));
+    } else {
+      const r = reduce(tokens);
+      steps = r.steps;
+      finalResult = r.finalResult;
+    }
+    currentSteps = steps;
+    currentFinal = finalResult;
+    renderSteps();
+  } catch(err){
+    showError(err.message || 'Could not solve that expression');
+  }
+}
+
+/* ================= HANDWRITING CANVAS ================= */
+const hwOverlay = document.getElementById('hw-overlay');
+const hwCloseBtn = document.getElementById('hw-close-btn');
+const hwClearBtn = document.getElementById('hw-clear-btn');
+const hwUndoBtn = document.getElementById('hw-undo-btn');
+const hwCanvas = document.getElementById('hw-canvas');
+const hwContainer = document.getElementById('hw-canvas-container');
+let ctx = hwCanvas.getContext('2d');
+let drawing = false;
+let history = [];
+
+practiceBtn.addEventListener('click', () => {
+  hwOverlay.classList.add('open');
+  resizeCanvas();
+});
+
+hwCloseBtn.addEventListener('click', () => {
+  hwOverlay.classList.remove('open');
+});
+
+function saveState(){
+  history.push(ctx.getImageData(0, 0, hwCanvas.width, hwCanvas.height));
+}
+
+hwUndoBtn.addEventListener('click', () => {
+  if (history.length > 0) {
+    let lastState = history.pop();
+    ctx.putImageData(lastState, 0, 0);
+  }
+});
+
+hwClearBtn.addEventListener('click', () => {
+  saveState();
+  ctx.clearRect(0, 0, hwCanvas.width, hwCanvas.height);
+});
+
+function resizeCanvas(){
+  const dpr = window.devicePixelRatio || 1;
+  const rect = hwContainer.getBoundingClientRect();
   
-  if(typed === '') return;
-  if(typed === expected){
-    inputEl.classList.add('correct');
-    playCorrectSound();
-    focusNextEditable(inputEl, inputEl.closest('.result-wrap'));
-  } else {
-    inputEl.classList.add('incorrect');
-    playWrongSound();
+  hwCanvas.width = rect.width * dpr;
+  hwCanvas.height = rect.height * dpr;
+  
+  ctx.scale(dpr, dpr);
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--text') || '#232320';
+  history = [];
+}
+
+function getPos(e){
+  const rect = hwCanvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return { x: clientX - rect.left, y: clientY - rect.top };
+}
+
+hwCanvas.addEventListener('pointerdown', (e) => {
+  saveState();
+  drawing = true;
+  const p = getPos(e);
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
+});
+
+hwCanvas.addEventListener('pointermove', (e) => {
+  if(!drawing) return;
+  const p = getPos(e);
+  ctx.lineTo(p.x, p.y);
+  ctx.stroke();
+});
+
+hwCanvas.addEventListener('pointerup', () => drawing = false);
+hwCanvas.addEventListener('pointerleave', () => drawing = false);
+
+input.addEventListener('input', () => {
+  solve(input.value.trim());
+});
+
+input.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    solve(input.value.trim());
   }
-}
-
-function handleWriteBasic(op, aStr, bStr, decSetting){
-  wQuestionDisplay.textContent = `${aStr} ${op} ${bStr} = ?`;
-  hwClear();
-  wFinalAnswerBox.innerHTML='';
-
-  if(op==='+'){
-    const r = computeAddition(aStr,bStr);
-    const answer = ((r.finalCarry?String(r.finalCarry):'') + r.resultDigits.join('')).replace(/^0+(?=\d)/,'');
-    writeAnswerKey = {answer};
-    setWriteFinalAnswer([{label:'Answer', key:'answer'}]);
-  } else if(op==='-'){
-    const aBig=BigInt(aStr), bBig=BigInt(bStr);
-    const r = computeSubtraction(aBig,bBig);
-    let answer = r.resultDigits.join('').replace(/^0+(?=\d)/,''); if(answer==='') answer='0';
-    writeAnswerKey = {answer: (r.swapped?'-':'')+answer};
-    setWriteFinalAnswer([{label:'Answer', key:'answer'}]);
-  } else if(op==='×'){
-    const aBig=BigInt(aStr), bBig=BigInt(bStr);
-    const r = computeMultiplication(aBig,bBig);
-    writeAnswerKey = {answer:r.finalProduct};
-    setWriteFinalAnswer([{label:'Answer', key:'answer'}]);
-  } else if(op==='÷'){
-    const maxDecs = decSetting === 'auto' ? 2 : parseInt(decSetting, 10);
-    const res = divSigned(aStr, bStr, false, null, maxDecs);
-    writeAnswerKey = { answer: res.resultStr };
-    setWriteFinalAnswer([{label:'Answer', key:'answer'}]);
-  }
-  wrResultWrap.style.display='block';
-}
-
-function handleWriteComplex(exprRaw, value, decSetting){
-  wQuestionDisplay.textContent = `${exprRaw} = ?`;
-  hwClear();
-  wFinalAnswerBox.innerHTML='';
-  writeAnswerKey = {answer: formatExprValue(value, decSetting)};
-  setWriteFinalAnswer([{label:'Answer', key:'answer'}]);
-  wrResultWrap.style.display='block';
-}
-
-const wrFieldCtrl = wireEntryField({
-  exprInput: document.getElementById('wrExpr'),
-  fieldWrap: document.getElementById('wrFieldWrap'),
-  triggerEl: document.getElementById('wrSymbolTrigger'),
-  popoverEl: document.getElementById('wrSymbolPopover'),
-  labelEl: document.getElementById('wrLabel'),
-  decWrap: document.getElementById('wrDecWrap'),
-  decSelect: document.getElementById('wrDecSelect'),
-  errorEl: wrError,
-  resultWrap: wrResultWrap,
-  onSimple: handleWriteBasic,
-  onComplex: handleWriteComplex
 });
 
-/* ---------------------------------------------------------------- *
- *  Tab Switching & Controls
- * ---------------------------------------------------------------- */
-document.querySelectorAll('.tab-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
-    if(btn.dataset.tab==='handwrite') requestAnimationFrame(hwResizeCanvas);
-    if(btn.dataset.tab==='calculate') setTimeout(()=> focusFirstEditable(caWorksheet), 50);
-  });
-});
+solve(input.value.trim());
 
-const fontBtns = document.querySelectorAll('#fontSizeGroup .fs-btn');
-fontBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    fontBtns.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.documentElement.style.fontSize = btn.dataset.scale + '%';
-    requestAnimationFrame(hwResizeCanvas);
-  });
-});
-
-/* ---------------------------------------------------------------- *
- *  Theme Switcher
- * ---------------------------------------------------------------- */
-const themeToggleBtn = document.getElementById('themeToggleBtn');
-const themeIcon = document.getElementById('themeIcon');
-const root = document.documentElement;
-
-const sunSvg = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
-const moonSvg = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
-
-function updateThemeUI(mode) {
-  root.dataset.mode = mode;
-  if(mode === 'dark') {
-    themeIcon.innerHTML = sunSvg;
-    themeToggleBtn.setAttribute('title', 'Switch to Light Mode');
-  } else {
-    themeIcon.innerHTML = moonSvg;
-    themeToggleBtn.setAttribute('title', 'Switch to Dark Mode');
-  }
-}
-
-const initialMode = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-updateThemeUI(initialMode);
-
-themeToggleBtn.addEventListener('click', () => {
-  const nextMode = root.dataset.mode === 'dark' ? 'light' : 'dark';
-  updateThemeUI(nextMode);
-});
-
-// Initialize default calculation
-caFieldCtrl.setValue('2454/32+4');
+})();
 </script>
 </body>
 </html>
