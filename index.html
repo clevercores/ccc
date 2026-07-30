@@ -2,655 +2,353 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CalPad — solve it like paper</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CalPad — Human Interface Math</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=SF+Pro+Display:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root[data-theme="light"]{
-    --bg:#F4F3EF;
-    --surface:#FFFFFF;
-    --text:#232320;
-    --muted:#8A887E;
-    --muted-2:#CFCDC3;
-    --divider:#E9E7DF;
-    --tint:#0B7CFF;
-    --tint-soft:#E9F2FF;
-    --tint-line:#BFDCFF;
-    --accent:#1E9A6C;
-    --accent-soft:#E3F5EC;
-    --accent-line:#AEE0C8;
-    --danger:#E0463A;
-    --danger-soft:#FCEAE8;
-    --icon-bg:#EFEDE5;
-    --cell-bg:#FAFAF8;
-    --shadow: 0 1px 2px rgba(30,28,20,0.05), 0 12px 32px rgba(30,28,20,0.07);
+    --bg-surface: #F2F2F7;
+    --card-surface: rgba(255, 255, 255, 0.88);
+    --card-border: rgba(255, 255, 255, 0.95);
+    --glass-blur: blur(24px) saturate(180%);
+    --text-primary: #1C1C1E;
+    --text-secondary: #6C6C70;
+    --text-tertiary: #A2A2A7;
+    --divider: rgba(60, 60, 67, 0.12);
+    --tint: #007AFF;
+    --tint-soft: rgba(0, 122, 255, 0.1);
+    --accent: #34C759;
+    --accent-soft: rgba(52, 199, 89, 0.12);
+    --danger: #FF3B30;
+    --danger-soft: rgba(255, 59, 48, 0.12);
+    --control-bg: rgba(118, 118, 128, 0.12);
+    --shadow-app: 0 16px 36px rgba(0,0,0,0.06);
+    --shadow-floating: 0 10px 28px rgba(0,0,0,0.12);
   }
+
   :root[data-theme="dark"]{
-    --bg:#141414;
-    --surface:#1C1C1E;
-    --text:#F2F1ED;
-    --muted:#9A988F;
-    --muted-2:#48473F;
-    --divider:#2C2C2E;
-    --tint:#3D9BFF;
-    --tint-soft:#0F2740;
-    --tint-line:#1F4A6E;
-    --accent:#3FD996;
-    --accent-soft:#0F3527;
-    --accent-line:#1F5A3F;
-    --danger:#FF6B5E;
-    --danger-soft:#3A1E1A;
-    --icon-bg:#242426;
-    --cell-bg:#232326;
-    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 14px 34px rgba(0,0,0,0.45);
-  }
-  @media (prefers-reduced-motion: reduce){
-    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
-  }
-  :focus-visible{ outline:2px solid var(--tint); outline-offset:2px; border-radius:4px; }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;width:100%;min-height:100vh;}
-  body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:-apple-system, BlinkMacSystemFont, 'Sora', 'Segoe UI', Roboto, sans-serif;
-    -webkit-font-smoothing:antialiased;
-    text-rendering:optimizeLegibility;
-    display:flex;
-    justify-content:center;
-    padding:28px 16px 60px;
-    transition:background .3s cubic-bezier(.16,1,.3,1), color .3s cubic-bezier(.16,1,.3,1);
-  }
-  body.font-sm{ --scale:0.88; }
-  body.font-md{ --scale:1; }
-  body.font-lg{ --scale:1.18; }
-
-  @media (max-width: 480px) {
-    body { padding: 8px 4px 20px; }
-    .app { border-radius: 16px; min-height: calc(100vh - 28px); }
+    --bg-surface: #000000;
+    --card-surface: rgba(28, 28, 30, 0.88);
+    --card-border: rgba(255, 255, 255, 0.12);
+    --glass-blur: blur(24px) saturate(200%);
+    --text-primary: #F2F2F7;
+    --text-secondary: #8E8E93;
+    --text-tertiary: #48484A;
+    --divider: rgba(84, 84, 88, 0.36);
+    --tint: #0A84FF;
+    --tint-soft: rgba(10, 132, 255, 0.15);
+    --accent: #30D158;
+    --accent-soft: rgba(48, 209, 88, 0.15);
+    --danger: #FF453A;
+    --danger-soft: rgba(255, 69, 58, 0.15);
+    --control-bg: rgba(118, 118, 128, 0.24);
+    --shadow-app: 0 20px 40px rgba(0,0,0,0.4);
+    --shadow-floating: 0 14px 32px rgba(0,0,0,0.5);
   }
 
-  .app{
-    width:100%;
-    max-width:440px;
-    background:var(--surface);
-    border-radius:24px;
-    box-shadow:var(--shadow);
-    border:1px solid var(--divider);
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-    min-height:640px;
-    position:relative;
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; }
+  body {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-family: -apple-system, 'SF Pro Display', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    transition: background 0.3s ease;
   }
 
-  header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:24px 24px 14px;
-  }
-  .brand{
-    font-size:23px;
-    font-weight:600;
-    letter-spacing:-0.01em;
-    color:var(--muted);
-    text-align:left;
-  }
-  .brand b{ color:var(--text); font-weight:700; }
-  .header-icons{ display:flex; gap:8px; }
-  .icon-btn{
-    width:40px;height:40px;
-    border-radius:50%;
-    border:none;
-    background:transparent;
-    color:var(--muted);
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;
-    font-size:15px;
-    font-weight:600;
-    font-style:italic;
-    transition:color .15s cubic-bezier(.16,1,.3,1), background .2s cubic-bezier(.16,1,.3,1), transform .12s cubic-bezier(.34,1.56,.64,1);
-    user-select:none;
-  }
-  .icon-btn:hover{ color:var(--text); background:var(--icon-bg); }
-  .icon-btn:active{ transform:scale(.9); }
-  .icon-btn svg{ width:19px;height:19px; }
+  body.font-sm { --scale: 0.82; }
+  body.font-md { --scale: 0.92; }
+  body.font-lg { --scale: 1.05; }
 
-  .input-section{ padding:2px 24px 16px; }
-  .input-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:9px;
+  .app-viewport {
+    width: 100%;
+    max-width: 420px;
+    height: 100%;
+    max-height: 840px;
+    background: var(--card-surface);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-radius: 28px;
+    border: 1px solid var(--card-border);
+    box-shadow: var(--shadow-app);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
   }
-  .input-label{
-    font-size:13px;
-    color:var(--muted);
-    letter-spacing:.02em;
-    text-align:left;
+
+  header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px 8px;
   }
+  .brand { font-size: 18px; font-weight: 500; letter-spacing: -0.02em; color: var(--text-secondary); }
+  .brand b { color: var(--text-primary); font-weight: 600; }
+  .header-actions { display: flex; gap: 6px; }
+
+  .apple-icon-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%; border: none;
+    background: var(--control-bg); color: var(--text-primary);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 13px; font-weight: 500;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .apple-icon-btn:active { transform: scale(0.92); }
+  .apple-icon-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+
+  .input-dock { flex-shrink: 0; padding: 2px 18px 10px; }
+  .dock-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .dock-label { font-size: 11px; font-weight: 400; color: var(--text-secondary); }
+  .controls-cluster { display: flex; gap: 6px; align-items: center; }
+
+  .fire-toggle {
+    background: var(--control-bg); border: none; border-radius: 14px;
+    padding: 3px 7px; font-size: 11px; font-weight: 500;
+    color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 3px;
+    transition: all 0.2s ease;
+  }
+  .fire-toggle.active { background: var(--danger-soft); color: var(--danger); }
+
+  .precision-picker {
+    background: var(--control-bg); color: var(--text-primary);
+    border: none; border-radius: 14px; padding: 3px 7px;
+    font-size: 11px; font-weight: 500; outline: none; cursor: pointer; font-family: inherit;
+  }
+
+  .formula-field {
+    display: flex; align-items: center; gap: 6px;
+    border-bottom: 1.5px solid var(--divider); padding-bottom: 4px;
+  }
+  .formula-field:focus-within { border-bottom-color: var(--tint); }
   
-  .controls-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  #expr-input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-family: 'JetBrains Mono', monospace; font-weight: 500;
+    font-size: 19px; letter-spacing: -0.01em; color: var(--text-primary); min-width: 0;
   }
 
-  .precision-select{
-    background:var(--icon-bg);
-    color:var(--text);
-    border:1px solid var(--divider);
-    border-radius:8px;
-    padding:4px 8px;
-    font-size:12px;
-    font-weight:600;
-    outline:none;
-    cursor:pointer;
-    font-family:inherit;
-    transition:border-color .15s ease;
-  }
-  .precision-select:focus{ border-color:var(--tint); }
-
-  .fire-btn {
-    background: var(--icon-bg);
-    border: 1px solid var(--divider);
-    border-radius: 8px;
-    padding: 4px 8px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    transition: all .15s ease;
-  }
-  .fire-btn.active {
-    background: var(--danger-soft);
-    color: var(--danger);
-    border-color: var(--danger);
+  .fx-trigger {
+    border: none; background: transparent; color: var(--text-secondary);
+    font-style: italic; font-family: 'SF Pro Display', serif; font-size: 16px;
+    cursor: pointer; padding: 2px 4px;
   }
 
-  .input-row{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    border-bottom:1.5px solid var(--divider);
-    padding-bottom:13px;
-    position:relative;
-    transition:border-color .2s cubic-bezier(.16,1,.3,1);
+  .compute-btn {
+    border: none; background: var(--tint); color: #FFF;
+    border-radius: 50%; width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: transform 0.15s ease;
   }
-  .input-row:focus-within{ border-bottom-color:var(--tint); }
-  #expr-input{
-    flex:1;
-    border:none;
-    outline:none;
-    background:transparent;
-    font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
-    font-weight:600;
-    font-size:23px;
-    letter-spacing:-0.01em;
-    color:var(--text);
-    min-width:0;
-    text-align:left;
-    caret-color:auto;
-  }
-  #expr-input::placeholder{ color:var(--muted); }
-  .fx-wrap{ position:relative; flex-shrink:0; }
-  .fx-btn{
-    border:none;
-    background:transparent;
-    color:var(--muted-2);
-    font-style:italic;
-    font-family:Georgia, 'Times New Roman', serif;
-    font-size:18px;
-    cursor:pointer;
-    padding:4px;
-  }
-  .fx-btn:hover{ color:var(--accent); }
+  .compute-btn:active { transform: scale(0.9); }
+  .compute-btn svg { width: 13px; height: 13px; fill: currentColor; }
 
-  .go-btn{
-    border:none;
-    background:var(--tint);
-    color:#fff;
-    border-radius:50%;
-    width:34px;
-    height:34px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    flex-shrink:0;
-    transition:transform .12s cubic-bezier(.34,1.56,.64,1), background .15s ease;
+  .fx-popover {
+    display: none; position: absolute; top: 105px; right: 18px;
+    background: var(--card-surface); backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--card-border); border-radius: 14px;
+    box-shadow: var(--shadow-floating); padding: 6px;
+    grid-template-columns: repeat(4, 1fr); gap: 4px; z-index: 40; width: 190px;
   }
-  .go-btn:hover{ background:var(--tint); opacity:0.9; }
-  .go-btn:active{ transform:scale(0.92); }
-  .go-btn svg{ width:16px; height:16px; fill:currentColor; }
+  .fx-popover.open { display: grid; }
+  .fx-popover button {
+    border: none; background: var(--control-bg); border-radius: 8px;
+    padding: 6px 0; cursor: pointer; color: var(--text-primary);
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+  }
+  .fx-popover button:active { transform: scale(0.94); }
+  .fx-popover .sym { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; }
+  .fx-popover .lbl { font-size: 8px; color: var(--text-secondary); }
 
-  .fx-menu{
-    display:none;
-    position:absolute;
-    top:calc(100% + 10px);
-    right:-10px;
-    background:var(--surface);
-    border:1px solid var(--divider);
-    border-radius:14px;
-    box-shadow:var(--shadow);
-    padding:10px;
-    grid-template-columns:repeat(4, 1fr);
-    gap:6px;
-    z-index:30;
-    width:232px;
+  main { flex: 1; padding: 4px 18px 75px; overflow-y: auto; overflow-x: auto; position: relative; }
+
+  .steps { display: flex; flex-direction: column; gap: 14px; }
+  .step { animation: fadeRise 0.2s ease both; }
+  @keyframes fadeRise { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .step-header {
+    font-size: calc(11.5px * var(--scale, 1)); color: var(--text-secondary);
+    margin-bottom: 6px; font-style: italic; display: flex; align-items: center; gap: 4px;
   }
-  .fx-menu.open{ display:grid; }
-  .fx-menu button{
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
-    border:1px solid var(--divider);
-    background:var(--icon-bg);
-    border-radius:10px;
-    padding:9px 2px 7px;
-    cursor:pointer;
-    color:var(--text);
+  .step-header b { font-style: normal; font-weight: 500; color: var(--text-secondary); }
+  .step-header .hl { font-family: 'JetBrains Mono', monospace; font-style: italic; font-weight: 500; color: var(--text-primary); }
+
+  /* Mathematical Grids */
+  .division-grid, .arith-grid {
+    display: inline-grid; row-gap: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(14.5px * var(--scale, 1));
+    color: var(--text-primary); max-width: 100%;
   }
-  .fx-menu button:hover{ border-color:var(--tint-line); background:var(--tint-soft); }
-  .fx-menu button:focus-visible{ border-color:var(--tint); }
-  .fx-menu button:active{ transform:scale(.94); }
-  .fx-menu .sym{ font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1; font-size:17px; font-weight:700; }
-  .fx-menu .lbl{ font-size:8.5px; color:var(--muted); letter-spacing:.01em; }
-  .fx-menu-title{
-    grid-column:1 / -1;
-    font-size:11px;
-    font-weight:600;
-    color:var(--muted);
-    text-align:left;
-    padding:2px 4px 6px;
-    letter-spacing:.02em;
+  .division-grid > div, .arith-grid > div { display: flex; align-items: center; justify-content: center; }
+
+  /* Precise Division Bracket Layout */
+  .div-divisor-cell {
+    grid-column: 1 / 2;
+    grid-row: 2;
+    justify-content: flex-end !important;
+    padding-right: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+  }
+  .div-bracket-cell {
+    grid-column: 2 / 3;
+    grid-row: 2;
+    justify-content: center !important;
+    padding-right: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
   }
 
-  .error-msg{
-    display:none;
-    margin:10px 24px 0;
-    padding:10px 12px;
-    background:var(--danger-soft);
-    color:var(--danger);
-    border-radius:10px;
-    font-size:13px;
-    text-align:left;
-  }
-  .error-msg.show{ display:block; }
-
-  main{
-    flex:1;
-    padding:6px 24px 10px;
-    overflow-y:auto;
-    overflow-x:auto;
-  }
-
-  .steps{ display:flex; flex-direction:column; gap:0; text-align:left; }
-  .step{ animation: rise .35s ease both; padding-bottom:26px; }
-  .step + .step{ border-top:1.5px dotted var(--muted-2); padding-top:24px; margin-top:2px; }
-  @keyframes rise{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
-
-  .step-title{
-    font-size:calc(13.5px * var(--scale, 1));
-    color:var(--muted);
-    margin-bottom:11px;
-    font-style:italic;
-    display:flex;
-    align-items:center;
-    gap:6px;
-  }
-  .step-title b{
-    font-style:normal;
-    color:var(--muted);
-    font-weight:600;
-  }
-  .step-title .hl{
-    font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
-    font-weight:700;
-    font-style:italic;
-    color:var(--text);
-  }
-  .step-check{
-    display:none;
-    width:16px;height:16px;
-    border-radius:50%;
-    background:var(--accent);
-    color:var(--surface);
-    align-items:center;
-    justify-content:center;
-    font-size:10px;
-    flex-shrink:0;
-  }
-  body:not(.fire-mode) .step.step-done .step-check{ display:inline-flex; }
-
-  .work{
-    display:inline-flex;
-    flex-direction:column;
-    align-items:flex-end;
-    font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
-    font-size:calc(17.5px * var(--scale, 1));
-    color:var(--text);
-    line-height:1.6;
-  }
-  .work .row{ white-space:nowrap; text-align:right; }
-  .work .row.narrow{ letter-spacing:1px; }
-  .work .rule{
-    align-self:flex-end;
-    border-top:1.5px dashed var(--muted-2);
-    margin:3px 0;
-  }
-  .work .final-rule{
-    align-self:stretch;
-    border-top:2px solid var(--text);
-    margin:5px 0 3px;
-    width:100%;
-  }
-
-  /* Grid Layouts */
-  .arith-grid{
-    display:inline-grid;
-    grid-auto-rows:min-content;
-    row-gap:7px;
-    column-gap:0;
-    font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
-    font-size:calc(17.5px * var(--scale, 1));
-    color:var(--text);
-    max-width:100%;
-  }
-  .arith-grid > div{ display:flex; align-items:center; justify-content:center; }
-  .a-sym{ justify-content:flex-start; color:var(--text); }
-  .a-static{ justify-content:center; }
-  .a-static.result{ color:var(--accent); font-weight:inherit; }
-  body.fire-mode .a-static.result{ color:var(--text); }
-  .a-final-rule{ align-self:stretch; border-top:2px solid var(--text); margin:2px 0 1px; width:100%; }
-  .a-dotted-rule{ align-self:stretch; border-top:1.5px dotted var(--muted-2); margin:3px 0 5px; width:100%; }
-  
-  /* Carry & Borrow Fields */
-  .a-carry-right {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding-left: 6px;
-  }
+  .a-carry-right { display: flex; align-items: center; padding-left: 6px; }
   .carry-badge-wrap {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: var(--icon-bg);
-    border: 1px dashed var(--muted-2);
-    border-radius: 6px;
-    padding: 1px 5px;
-    font-size: 11px;
-    color: var(--muted);
-    transition: opacity .2s ease;
+    display: flex; align-items: center; gap: 3px;
+    background: var(--control-bg); border-radius: 5px;
+    padding: 1px 4px; font-size: 9.5px; color: var(--text-secondary);
   }
   .carry-badge-wrap.hidden { display: none !important; }
-  .carry-badge-wrap span { font-size: 10px; opacity: 0.8; }
+  .carry-badge-wrap span { font-size: 8.5px; opacity: 0.8; }
   .carry-input {
-    width: 2ch;
-    border: none;
-    background: transparent;
-    text-align: center;
-    font-weight: 600;
-    font-size: 13px;
-    color: var(--tint);
-    outline: none;
-    font-family: inherit;
+    width: 2ch; border: none; background: transparent;
+    text-align: center; font-weight: 500; font-size: 10.5px;
+    color: var(--tint); outline: none; font-family: inherit;
   }
 
-  .division-grid{
-    display:inline-grid;
-    grid-auto-rows:min-content;
-    row-gap:6px;
-    column-gap:0;
-    font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
-    font-size:calc(17.5px * var(--scale, 1));
-    color:var(--text);
-    max-width:100%;
-  }
-  .division-grid > div{ display:flex; align-items:center; justify-content:center; }
-  .q-cell{ justify-content:center; width:100%; height:100%; }
-  .q-static{ color:var(--text); justify-content:center; }
-  .prefix-cell{ justify-content:flex-end; padding-right:2px; white-space:nowrap; }
-  .bracket-cell{
-    justify-content:flex-start;
-    border-top:2px solid var(--text);
-    padding-top:2px;
-  }
-  .d-cell{
-    justify-content:center;
-    border-top:2px solid var(--text);
-    padding-top:2px;
-  }
-  .row-rule{ align-self:center; border-top:1.5px dashed var(--muted-2); height:0; width:100%; }
+  .row-rule { border-top: 1.2px dashed var(--divider); width: 100%; height: 0; }
+  .a-final-rule { border-top: 1.5px solid var(--text-primary); width: 100%; height: 0; }
 
-  .cell{
-    font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
-    font-weight:inherit;
-    font-size:calc(17.5px * var(--scale, 1));
-    text-align:center;
-    background:transparent;
-    color:var(--tint);
-    border:none;
-    border-bottom:1.5px dashed var(--muted-2);
-    border-radius:0;
-    padding:0;
-    margin:0;
-    min-width:0;
-    outline:none;
-    transition:color .15s ease, border-color .15s ease;
+  .cell {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(14.5px * var(--scale, 1));
+    font-weight: 500; text-align: center; background: transparent;
+    color: var(--tint); border: none; border-bottom: 1.5px dashed var(--divider);
+    padding: 0; margin: 0; outline: none; transition: all 0.15s ease;
   }
-  .cell:focus{ border-bottom-color:var(--tint); color:var(--tint); }
+  .cell:focus { border-bottom-color: var(--tint); }
   
-  /* Normal Feedback Colors */
-  body:not(.fire-mode) .cell.correct{
-    border-bottom-color:transparent;
-    background:transparent;
-    color:var(--accent);
-  }
-  body:not(.fire-mode) .cell.incorrect{
-    border-bottom-color:var(--danger);
-    background:transparent;
-    color:var(--danger);
-    animation:shake .3s ease;
-  }
+  body:not(.fire-mode) .cell.correct { border-bottom-color: transparent; color: var(--accent); }
+  body:not(.fire-mode) .cell.incorrect { border-bottom-color: var(--danger); color: var(--danger); animation: jitter 0.25s ease; }
+  body.fire-mode .cell { color: var(--text-primary) !important; border-bottom-color: var(--divider) !important; }
 
-  /* Fire Mode (Exam Mode) Input Override */
-  body.fire-mode .cell {
-    color: var(--text) !important;
-    border-bottom-color: var(--muted-2) !important;
-  }
+  @keyframes jitter { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-2px);} 75%{transform:translateX(2px);} }
 
-  @keyframes shake{
-    0%,100%{ transform:translateX(0); }
-    25%{ transform:translateX(-4px); }
-    75%{ transform:translateX(4px); }
+  .answer-card { margin-top: 10px; padding: 2px 0; }
+  .answer-card.hidden { display: none; }
+  .answer-card .ans-info { display: flex; align-items: baseline; gap: 6px; }
+  .answer-card .label { font-size: 12.5px; font-weight: 500; color: var(--text-secondary); }
+  .answer-card .value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 19px; font-weight: 600; color: var(--accent);
   }
+  body.fire-mode .answer-card .value { color: var(--text-primary); }
 
-  /* Minimal Answer Card without highlight box */
-  .answer-card{
-    margin-top:14px;
-    padding:6px 0;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    animation: rise .4s ease both;
-  }
-  .answer-card.hidden{ display:none; }
-  .answer-card .ans-info { display:flex; align-items:baseline; gap:8px; }
-  .answer-card .label{
-    font-size:14px;
-    font-weight:600;
-    color:var(--muted);
-  }
-  .answer-card .value{
-    font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
-    font-size:26px;
-    font-weight:700;
-    letter-spacing:-0.01em;
-    color:var(--accent);
-  }
-  body.fire-mode .answer-card .value {
-    color:var(--text);
-  }
-
-  /* Handwriting Overlay & Header */
-  .handwriting-overlay {
-    display: none;
+  /* Confetti Particle Styling */
+  .confetti-particle {
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: var(--surface);
-    border-radius: 24px;
-    z-index: 50;
-    flex-direction: column;
-    padding: 16px;
+    width: 6px; height: 8px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 100;
+    animation: confettiFall 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(120px) rotate(360deg); opacity: 0; }
+  }
+
+  .floating-dock-container {
+    position: absolute; bottom: 12px; left: 0; right: 0;
+    display: flex; justify-content: center; pointer-events: none; z-index: 30;
+  }
+  .floating-dock {
+    pointer-events: auto; background: var(--card-surface);
+    backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--card-border); box-shadow: var(--shadow-floating);
+    border-radius: 20px; padding: 3px 6px; display: flex; align-items: center; gap: 4px;
+  }
+  .dock-btn {
+    border: none; background: transparent; color: var(--text-primary);
+    font-size: 11.5px; font-weight: 500; padding: 5px 10px;
+    border-radius: 14px; cursor: pointer; display: flex; align-items: center; gap: 4px;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .dock-btn:hover { background: var(--control-bg); }
+  .dock-btn:active { transform: scale(0.94); }
+  .dock-btn.primary { background: var(--tint); color: #FFF; }
+  .dock-btn.primary:hover { opacity: 0.9; }
+
+  .handwriting-overlay {
+    display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--card-surface); backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur); border-radius: 28px;
+    z-index: 60; flex-direction: column; padding: 14px;
   }
   .handwriting-overlay.open { display: flex; }
 
   .hw-top-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 10px;
-    margin-bottom: 8px;
-    border-bottom: 1px dashed var(--divider);
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 6px; margin-bottom: 6px; border-bottom: 1px dashed var(--divider);
   }
   .hw-question-display {
-    font-family: ui-monospace, 'SF Mono', 'JetBrains Mono', monospace;
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 14px;
+    font-weight: 500; color: var(--text-primary);
   }
 
   .hw-canvas-container {
-    flex: 1;
-    border: 1px dashed var(--muted-2);
-    border-radius: 12px;
-    position: relative;
-    background: var(--cell-bg);
-    touch-action: none;
+    flex: 1; border: 1px dashed var(--divider); border-radius: 14px;
+    position: relative; background: var(--cell-bg); touch-action: none;
   }
-  #hw-canvas {
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-  }
+  #hw-canvas { width: 100%; height: 100%; border-radius: 14px; }
 
-  .hw-bottom-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 12px;
-    gap: 8px;
+  .hw-fixed-bottom-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 8px; gap: 6px;
   }
-  .hw-title-tag {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--muted);
-  }
-  .hw-title-tag svg { width: 16px; height: 16px; }
+  .hw-action-group { display: flex; align-items: center; gap: 5px; }
 
-  .hw-controls-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .close-icon-btn {
+    width: 28px; height: 28px; border-radius: 50%; border: none;
+    background: var(--control-bg); color: var(--text-secondary);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 500;
   }
-  .hw-btn {
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--divider);
-    background: var(--icon-bg);
-    color: var(--text);
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    transition: background .15s ease;
-  }
-  .hw-btn:hover { background: var(--divider); }
-  .hw-btn svg { width: 14px; height: 14px; }
+  .close-icon-btn:hover { background: var(--danger-soft); color: var(--danger); }
 
-  .hw-close-btn-bottom {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    border: 1px solid var(--divider);
-    background: var(--icon-bg);
-    color: var(--muted);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
-    transition: background .15s ease, color .15s ease;
+  .error-msg{
+    display:none; margin:4px 18px 0; padding:6px 8px;
+    background:var(--danger-soft); color:var(--danger);
+    border-radius:8px; font-size:11.5px; text-align:left;
   }
-  .hw-close-btn-bottom:hover { background: var(--danger-soft); color: var(--danger); }
-
-  footer{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:14px 24px 22px;
-    border-top:1px solid var(--divider);
-  }
-  .pencil-btn{
-    width:44px;height:44px;
-    border-radius:13px;
-    border:1px solid var(--divider);
-    background:var(--icon-bg);
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;
-    color:var(--muted);
-    transition:background .18s cubic-bezier(.16,1,.3,1), color .18s cubic-bezier(.16,1,.3,1), border-color .18s ease, transform .12s cubic-bezier(.34,1.56,.64,1);
-  }
-  .pencil-btn:active{ transform:scale(.92); }
-  .pencil-btn svg{ width:19px;height:19px; }
-
-  .solution-btn{
-    padding:10px 22px;
-    border-radius:999px;
-    border:1px solid var(--divider);
-    background:var(--tint);
-    border-color:var(--tint);
-    color:#fff;
-    font-family:'Sora',sans-serif;
-    font-size:14px;
-    font-weight:600;
-    cursor:pointer;
-    transition:all .15s ease;
-  }
-  .solution-btn:active{ transform:scale(.96); }
-
-  main::-webkit-scrollbar{ width:6px; }
-  main::-webkit-scrollbar-thumb{ background:var(--divider); border-radius:3px; }
+  .error-msg.show{ display:block; }
 </style>
 </head>
 <body class="font-md">
-<div class="app" id="app" data-theme="light">
+
+<div class="app-viewport" id="app" data-theme="light">
 
   <header>
     <div class="brand"><b>Cal</b>Pad</div>
-    <div class="header-icons">
-      <button class="icon-btn" id="font-btn" title="Text size" aria-label="Change text size">A</button>
-      <button class="icon-btn" id="theme-btn" title="Day / night mode" aria-label="Toggle day and night mode">
-        <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+    <div class="header-actions">
+      <button class="apple-icon-btn" id="font-btn" title="Text scale">A</button>
+      <button class="apple-icon-btn" id="theme-btn" title="Toggle theme">
+        <svg id="theme-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
       </button>
     </div>
   </header>
 
-  <div class="input-section">
-    <div class="input-header">
-      <div class="input-label">Calculate</div>
-      <div class="controls-group">
-        <button class="fire-btn" id="fire-btn" title="Toggle Fire/Exam Mode">🔥 Exam Mode</button>
-        <select class="precision-select" id="precision-select" aria-label="Select mode or decimals">
+  <div class="input-dock">
+    <div class="dock-header">
+      <span class="dock-label">Calculation Engine</span>
+      <div class="controls-cluster">
+        <button class="fire-toggle" id="fire-btn" title="Toggle Exam Mode">🔥 Exam</button>
+        <select class="precision-picker" id="precision-select">
           <option value="whole" selected>Whole Numbers</option>
           <option value="1">.0 (1 Dec)</option>
           <option value="2">.00 (2 Dec)</option>
@@ -659,24 +357,22 @@
         </select>
       </div>
     </div>
-    <div class="input-row">
-      <input id="expr-input" type="text" inputmode="text" value="2450/832" placeholder="e.g. 2450/832" autocomplete="off" spellcheck="false" aria-label="Calculation input" autofocus>
+    <div class="formula-field">
+      <input id="expr-input" type="text" inputmode="text" value="7909/79" autocomplete="off" spellcheck="false">
       <div class="fx-wrap">
-        <button class="fx-btn" id="fx-btn" title="Insert symbol" aria-label="Insert a mathematical symbol" aria-haspopup="true" aria-expanded="false">ƒx</button>
-        <div class="fx-menu" id="fx-menu" role="menu" aria-label="Insert symbol">
-          <div class="fx-menu-title">Insert symbol</div>
-          <button data-insert="+" data-back="0" aria-label="Addition"><span class="sym">+</span><span class="lbl">Add</span></button>
-          <button data-insert="-" data-back="0" aria-label="Subtraction"><span class="sym">−</span><span class="lbl">Subtract</span></button>
-          <button data-insert="*" data-back="0" aria-label="Multiplication"><span class="sym">×</span><span class="lbl">Multiply</span></button>
-          <button data-insert="/" data-back="0" aria-label="Division"><span class="sym">÷</span><span class="lbl">Divide</span></button>
-          <button data-insert="()" data-back="1" aria-label="Brackets"><span class="sym">( )</span><span class="lbl">Brackets</span></button>
-          <button data-insert="²" data-back="0" aria-label="Square"><span class="sym">x²</span><span class="lbl">Square</span></button>
-          <button data-insert="√" data-back="0" aria-label="Square root"><span class="sym">√</span><span class="lbl">Sq Root</span></button>
-          <button data-insert="%" data-back="0" aria-label="Percent"><span class="sym">%</span><span class="lbl">Percent</span></button>
-          <button data-insert="^" data-back="0" aria-label="Power"><span class="sym">xⁿ</span><span class="lbl">Power</span></button>
+        <button class="fx-trigger" id="fx-btn">ƒx</button>
+        <div class="fx-popover" id="fx-menu">
+          <button data-insert="+"><span class="sym">+</span><span class="lbl">Add</span></button>
+          <button data-insert="-"><span class="sym">−</span><span class="lbl">Subtract</span></button>
+          <button data-insert="*"><span class="sym">×</span><span class="lbl">Multiply</span></button>
+          <button data-insert="/"><span class="sym">÷</span><span class="lbl">Divide</span></button>
+          <button data-insert="()"><span class="sym">( )</span><span class="lbl">Brackets</span></button>
+          <button data-insert="²"><span class="sym">x²</span><span class="lbl">Square</span></button>
+          <button data-insert="√"><span class="sym">√</span><span class="lbl">Sq Root</span></button>
+          <button data-insert="%"><span class="sym">%</span><span class="lbl">Percent</span></button>
         </div>
       </div>
-      <button class="go-btn" id="go-btn" title="Calculate" aria-label="Calculate">
+      <button class="compute-btn" id="go-btn">
         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </button>
     </div>
@@ -684,236 +380,180 @@
 
   <div class="error-msg" id="error-msg"></div>
 
-  <main>
+  <main id="main-area">
     <div id="content"></div>
   </main>
 
-  <footer>
-    <button class="pencil-btn" id="practice-btn" title="Handwriting mode" aria-label="Toggle handwriting mode">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
-    </button>
-    <button class="solution-btn" id="solution-btn">Reveal</button>
-  </footer>
+  <div class="floating-dock-container">
+    <div class="floating-dock">
+      <button class="dock-btn" id="practice-btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
+        Canvas
+      </button>
+      <button class="dock-btn primary" id="solution-btn">Reveal</button>
+    </div>
+  </div>
 
   <div class="handwriting-overlay" id="hw-overlay">
     <div class="hw-top-header">
-      <div class="hw-title-tag">Question</div>
-      <div class="hw-question-display" id="hw-question-text">2450 ÷ 832</div>
+      <span class="dock-label">Question Pad</span>
+      <span class="hw-question-display" id="hw-question-text">7909 ÷ 79</span>
     </div>
     <div class="hw-canvas-container" id="hw-canvas-container">
       <canvas id="hw-canvas"></canvas>
     </div>
-    <div class="hw-bottom-bar">
-      <div class="hw-title-tag">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
-        Scratchpad
-      </div>
-      <div class="hw-controls-row">
-        <button class="hw-btn" id="hw-undo-btn" title="Undo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h10a5 5 0 0 1 5 5v2M3 10l6-6M3 10l6 6"/></svg> Undo
-        </button>
-        <button class="hw-btn" id="hw-clear-btn" title="Clear">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Clear
-        </button>
-        <button class="hw-close-btn-bottom" id="hw-close-btn" title="Close Scratchpad" aria-label="Close Scratchpad">✕</button>
+    <div class="hw-fixed-bottom-bar">
+      <span class="dock-label">Scratchpad</span>
+      <div class="hw-action-group">
+        <button class="dock-btn" id="hw-undo-btn">Undo</button>
+        <button class="dock-btn" id="hw-clear-btn">Clear</button>
+        <button class="close-icon-btn" id="hw-close-btn">✕</button>
       </div>
     </div>
   </div>
 
 </div>
 
+<!-- Web Audio API Synthesizer -->
+<script>
+class SoundEngine {
+  constructor() { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+  playClick() {
+    if(this.ctx.state === 'suspended') this.ctx.resume();
+    const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+    osc.type = 'sine'; osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.03);
+    gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.03);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(); osc.stop(this.ctx.currentTime + 0.03);
+  }
+  playSuccess() {
+    if(this.ctx.state === 'suspended') this.ctx.resume();
+    const now = this.ctx.currentTime, osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+    osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, now);
+    osc.frequency.setValueAtTime(659.25, now + 0.05); osc.frequency.setValueAtTime(783.99, now + 0.1);
+    gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(now + 0.35);
+  }
+  playError() {
+    if(this.ctx.state === 'suspended') this.ctx.resume();
+    const now = this.ctx.currentTime, osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(180, now); osc.frequency.setValueAtTime(140, now + 0.05);
+    gain.gain.setValueAtTime(0.08, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.18);
+    osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(now + 0.18);
+  }
+}
+const audioFX = new SoundEngine();
+</script>
+
 <script>
 (function(){
 
-/* ================= FIRE MODE & PRECISION ================= */
 const precisionSelect = document.getElementById('precision-select');
 const fireBtn = document.getElementById('fire-btn');
-
 let currentPrecision = precisionSelect.value;
 let isFireMode = false;
 
 fireBtn.addEventListener('click', () => {
+  audioFX.playClick();
   isFireMode = !isFireMode;
   fireBtn.classList.toggle('active', isFireMode);
   document.body.classList.toggle('fire-mode', isFireMode);
 });
 
 precisionSelect.addEventListener('change', () => {
+  audioFX.playClick();
   currentPrecision = precisionSelect.value;
   solve(input.value.trim());
 });
 
-/* ================= THEME / FONT ================= */
 const app = document.getElementById('app');
 const themeBtn = document.getElementById('theme-btn');
 const themeIcon = document.getElementById('theme-icon');
 const fontBtn = document.getElementById('font-btn');
 
-const SUN_PATH = '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>';
-const MOON_PATH = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path>';
+const SUN = '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>';
+const MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path>';
 
-let theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-function applyTheme(){
+let theme = 'light';
+themeBtn.addEventListener('click', () => {
+  audioFX.playClick();
+  theme = theme === 'light' ? 'dark' : 'light';
   document.documentElement.setAttribute('data-theme', theme);
   app.setAttribute('data-theme', theme);
-  themeIcon.innerHTML = theme === 'light' ? SUN_PATH : MOON_PATH;
-}
-applyTheme();
-themeBtn.addEventListener('click', () => {
-  theme = theme === 'light' ? 'dark' : 'light';
-  applyTheme();
+  themeIcon.innerHTML = theme === 'light' ? SUN : MOON;
 });
 
 const fontSizes = ['font-sm','font-md','font-lg'];
 let fontIdx = 1;
 fontBtn.addEventListener('click', () => {
+  audioFX.playClick();
   document.body.classList.remove(fontSizes[fontIdx]);
   fontIdx = (fontIdx + 1) % fontSizes.length;
   document.body.classList.add(fontSizes[fontIdx]);
 });
 
-/* ================= FX SYMBOL MENU ================= */
 const fxBtn = document.getElementById('fx-btn');
 const fxMenu = document.getElementById('fx-menu');
 
-function toggleFxMenu(open){
-  const isOpen = open !== undefined ? open : !fxMenu.classList.contains('open');
-  fxMenu.classList.toggle('open', isOpen);
-  fxBtn.setAttribute('aria-expanded', isOpen);
-}
-
 fxBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  toggleFxMenu();
+  e.stopPropagation(); audioFX.playClick(); fxMenu.classList.toggle('open');
 });
-document.addEventListener('click', () => toggleFxMenu(false));
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    toggleFxMenu(false);
-    hwOverlay.classList.remove('open');
-  }
-});
-fxMenu.addEventListener('click', (e) => e.stopPropagation());
+document.addEventListener('click', () => fxMenu.classList.remove('open'));
 fxMenu.querySelectorAll('button[data-insert]').forEach(btn => {
   btn.addEventListener('click', () => {
-    insertSymbol(btn.dataset.insert, parseInt(btn.dataset.back || '0', 10));
-    toggleFxMenu(false);
+    audioFX.playClick(); insertSymbol(btn.dataset.insert); fxMenu.classList.remove('open');
   });
 });
 
-function insertSymbol(text, back){
+function insertSymbol(text){
   const start = input.selectionStart ?? input.value.length;
   const end = input.selectionEnd ?? input.value.length;
-  const before = input.value.slice(0, start);
-  const after = input.value.slice(end);
-  input.value = before + text + after;
-  const newPos = start + text.length - back;
-  input.focus();
-  input.setSelectionRange(newPos, newPos);
-  solve(input.value.trim());
+  input.value = input.value.slice(0, start) + text + input.value.slice(end);
+  input.focus(); solve(input.value.trim());
 }
 
-/* ================= NUMBER HELPERS ================= */
-function decimalsOf(str){
-  const i = str.indexOf('.');
-  return i === -1 ? 0 : str.length - i - 1;
-}
+function decimalsOf(str){ const i = str.indexOf('.'); return i === -1 ? 0 : str.length - i - 1; }
 function formatNum(n){
   if (!isFinite(n)) return 'undefined';
   let r = Math.round((n + Number.EPSILON) * 1e6) / 1e6;
-  if (Object.is(r, -0)) r = 0;
-  return String(r);
+  return Object.is(r, -0) ? '0' : String(r);
 }
 function padDecimals(str, places){
-  let neg = str.startsWith('-');
-  if(neg) str = str.slice(1);
+  let neg = str.startsWith('-'); if(neg) str = str.slice(1);
   let [i, f=''] = str.split('.');
   while(f.length < places) f += '0';
   return (neg?'-':'') + i + (places>0 ? '.'+f : '');
 }
-function escapeHtml(s){
-  return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-}
+function escapeHtml(s){ return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
 
-/* ================= TOKENIZER ================= */
 function tokenize(expr){
   expr = expr.replace(/\s+/g,'').replace(/×/g,'*').replace(/÷/g,'/').replace(/x²/gi,'²');
-  const tokens = [];
-  let i = 0;
+  const tokens = []; let i = 0;
   while(i < expr.length){
     const ch = expr[i];
-    if(ch === '(' || ch === ')'){ tokens.push(ch); i++; continue; }
-    if(ch === '\u00B2' || ch === '\u221A' || ch === '%'){ tokens.push(ch); i++; continue; }
-    if(ch === '^'){ tokens.push(ch); i++; continue; }
+    if('()²√%^'.includes(ch)){ tokens.push(ch); i++; continue; }
     if('+-*/'.includes(ch)){
       const prev = tokens[tokens.length-1];
       const isUnary = (ch==='-' || ch==='+') && (prev===undefined || prev==='(' || '+-*/^'.includes(prev));
       if(isUnary){
-        let j = i+1, sign = ch==='-' ? '-' : '';
-        let num = sign;
+        let j = i+1, num = ch==='-' ? '-' : '';
         while(j<expr.length && /[0-9.]/.test(expr[j])){ num += expr[j]; j++; }
-        if(num === '' || num === '-') throw new Error('Invalid expression');
-        tokens.push(num);
-        i = j;
-        continue;
+        tokens.push(num); i = j; continue;
       }
       tokens.push(ch); i++; continue;
     }
     if(/[0-9.]/.test(ch)){
       let j=i, num='';
       while(j<expr.length && /[0-9.]/.test(expr[j])){ num+=expr[j]; j++; }
-      tokens.push(num);
-      i=j;
-      continue;
+      tokens.push(num); i=j; continue;
     }
-    throw new Error('Unrecognized character "'+ch+'"');
+    throw new Error('Unrecognized symbol');
   }
   return tokens;
 }
 
-const OP_NAMES = { '+': 'Add', '-': 'Subtract', '*': 'Multiply', '/': 'Divide', '^': 'Power' };
-const OP_SYMBOLS = { '+': '+', '-': '\u2212', '*': '\u00D7', '/': '\u00F7', '^': '^' };
-
-function tokensToDisplayText(tokens){
-  return tokens.map(t => ('+-*/^'.includes(t) && t.length===1) ? OP_SYMBOLS[t] : t).join(' ');
-}
-
-function quickEval(tokens){
-  let pos = 0;
-  const peek = () => tokens[pos];
-  function parseExpr(){
-    let v = parseTerm();
-    while(peek()==='+' || peek()==='-'){ const op=tokens[pos++]; const r=parseTerm(); v = op==='+' ? v+r : v-r; }
-    return v;
-  }
-  function parseTerm(){
-    let v = parsePower();
-    while(peek()==='*' || peek()==='/'){ const op=tokens[pos++]; const r=parsePower(); v = op==='*' ? v*r : v/r; }
-    return v;
-  }
-  function parsePower(){
-    let v = parsePostfix();
-    while(peek()==='^'){ pos++; const r=parsePostfix(); v = Math.pow(v, r); }
-    return v;
-  }
-  function parsePostfix(){
-    let v = parsePrefix();
-    while(peek()==='\u00B2' || peek()==='%'){ const op=tokens[pos++]; v = op==='\u00B2' ? v*v : v/100; }
-    return v;
-  }
-  function parsePrefix(){
-    if(peek()==='\u221A'){ pos++; return Math.sqrt(parsePrefix()); }
-    return parseAtom();
-  }
-  function parseAtom(){
-    if(peek()==='('){ pos++; const v=parseExpr(); if(peek()===')') pos++; return v; }
-    const t = tokens[pos++];
-    return parseFloat(t);
-  }
-  return parseExpr();
-}
-
-/* ================= WORK MODELS & CARRY LOGIC ================= */
 function checkNeedsCarryAddSub(a, b, op){
   let carryNeeded = false;
   let aDigits = a.replace('.','').split('').reverse();
@@ -934,96 +574,75 @@ function checkNeedsCarryAddSub(a, b, op){
   return carryNeeded;
 }
 
+function checkNeedsMultiplyCarry(aStr, dVal) {
+  let digits = aStr.replace('.','').split('').reverse();
+  let carry = 0;
+  for (let i = 0; i < digits.length; i++) {
+    let prod = parseInt(digits[i], 10) * dVal + carry;
+    if (prod >= 10) return true;
+    carry = Math.floor(prod / 10);
+  }
+  return false;
+}
+
 function buildAddSubModel(aStr, bStr, op, resultStr){
   const dec = Math.max(decimalsOf(aStr), decimalsOf(bStr));
   const a = padDecimals(aStr, dec);
   const b = padDecimals(bStr, dec);
   const r = padDecimals(resultStr, dec);
-  const sym = op === '+' ? '+' : '\u2212';
   const width = Math.max(a.length, b.length, r.length);
-  
   const hasCarry = checkNeedsCarryAddSub(a, b, op);
 
   const rows = [
     { kind:'given', text:a },
-    { kind:'given', text:b, sym, hasCarry: hasCarry, carryLabel: op==='+'?'carry':'borrow' },
+    { kind:'given', text:b, sym: op==='+'?'+':'\u2212' },
     { kind:'final-rule' },
-    { kind:'blank', text:r }
+    { kind:'blank', text:r, hasCarry: hasCarry, carryLabel: op==='+'?'carry':'borrow' }
   ];
   return { resultStr: r, isGrid:true, grid:{ width, prefixCols:1, rows } };
 }
 
-function buildMultiplyModel(aStr, bStr){
-  const negA = aStr.startsWith('-'), negB = bStr.startsWith('-');
-  aStr = aStr.replace('-',''); bStr = bStr.replace('-','');
-  const decA = decimalsOf(aStr), decB = decimalsOf(bStr);
+function buildMultiplyModel(aStr, bStr, resultStr){
   const intA = aStr.replace('.','').replace(/^0+(?=\d)/,'') || '0';
   const intB = bStr.replace('.','').replace(/^0+(?=\d)/,'') || '0';
-  const bigA = BigInt(intA), bigB = BigInt(intB);
-  const totalDec = decA + decB;
-
+  
   const bDigits = intB.split('').reverse();
-  const showPartials = bDigits.length > 1;
-  let productSum = 0n;
-  const partialStrs = [];
-  if(showPartials){
-    for(let i=0; i<bDigits.length; i++){
-      const d = BigInt(bDigits[i]);
-      if(d === 0n) continue;
-      const partial = bigA * d * (10n ** BigInt(i));
-      productSum += partial;
-      partialStrs.push(partial.toString());
-    }
-  } else {
-    productSum = bigA * bigB;
+  const partials = [];
+  
+  if (bDigits.length > 1) {
+    bDigits.forEach((d, idx) => {
+      const val = (BigInt(intA) * BigInt(d) * (10n ** BigInt(idx))).toString();
+      partials.push(val);
+    });
   }
 
-  let productStr = productSum.toString();
-  let resultStr;
-  if(totalDec > 0){
-    while(productStr.length <= totalDec) productStr = '0' + productStr;
-    const cut = productStr.length - totalDec;
-    resultStr = productStr.slice(0,cut) + '.' + productStr.slice(cut);
-  } else {
-    resultStr = productStr;
-  }
-  const resultNum = parseFloat(resultStr) * ((negA !== negB) ? -1 : 1);
-  const displayResult = formatNum(resultNum);
-
-  const allStrs = [intA, intB, displayResult, ...partialStrs];
-  const width = Math.max(...allStrs.map(s => s.length));
+  const width = Math.max(intA.length, intB.length, resultStr.length, ...partials.map(p => p.length));
 
   const rows = [
     { kind:'given', text:intA },
-    { kind:'given', text:intB, sym:'\u00D7', hasCarry: true, carryLabel: 'carry' },
+    { kind:'given', text:intB, sym:'\u00D7' },
     { kind:'final-rule' }
   ];
-  if(showPartials){
-    partialStrs.forEach(p => {
-      rows.push({ kind:'blank', text:p, hasCarry: true, carryLabel: 'carry' });
+
+  if (partials.length > 1) {
+    partials.forEach((p, pIdx) => {
+      rows.push({ kind:'blank', text:p, hasCarry: true, carryLabel:'carry' });
     });
     rows.push({ kind:'final-rule' });
   }
-  rows.push({ kind:'blank', text:displayResult });
 
-  return { resultStr: displayResult, isGrid:true, grid:{ width, prefixCols:1, rows } };
+  rows.push({ kind:'blank', text:resultStr, hasCarry: partials.length <= 1, carryLabel:'carry' });
+
+  return { resultStr, isGrid:true, grid:{ width, prefixCols:1, rows } };
 }
 
+/* Division Model Supporting Decimal Modes & Correct Bracket Spacing */
 function buildDivisionModel(aStr, bStr){
-  const negA = aStr.startsWith('-'), negB = bStr.startsWith('-');
-  aStr = aStr.replace('-',''); bStr = bStr.replace('-','');
-  const resultSign = (negA !== negB) ? -1 : 1;
-
   let [bInt, bFrac=''] = bStr.split('.');
   const shift = bFrac.length;
   const divisorStr = (bInt + bFrac).replace(/^0+(?=\d)/,'') || '0';
   const divisor = parseInt(divisorStr, 10);
-
-  if(divisor === 0){
-    return { resultStr:null, error:true, isDivision:false, lines:[
-      { type:'tokens', tokens:[{text:'Cannot divide by zero'}] }
-    ]};
-  }
+  if(divisor === 0) throw new Error('Cannot divide by zero');
 
   let [aInt, aFrac=''] = aStr.split('.');
   let combined = aInt + aFrac;
@@ -1037,26 +656,24 @@ function buildDivisionModel(aStr, bStr){
   const intDigits = newAInt.split('');
   const steps = [];
   let current = 0;
-  let leadingStarted = false;
+  let leading = false;
   const quotientIntDigits = [];
 
   for(let k=0; k<intDigits.length; k++){
     current = current*10 + Number(intDigits[k]);
-    if(!leadingStarted && current < divisor){ 
+    if (!leading && current < divisor) {
       if (k === intDigits.length - 1 && quotientIntDigits.length === 0) {
         quotientIntDigits.push(0);
         steps.push({ qd: 0, preValue: current, product: 0, remainder: current, endCol: k });
       }
-      continue; 
+      continue;
     }
-    const preValue = current;
+    leading = true;
     const qd = Math.floor(current/divisor);
     current = current - qd*divisor;
     quotientIntDigits.push(qd);
-    leadingStarted = true;
-    steps.push({ qd, preValue, product: qd*divisor, remainder: current, endCol: k });
+    steps.push({ qd, preValue: current + qd*divisor, product: qd*divisor, remainder: current, endCol: k });
   }
-  if(quotientIntDigits.length === 0){ quotientIntDigits.push(0); }
 
   const quotientDecDigits = [];
   const maxDecimals = currentPrecision === 'whole' ? 0 : parseInt(currentPrecision, 10);
@@ -1080,16 +697,12 @@ function buildDivisionModel(aStr, bStr){
   if (maxDecimals > 0 && quotientDecDigits.length > 0) {
     quotientStr += '.' + quotientDecDigits.join('');
   }
-  
-  const resultNum = parseFloat(quotientStr) * resultSign;
-  let displayResult = formatNum(resultNum);
-  if (currentPrecision === 'whole' && current !== 0) {
-    displayResult += ` R ${current}`;
-  }
 
-  const colOffset = resultSign === -1 ? 1 : 0;
+  const resultNum = parseFloat(quotientStr);
+  let displayResult = formatNum(resultNum);
+  if (currentPrecision === 'whole' && current !== 0) displayResult += ` R ${current}`;
+
   const showDecimalsInGrid = maxDecimals > 0;
-  
   let dividendFullStr = newAInt;
   if(showDecimalsInGrid && (newAFrac || quotientDecDigits.length > 0)){
     let fracPart = newAFrac;
@@ -1099,528 +712,188 @@ function buildDivisionModel(aStr, bStr){
 
   const dividendChars = [];
   const colMap = [];
-  let colCounter = colOffset;
-
   for(let i=0; i<dividendFullStr.length; i++){
     const ch = dividendFullStr[i];
-    dividendChars.push({ col: colCounter, char: ch });
-    colMap.push(colCounter);
-    colCounter++;
+    dividendChars.push({ col: i, char: ch });
+    colMap.push(i);
   }
 
-  const totalDividendCols = colCounter;
-  const prefixCols = String(divisor).length + 2;
-
   const quotientCells = [];
-  if(colOffset) quotientCells.push({ col:0, kind:'text', text:'\u2212' });
-  
-  quotientIntDigits.forEach((d,k) => {
-    let targetCol = colOffset + (steps[k] ? steps[k].endCol : (L - quotientIntDigits.length + k));
-    quotientCells.push({ col: targetCol, kind:'blank', expected:String(d), group:k });
+  quotientIntDigits.forEach((d, k) => {
+    let targetCol = steps[k] ? steps[k].endCol : (L - quotientIntDigits.length + k);
+    quotientCells.push({ col: targetCol, kind: 'blank', expected: String(d), group: k });
   });
 
   if(showDecimalsInGrid && quotientDecDigits.length > 0){
-    quotientCells.push({ col: colOffset + L, kind:'text', text:'.' });
-    quotientDecDigits.forEach((d,j) => {
-      quotientCells.push({ col: colOffset + L + 1 + j, kind:'blank', expected:String(d), group: quotientIntDigits.length + j });
+    quotientCells.push({ col: L, kind: 'text', text: '.' });
+    quotientDecDigits.forEach((d, j) => {
+      quotientCells.push({ col: L + 1 + j, kind: 'blank', expected: String(d), group: quotientIntDigits.length + j });
     });
   }
 
   const gridRows = [];
   steps.forEach((s, i) => {
     let endCharIdx = s.endCol;
-    if(showDecimalsInGrid && s.endCol >= L){
-      endCharIdx = s.endCol;
-    }
+    if(showDecimalsInGrid && s.endCol >= L) endCharIdx = s.endCol;
 
-    if(i > 0){
-      gridRows.push({ kind:'bringdown', endCharIdx, expected:String(s.preValue), group:i });
-    }
-    
+    if(i > 0) gridRows.push({ kind:'bringdown', endCharIdx, expected: String(s.preValue), group: i });
     const needsBorrow = checkNeedsCarryAddSub(String(s.preValue), String(s.product), '-');
-    gridRows.push({ kind:'subtract', endCharIdx, expected:String(s.product), group:i, hasCarry: needsBorrow, carryLabel: 'borrow' });
-    gridRows.push({ kind:'rule', endCharIdx, len:Math.max(String(s.preValue).length, String(s.product).length), group:i });
-    if(i === steps.length - 1){
-      gridRows.push({ kind:'remainder', endCharIdx, expected:String(s.remainder), group:i });
-    }
+    const needsMultiplyCarry = checkNeedsMultiplyCarry(String(divisor), s.qd);
+
+    gridRows.push({
+      kind:'subtract',
+      endCharIdx,
+      expected: String(s.product),
+      group: i,
+      hasCarry: needsBorrow || needsMultiplyCarry,
+      carryLabel: needsMultiplyCarry ? 'carry' : 'borrow'
+    });
+    gridRows.push({ kind:'rule', endCharIdx, len: String(s.product).length, group: i });
+    if(i === steps.length - 1) gridRows.push({ kind:'remainder', endCharIdx, expected: String(s.remainder), group: i });
   });
 
   return {
     resultStr: displayResult,
     isDivision: true,
-    grid: { 
-      totalCols: prefixCols + totalDividendCols, 
-      prefixCols, 
-      displayDivisor: String(divisor), 
-      dividendChars, 
-      quotientCells, 
-      rows: gridRows,
-      colMap 
-    }
+    grid: { totalCols: 2 + dividendChars.length, prefixCols: 2, displayDivisor: String(divisor), dividendChars, quotientCells, rows: gridRows, colMap }
   };
 }
 
-function buildSqrtModel(value){
-  const lower = Math.floor(Math.sqrt(value));
-  const lowerSq = lower*lower;
-  if(Number.isInteger(value) && lowerSq === value){
-    const r = String(lower);
-    return { resultStr:r, lines:[
-      { type:'tokens', tokens:[{text: lower+' \u00D7 '+lower+' = '+value}] },
-      { type:'final-rule' },
-      { type:'tokens', tokens:[{blank:true, expected:r}] }
-    ]};
-  }
-  const upper = lower+1;
-  const upperSq = upper*upper;
-  const approx = formatNum(Math.round(Math.sqrt(value)*100)/100);
-  return { resultStr:approx, lines:[
-    { type:'tokens', tokens:[{text: lower+'\u00B2 = '+lowerSq}] },
-    { type:'tokens', tokens:[{text: upper+'\u00B2 = '+upperSq}] },
-    { type:'tokens', tokens:[{text: 'so it is between '+lower+' and '+upper}] },
-    { type:'final-rule' },
-    { type:'tokens', tokens:[{blank:true, expected:approx}] }
-  ]};
-}
-
-function buildPowerModel(baseStr, expStr){
-  const base = parseFloat(baseStr);
-  const exp = parseFloat(expStr);
-
-  if(!Number.isInteger(exp) || exp < 0){
-    const r = formatNum(Math.pow(base, exp));
-    return { resultStr:r, lines:[
-      { type:'tokens', tokens:[{text: baseStr+'^'+expStr+' = '+r}] },
-      { type:'final-rule' },
-      { type:'tokens', tokens:[{blank:true, expected:r}] }
-    ]};
-  }
-  if(exp === 0){
-    return { resultStr:'1', lines:[
-      { type:'tokens', tokens:[{text:'Any non-zero number to the power 0 equals 1'}] },
-      { type:'final-rule' },
-      { type:'tokens', tokens:[{blank:true, expected:'1'}] }
-    ]};
-  }
-  if(exp === 1){
-    const r = formatNum(base);
-    return { resultStr:r, lines:[
-      { type:'tokens', tokens:[{text: baseStr+'^1 = '+baseStr}] },
-      { type:'final-rule' },
-      { type:'tokens', tokens:[{blank:true, expected:r}] }
-    ]};
-  }
-  const factors = Array(exp).fill(baseStr).join(' \u00D7 ');
-  const r = formatNum(Math.pow(base, exp));
-  return { resultStr:r, lines:[
-    { type:'tokens', tokens:[{text: factors}] },
-    { type:'final-rule' },
-    { type:'tokens', tokens:[{blank:true, expected:r}] }
-  ]};
-}
-
-/* ================= REDUCTION ENGINE ================= */
-function findLastParenOpen(tokens, beforeIdx){
-  for(let i=beforeIdx-1; i>=0; i--){ if(tokens[i] === '(') return i; }
-  return -1;
-}
-function findMatchingClose(tokens, openIdx){
-  let d=0;
-  for(let k=openIdx;k<tokens.length;k++){
-    if(tokens[k]==='(') d++;
-    else if(tokens[k]===')'){ d--; if(d===0) return k; }
-  }
-  return -1;
-}
-function findMatchingOpenFrom(tokens, closeIdx){
-  let d=0;
-  for(let k=closeIdx;k>=0;k--){
-    if(tokens[k]===')') d++;
-    else if(tokens[k]==='('){ d--; if(d===0) return k; }
-  }
-  return -1;
-}
-function findOpIndex(tokens, start, end){
-  for(let i=start;i<end;i++){ if(tokens[i]==='^') return i; }
-  for(let i=start;i<end;i++){ if(tokens[i]==='*' || tokens[i]==='/') return i; }
-  for(let i=start;i<end;i++){ if(tokens[i]==='+' || tokens[i]==='-') return i; }
-  return -1;
-}
-
-function computeOp(a, b, op){
-  const av = parseFloat(a), bv = parseFloat(b);
-  if(op === '+'){ const r = formatNum(av+bv); return { result:r, model:buildAddSubModel(a,b,'+',r) }; }
-  if(op === '-'){ const r = formatNum(av-bv); return { result:r, model:buildAddSubModel(a,b,'-',r) }; }
-  if(op === '*'){ const m = buildMultiplyModel(a,b); return { result:m.resultStr, model:m }; }
-  if(op === '/'){ const d = buildDivisionModel(a,b); if(d.error) throw new Error('Cannot divide by zero'); return { result:d.resultStr.split(' ')[0], model:d }; }
-  if(op === '^'){ const m = buildPowerModel(a,b); return { result:m.resultStr, model:m }; }
-  throw new Error('Unknown operator');
-}
-
-function displayExpr(tokens, hlStart, hlEnd){
-  return tokens.map((t,i) => {
-    let text = t;
-    if('+-*/^'.includes(t) && t.length===1) text = OP_SYMBOLS[t];
-    const isHl = i>=hlStart && i<=hlEnd;
-    return isHl ? `<span class="hl">${escapeHtml(text)}</span>` : escapeHtml(text);
-  }).join(' ');
-}
-
 function reduce(tokens){
-  const steps = [];
-  let guard = 0;
-  while(guard++ < 60){
-    let uIdx = -1;
-    for(let k=0;k<tokens.length;k++){
-      if(tokens[k]==='\u00B2' || tokens[k]==='%' || tokens[k]==='\u221A'){ uIdx = k; break; }
-    }
-    if(uIdx !== -1){
-      const sym = tokens[uIdx];
-      if(sym === '\u221A'){
-        let spliceEnd, operandValue, operandDisplay;
-        if(tokens[uIdx+1] === '('){
-          const closeIdx = findMatchingClose(tokens, uIdx+1);
-          if(closeIdx === -1) throw new Error('Unmatched parenthesis');
-          const sub = tokens.slice(uIdx+2, closeIdx);
-          operandValue = quickEval(sub);
-          operandDisplay = '(' + tokensToDisplayText(sub) + ')';
-          spliceEnd = closeIdx;
-        } else {
-          const num = tokens[uIdx+1];
-          if(num === undefined) throw new Error('Invalid expression after \u221A');
-          operandValue = parseFloat(num);
-          operandDisplay = num;
-          spliceEnd = uIdx+1;
-        }
-        if(operandValue < 0) throw new Error('Cannot take square root of negative number');
-        const model = buildSqrtModel(operandValue);
-        const exprHtml = `<span class="hl">\u221A${escapeHtml(operandDisplay)}</span>`;
-        steps.push({ opName:'Square Root', exprHtml, model });
-        tokens.splice(uIdx, spliceEnd-uIdx+1, model.resultStr);
-        continue;
-      } else {
-        let spliceStart, operandValue, operandDisplay;
-        if(tokens[uIdx-1] === ')'){
-          const openIdx = findMatchingOpenFrom(tokens, uIdx-1);
-          if(openIdx === -1) throw new Error('Unmatched parenthesis');
-          const sub = tokens.slice(openIdx+1, uIdx-1);
-          operandValue = quickEval(sub);
-          operandDisplay = '(' + tokensToDisplayText(sub) + ')';
-          spliceStart = openIdx;
-        } else {
-          const num = tokens[uIdx-1];
-          if(num === undefined) throw new Error('Invalid expression before symbol');
-          operandValue = parseFloat(num);
-          operandDisplay = num;
-          spliceStart = uIdx-1;
-        }
-        let model, opName;
-        if(sym === '\u00B2'){ model = buildMultiplyModel(String(operandValue), String(operandValue)); opName = 'Square'; }
-        else { model = buildDivisionModel(String(operandValue), '100'); opName = 'Percent'; }
-        const exprHtml = `<span class="hl">${escapeHtml(operandDisplay)}${sym==='\u00B2'?'\u00B2':'%'}</span>`;
-        steps.push({ opName, exprHtml, model });
-        tokens.splice(spliceStart, uIdx-spliceStart+1, model.resultStr);
-        continue;
-      }
+  const steps = []; let guard = 0;
+  while(tokens.length > 1 && guard++ < 30){
+    let opIdx = -1;
+    for(let i=0; i<tokens.length; i++){ if('*/+-'.includes(tokens[i])) { opIdx = i; break; } }
+    if(opIdx === -1) break;
+
+    const left = tokens[opIdx-1], op = tokens[opIdx], right = tokens[opIdx+1];
+    let model, res;
+
+    if(op === '/') {
+      model = buildDivisionModel(left, right);
+      res = model.resultStr.split(' ')[0];
+    } else if(op === '*') {
+      res = formatNum(parseFloat(left)*parseFloat(right));
+      model = buildMultiplyModel(left, right, res);
+    } else if(op === '+') {
+      res = formatNum(parseFloat(left)+parseFloat(right));
+      model = buildAddSubModel(left, right, '+', res);
+    } else {
+      res = formatNum(parseFloat(left)-parseFloat(right));
+      model = buildAddSubModel(left, right, '-', res);
     }
 
-    let closeIdx = tokens.indexOf(')');
-    let start = 0, end = tokens.length;
-    let hadParen = false;
-    if(closeIdx !== -1){
-      const openIdx = findLastParenOpen(tokens, closeIdx);
-      if(openIdx === -1) throw new Error('Unmatched parenthesis');
-      const inner = tokens.slice(openIdx+1, closeIdx);
-      if(inner.length === 1){
-        tokens.splice(openIdx, closeIdx-openIdx+1, inner[0]);
-        continue;
-      }
-      start = openIdx+1; end = closeIdx; hadParen = true;
-    }
-    const opIdx = findOpIndex(tokens, start, end);
-    if(opIdx === -1){
-      if(hadParen) throw new Error('Invalid expression inside parentheses');
-      break;
-    }
-    const left = tokens[opIdx-1];
-    const op = tokens[opIdx];
-    const right = tokens[opIdx+1];
-    if(left===undefined || right===undefined) throw new Error('Invalid expression');
-
-    const exprHtml = displayExpr(tokens, opIdx-1, opIdx+1);
-    const { result, model } = computeOp(left, right, op);
-
-    steps.push({ opName: OP_NAMES[op], exprHtml, model });
-    tokens.splice(opIdx-1, 3, model.resultStr || result);
-
-    if(hadParen){
-      closeIdx = tokens.indexOf(')');
-      const openIdx = findLastParenOpen(tokens, closeIdx);
-      if (openIdx !== -1) {
-        const inner = tokens.slice(openIdx+1, closeIdx);
-        if(inner.length === 1){
-          tokens.splice(openIdx, closeIdx-openIdx+1, inner[0]);
-        }
-      }
-    }
+    steps.push({ opName: op==='/'?'Divide':op==='*'?'Multiply':op==='+'?'Add':'Subtract', exprHtml: `${left} ${op==='*'?'×':op==='/'?'÷':op} ${right}`, model });
+    tokens.splice(opIdx-1, 3, res);
   }
-  if(tokens.length !== 1) throw new Error('Could not fully solve expression');
   return { steps, finalResult: tokens[0] };
 }
 
-/* ================= RENDERING ================= */
 const content = document.getElementById('content');
 const errorMsg = document.getElementById('error-msg');
 const input = document.getElementById('expr-input');
 const solutionBtn = document.getElementById('solution-btn');
-const practiceBtn = document.getElementById('practice-btn');
 const goBtn = document.getElementById('go-btn');
 const hwQuestionText = document.getElementById('hw-question-text');
 
-let currentSteps = null;
-let currentFinal = null;
-let isRevealed = false;
-let revealTimer = null;
-
-function showError(msg){ errorMsg.textContent = '\u26A0\uFE0F  ' + msg; errorMsg.classList.add('show'); }
-function clearError(){ errorMsg.classList.remove('show'); }
+let currentSteps = null, currentFinal = null, revealTimer = null;
 
 solutionBtn.addEventListener('click', () => {
-  if (isRevealed) {
-    hideAllCells();
-  } else {
-    revealStepByStep();
-  }
+  audioFX.playClick();
+  if (solutionBtn.textContent === 'Close') hideAllCells();
+  else revealStepByStep();
 });
 
-goBtn.addEventListener('click', () => {
-  solve(input.value.trim());
-});
+goBtn.addEventListener('click', () => { audioFX.playClick(); solve(input.value.trim()); });
 
-function fireConfetti(){
-  if(isFireMode) return;
-  const card = document.querySelector('.answer-card');
-  if(!card) return;
-  const colors = ['#249A70','#F0997B','#378ADD','#EF9F27','#D4537E'];
-  for(let i=0;i<16;i++){
-    const p = document.createElement('div');
-    p.className = 'confetti-piece';
-    p.style.left = (10 + Math.random()*80) + '%';
-    p.style.top = '10%';
-    p.style.background = colors[i % colors.length];
-    p.style.animationDelay = (Math.random()*0.15) + 's';
-    card.appendChild(p);
-    setTimeout(()=>p.remove(), 1100);
-  }
-}
-
-function tokenToHtml(tok, registry, stepIdx, narrow, fillWidth, orderState, explicitOrder){
-  if(tok.text !== undefined) return escapeHtml(tok.text);
+function tokenToHtml(tok, registry, stepIdx, orderState){
+  if (tok.kind === 'text') return escapeHtml(tok.text);
   const idx = registry.length;
   const expected = tok.expected;
-  const ml = expected.length;
   registry.push({ expected, stepIdx });
-  const style = fillWidth ? 'width:100%' : `width:${Math.max(ml,1)}ch`;
-  const order = explicitOrder !== undefined ? explicitOrder : (orderState ? orderState.n++ : idx);
-  return `<input type="text" class="cell" data-cell-idx="${idx}" data-order="${order}" data-step="${stepIdx}" data-answer="${escapeHtml(expected)}" inputmode="numeric" maxlength="${ml}" autocomplete="off" style="${style}" aria-label="Step result field">`;
-}
-
-function computeDivisionOrder(g, startN){
-  let n = startN;
-  const quotientOrder = {};
-  const rowOrders = [];
-
-  const numGroups = Math.max(
-    -1,
-    ...g.quotientCells.filter(c => c.kind==='blank').map(c => c.group),
-    ...g.rows.map(r => r.group)
-  ) + 1;
-
-  function assignRowDigits(r, rIdx){
-    if (!r.expected) return;
-    const digits = r.expected.split('');
-    rowOrders[rIdx] = digits.map(() => n++);
-  }
-
-  for(let group = 0; group < numGroups; group++){
-    g.rows.forEach((r, rIdx) => {
-      if(r.kind === 'bringdown' && r.group === group) assignRowDigits(r, rIdx);
-    });
-    g.quotientCells.forEach((c, idx) => {
-      if(c.kind === 'blank' && c.group === group) quotientOrder[idx] = n++;
-    });
-    g.rows.forEach((r, rIdx) => {
-      if(r.kind === 'subtract' && r.group === group) assignRowDigits(r, rIdx);
-    });
-  }
-  g.rows.forEach((r, rIdx) => {
-    if(r.kind === 'remainder') assignRowDigits(r, rIdx);
-  });
-
-  return { quotientOrder, rowOrders, n };
+  const order = orderState.n++;
+  return `<input type="text" class="cell" data-order="${order}" data-answer="${escapeHtml(expected)}" maxlength="${expected.length}" style="width:${Math.max(expected.length,1)}ch">`;
 }
 
 function renderDivisionGrid(model, registry, stepIdx, orderState){
   const g = model.grid;
-  const divOrder = computeDivisionOrder(g, orderState.n);
-  orderState.n = divOrder.n;
+  let html = `<div class="division-grid" style="grid-template-columns: auto auto repeat(${g.dividendChars.length}, 1ch) auto;">`;
 
-  const fullCols = g.totalCols + 1;
-  let html = `<div class="division-grid" style="grid-template-columns:repeat(${g.totalCols}, 1ch) auto;">`;
-
-  // Render Quotient Row
-  g.quotientCells.forEach((c, idx) => {
-    const s = g.prefixCols + c.col + 1;
-    const style = `grid-column:${s} / ${s+1}; grid-row:1;`;
-    if(c.kind === 'text'){
-      html += `<div class="q-cell q-static" style="${style}">${escapeHtml(c.text)}</div>`;
-    } else {
-      const ord = divOrder.quotientOrder[idx];
-      html += `<div class="q-cell" style="${style}">${tokenToHtml({blank:true, expected:c.expected}, registry, stepIdx, true, true, orderState, ord)}</div>`;
-    }
+  // Render Quotient Row above Dividend
+  g.quotientCells.forEach((c) => {
+    const s = 3 + c.col;
+    html += `<div style="grid-column:${s}/${s+1}; grid-row:1;">${tokenToHtml(c, registry, stepIdx, orderState)}</div>`;
   });
 
-  // Render Divisor and Dividend Row
-  html += `<div class="prefix-cell" style="grid-column:1 / ${Math.max(1,g.prefixCols-1)}; grid-row:2;">${escapeHtml(g.displayDivisor)}</div>`;
-  html += `<div class="bracket-cell" style="grid-column:${Math.max(1,g.prefixCols-1)} / ${g.prefixCols+1}; grid-row:2;">)</div>`;
+  // Render Divisor and Bracket
+  html += `<div class="div-divisor-cell">${escapeHtml(g.displayDivisor)}</div>`;
+  html += `<div class="div-bracket-cell">)</div>`;
+  
   g.dividendChars.forEach(c => {
-    const s = g.prefixCols + c.col + 1;
-    html += `<div class="d-cell" style="grid-column:${s} / ${s+1}; grid-row:2;">${escapeHtml(c.char)}</div>`;
+    const s = 3 + c.col;
+    html += `<div style="grid-column:${s}/${s+1}; grid-row:2; border-top:1.2px solid var(--text-primary);">${escapeHtml(c.char)}</div>`;
   });
-
-  function getDigitsColumnPositions(endCharIdx, numDigits) {
-    const positions = [];
-    let currIdx = endCharIdx;
-    while (positions.length < numDigits && currIdx >= 0) {
-      if (g.dividendChars[currIdx] && g.dividendChars[currIdx].char !== '.') {
-        positions.unshift(g.prefixCols + g.colMap[currIdx] + 1);
-      }
-      currIdx--;
-    }
-    return positions;
-  }
 
   let rowNum = 3;
-  g.rows.forEach((r, rIdx) => {
+  g.rows.forEach((r) => {
     if (r.kind === 'rule') {
-      const startCol = g.prefixCols + (g.colMap[r.endCharIdx] !== undefined ? g.colMap[r.endCharIdx] - r.len + 2 : 1);
-      const endCol = g.prefixCols + (g.colMap[r.endCharIdx] !== undefined ? g.colMap[r.endCharIdx] + 2 : g.totalCols);
-      html += `<div class="row-rule" style="grid-column:${Math.max(g.prefixCols+1, startCol)} / ${endCol}; grid-row:${rowNum};"></div>`;
+      const endCol = 3 + r.endCharIdx + 1;
+      const startCol = Math.max(3, endCol - r.len);
+      html += `<div class="row-rule" style="grid-column:${startCol}/${endCol}; grid-row:${rowNum};"></div>`;
     } else {
       const digits = r.expected ? r.expected.split('') : [];
-      const digitCols = getDigitsColumnPositions(r.endCharIdx, digits.length);
-      const orders = divOrder.rowOrders[rIdx] || [];
-
-      if(r.kind === 'subtract'){
-        const signCol = Math.max(1, digitCols[0] - 1);
-        html += `<div class="q-cell q-static" style="grid-column:${signCol} / ${signCol+1}; grid-row:${rowNum};">\u2212</div>`;
-      }
       digits.forEach((d, di) => {
-        const s = digitCols[di];
-        const style = `grid-column:${s} / ${s+1}; grid-row:${rowNum};`;
-        html += `<div class="q-cell" style="${style}">${tokenToHtml({blank:true, expected:d}, registry, stepIdx, true, true, orderState, orders[di])}</div>`;
+        const s = 3 + (r.endCharIdx - digits.length + 1 + di);
+        html += `<div style="grid-column:${s}/${s+1}; grid-row:${rowNum};">${tokenToHtml({expected:d}, registry, stepIdx, orderState)}</div>`;
       });
-
       if (r.hasCarry) {
-        html += `<div class="a-carry-right" style="grid-column:${fullCols} / ${fullCols+1}; grid-row:${rowNum};">
-          <div class="carry-badge-wrap" id="carry-badge-${stepIdx}-${rIdx}" title="Borrow field">
-            <span>${r.carryLabel || 'borrow'}</span>
-            <input type="text" class="carry-input" maxlength="2" inputmode="numeric" autocomplete="off" placeholder="—" aria-label="Carry field">
-          </div>
+        const fullCols = 3 + g.dividendChars.length;
+        html += `<div class="a-carry-right" style="grid-column:${fullCols}/${fullCols+1}; grid-row:${rowNum};">
+          <div class="carry-badge-wrap"><span>${r.carryLabel}</span><input type="text" class="carry-input" maxlength="2"></div>
         </div>`;
       }
     }
     rowNum++;
   });
-
   html += '</div>';
   return html;
-}
-
-function computeGridOrder(rows, width, startN){
-  let n = startN;
-  const digitOrder = {};
-  rows.forEach((r, rowIdx) => {
-    if(r.kind !== 'blank') return;
-    const padded = ' '.repeat(Math.max(0, width - r.text.length)) + r.text;
-    const activeCols = [];
-    for(let c=padded.length-1; c>=0; c--){ if(/[0-9]/.test(padded[c])) activeCols.push(c); }
-    activeCols.forEach((c) => {
-      digitOrder[`${rowIdx}:${c}`] = n++;
-    });
-  });
-  return { digitOrder, n };
 }
 
 function renderColumnGrid(g, registry, stepIdx, orderState){
   const prefixCols = g.prefixCols || 1;
   const totalCols = prefixCols + g.width;
-  const { digitOrder, n } = computeGridOrder(g.rows, g.width, orderState.n);
-  orderState.n = n;
-  
-  const fullCols = totalCols + 1;
   let html = `<div class="arith-grid" style="grid-template-columns:repeat(${totalCols}, 1ch) auto;">`;
   let rowNum = 1;
 
-  g.rows.forEach((r, rowIdx) => {
+  g.rows.forEach((r) => {
     if(r.kind === 'final-rule'){
-      html += `<div class="a-final-rule" style="grid-column:1 / ${fullCols+1}; grid-row:${rowNum};"></div>`;
-      rowNum++; return;
-    }
-    if(r.kind === 'dotted-rule'){
-      html += `<div class="a-dotted-rule" style="grid-column:1 / ${fullCols+1}; grid-row:${rowNum};"></div>`;
+      html += `<div class="a-final-rule" style="grid-column:1 / ${totalCols+2}; grid-row:${rowNum};"></div>`;
       rowNum++; return;
     }
 
     const padded = ' '.repeat(Math.max(0, g.width - r.text.length)) + r.text;
     if(r.sym){
-      html += `<div class="a-sym" style="grid-column:1 / ${prefixCols+1}; grid-row:${rowNum};">${escapeHtml(r.sym)}</div>`;
+      html += `<div style="grid-column:1 / ${prefixCols+1}; grid-row:${rowNum}; justify-content:flex-start;">${escapeHtml(r.sym)}</div>`;
     }
-    
-    const colRange = [];
-    for(let c=0; c<padded.length; c++) colRange.push(c);
-    if(r.kind === 'blank') colRange.reverse();
-    colRange.forEach(c => {
+
+    for(let c=0; c<padded.length; c++){
       const ch = padded[c];
-      if(ch === ' ') return;
+      if(ch === ' ') continue;
       const col = prefixCols + c + 1;
       const style = `grid-column:${col} / ${col+1}; grid-row:${rowNum};`;
-      if(r.kind === 'given' || !/[0-9]/.test(ch)){
-        const cls = r.kind === 'blank' ? 'a-static result' : 'a-static';
-        html += `<div class="${cls}" style="${style}">${escapeHtml(ch)}</div>`;
+      if(r.kind === 'given'){
+        html += `<div style="${style}">${escapeHtml(ch)}</div>`;
       } else {
-        const ord = r.kind === 'blank' ? digitOrder[`${rowIdx}:${c}`] : undefined;
-        html += `<div class="a-cell" style="${style}">${tokenToHtml({blank:true, expected:ch}, registry, stepIdx, false, true, orderState, ord)}</div>`;
+        html += `<div style="${style}">${tokenToHtml({expected:ch}, registry, stepIdx, orderState)}</div>`;
       }
-    });
+    }
 
     if (r.hasCarry) {
       html += `<div class="a-carry-right" style="grid-column:${totalCols+1} / ${totalCols+2}; grid-row:${rowNum};">
-        <div class="carry-badge-wrap" id="carry-badge-${stepIdx}-${rowIdx}" title="Carry field">
-          <span>${r.carryLabel || 'carry'}</span>
-          <input type="text" class="carry-input" maxlength="2" inputmode="numeric" autocomplete="off" placeholder="—" aria-label="Carry field">
-        </div>
+        <div class="carry-badge-wrap"><span>${r.carryLabel || 'carry'}</span><input type="text" class="carry-input" maxlength="2"></div>
       </div>`;
     }
-
     rowNum++;
-  });
-  html += '</div>';
-  return html;
-}
-
-function renderLines(lines, registry, stepIdx, orderState){
-  let html = '<div class="work">';
-  lines.forEach(line => {
-    if(line.type === 'rule') html += '<div class="rule" style="width:100%"></div>';
-    else if(line.type === 'final-rule') html += '<div class="final-rule"></div>';
-    else if(line.type === 'bracket'){
-      html += `<div class="div-row"><span>${escapeHtml(line.divisor)}</span><span class="div-bracket">) ${escapeHtml(line.dividend)}</span></div>`;
-    } else if(line.type === 'tokens'){
-      const rowClass = line.narrow ? 'row narrow' : 'row';
-      const inner = line.tokens.map(t => tokenToHtml(t, registry, stepIdx, line.narrow, undefined, orderState)).join('');
-      html += `<div class="${rowClass}">${inner}</div>`;
-    }
   });
   html += '</div>';
   return html;
@@ -1630,27 +903,19 @@ function renderSteps(){
   const registry = [];
   const orderState = { n: 0 };
   if (revealTimer) clearInterval(revealTimer);
-  isRevealed = false;
   solutionBtn.textContent = 'Reveal';
 
   let html = '<div class="steps">';
   currentSteps.forEach((s, idx) => {
-    html += `<div class="step" data-step-wrap="${idx}">`;
-    html += `<div class="step-title"><span class="step-check">\u2713</span>Step${idx+1}: <b>${s.opName}</b>&nbsp; ${s.exprHtml}</div>`;
+    html += `<div class="step"><div class="step-header">Step ${idx+1}: <b>${s.opName}</b> &nbsp;<span class="hl">${s.exprHtml}</span></div>`;
     html += s.model.isDivision
       ? renderDivisionGrid(s.model, registry, idx, orderState)
-      : s.model.isGrid
-        ? renderColumnGrid(s.model.grid, registry, idx, orderState)
-        : renderLines(s.model.lines, registry, idx, orderState);
+      : renderColumnGrid(s.model.grid, registry, idx, orderState);
     html += `</div>`;
   });
   
-  // Minimal Answer Layout
   html += `<div class="answer-card hidden" id="answer-card">
-      <div class="ans-info">
-        <span class="label">Answer =</span>
-        <span class="value">${escapeHtml(currentFinal)}</span>
-      </div>
+      <div class="ans-info"><span class="label">Answer =</span><span class="value">${escapeHtml(currentFinal)}</span></div>
     </div>`;
   html += `</div>`;
   content.innerHTML = html;
@@ -1658,242 +923,119 @@ function renderSteps(){
   setupPracticeInputs();
 }
 
-content.addEventListener('input', (e) => {
-  if(e.target.classList.contains('carry-input')){
-    e.target.value = e.target.value.replace(/[^0-9]/g,'');
-  }
-});
-
 function setupPracticeInputs(){
-  const inputs = Array.from(content.querySelectorAll('.cell[data-order]'))
-    .sort((a, b) => Number(a.dataset.order) - Number(b.dataset.order));
-
-  inputs.forEach((el, i) => {
-    el.addEventListener('input', () => {
-      handleCellInput(el, inputs);
-    });
-    el.addEventListener('keydown', (e) => {
-      if(e.key === 'Backspace' && el.value === ''){
-        let p = i-1;
-        while(p >= 0 && inputs[p].disabled) p--;
-        if(p >= 0) inputs[p].focus();
-      }
-    });
+  const inputs = Array.from(content.querySelectorAll('.cell')).sort((a,b) => Number(a.dataset.order) - Number(b.dataset.order));
+  inputs.forEach(el => {
+    el.addEventListener('input', () => handleCellInput(el, inputs));
   });
-  if(inputs.length && document.activeElement !== input) inputs[0].focus();
 }
 
 function handleCellInput(el, inputs){
-  let val = el.value.replace(/[^0-9\-.]/g,'');
-  el.value = val;
-  const maxLen = parseInt(el.maxLength, 10);
-  if(val.length < maxLen) return;
+  let val = el.value.trim();
+  if(val.length < parseInt(el.maxLength, 10)) return;
 
-  const expected = el.dataset.answer;
-  if(val === expected || isFireMode){
-    el.classList.remove('incorrect');
-    if(!isFireMode) el.classList.add('correct');
+  if(val === el.dataset.answer || isFireMode){
+    if(!isFireMode) { el.classList.add('correct'); audioFX.playClick(); }
     el.disabled = true;
 
-    // Hide carry/borrow badge when field calculation is complete
     const stepWrap = el.closest('.step');
-    if(stepWrap){
-      const carryBadges = stepWrap.querySelectorAll('.carry-badge-wrap');
-      carryBadges.forEach(badge => badge.classList.add('hidden'));
-    }
+    if(stepWrap) stepWrap.querySelectorAll('.carry-badge-wrap').forEach(b => b.classList.add('hidden'));
 
-    markStepDone(el);
-    const i = inputs.indexOf(el);
-    let n = i+1;
-    while(n < inputs.length && inputs[n].disabled) n++;
-    if(n < inputs.length){ inputs[n].focus(); }
-    else { onAllComplete(); }
+    const next = inputs.find(i => !i.disabled);
+    if(next) next.focus();
+    else onAllComplete();
   } else {
+    audioFX.playError();
     el.classList.add('incorrect');
-    setTimeout(() => { el.value=''; el.classList.remove('incorrect'); }, 550);
+    setTimeout(() => { el.value=''; el.classList.remove('incorrect'); }, 400);
   }
 }
 
-function markStepDone(el){
-  const wrap = el.closest('.step');
-  if(!wrap) return;
-  const cells = wrap.querySelectorAll('.cell');
-  const done = Array.from(cells).every(c => c.disabled || c.classList.contains('correct'));
-  wrap.classList.toggle('step-done', done);
-}
-
-/* Digit-by-digit Typewriter Reveal Effect */
 function revealStepByStep(){
-  const cells = Array.from(content.querySelectorAll('.cell'))
-    .sort((a, b) => Number(a.dataset.order) - Number(b.dataset.order));
-  
+  const cells = Array.from(content.querySelectorAll('.cell')).sort((a,b) => Number(a.dataset.order) - Number(b.dataset.order));
   if (revealTimer) clearInterval(revealTimer);
-  isRevealed = true;
   solutionBtn.textContent = 'Close';
 
-  let index = 0;
+  let idx = 0;
   revealTimer = setInterval(() => {
-    while(index < cells.length && cells[index].disabled) {
-      index++;
-    }
-    if(index < cells.length) {
-      const el = cells[index];
+    while(idx < cells.length && cells[idx].disabled) idx++;
+    if(idx < cells.length) {
+      const el = cells[idx];
       el.value = el.dataset.answer;
       if(!isFireMode) el.classList.add('correct');
       el.disabled = true;
-      
-      const stepWrap = el.closest('.step');
-      if(stepWrap){
-        const carryBadges = stepWrap.querySelectorAll('.carry-badge-wrap');
-        carryBadges.forEach(badge => badge.classList.add('hidden'));
-      }
-      markStepDone(el);
-      index++;
+      audioFX.playClick();
+      idx++;
     } else {
       clearInterval(revealTimer);
       onAllComplete();
     }
-  }, 120);
+  }, 100);
 }
 
 function hideAllCells(){
   if (revealTimer) clearInterval(revealTimer);
-  const cells = Array.from(content.querySelectorAll('.cell'));
-  cells.forEach(el => {
-    el.value = '';
-    el.classList.remove('correct', 'incorrect');
-    el.disabled = false;
-    markStepDone(el);
-  });
-  
-  Array.from(content.querySelectorAll('.carry-badge-wrap')).forEach(badge => {
-    badge.classList.remove('hidden');
-    const inp = badge.querySelector('.carry-input');
-    if(inp) { inp.value = ''; inp.disabled = false; }
-  });
-
-  const answerCard = document.getElementById('answer-card');
-  if(answerCard) answerCard.classList.add('hidden');
-  isRevealed = false;
+  content.querySelectorAll('.cell').forEach(el => { el.value = ''; el.classList.remove('correct','incorrect'); el.disabled = false; });
+  content.querySelectorAll('.carry-badge-wrap').forEach(b => b.classList.remove('hidden'));
+  document.getElementById('answer-card').classList.add('hidden');
   solutionBtn.textContent = 'Reveal';
 }
 
+function triggerConfetti(){
+  if(isFireMode) return;
+  const container = document.getElementById('main-area');
+  const colors = ['#007AFF', '#34C759', '#FF9500', '#AF52DE', '#FF2D55'];
+  
+  for(let i = 0; i < 24; i++){
+    const p = document.createElement('div');
+    p.className = 'confetti-particle';
+    p.style.left = (15 + Math.random() * 70) + '%';
+    p.style.top = '20px';
+    p.style.background = colors[i % colors.length];
+    p.style.animationDelay = (Math.random() * 0.2) + 's';
+    container.appendChild(p);
+    setTimeout(() => p.remove(), 1300);
+  }
+}
+
 function onAllComplete(){
-  const answerCard = document.getElementById('answer-card');
-  if(answerCard) answerCard.classList.remove('hidden');
-  fireConfetti();
+  document.getElementById('answer-card').classList.remove('hidden');
+  audioFX.playSuccess();
+  triggerConfetti();
 }
 
 function solve(expr){
-  clearError();
-  if(!expr) return;
-  if(!/^[0-9+\-*/().\s\u00B2\u221A%^]+$/.test(expr)){
-    showError('Use only numbers and + \u2212 \u00D7 \u00F7 ( ) \u00B2 \u221A % ^');
-    return;
-  }
+  errorMsg.classList.remove('show');
   try{
     const tokens = tokenize(expr);
-    if(tokens.length === 0) throw new Error('Nothing to calculate');
-    let steps, finalResult;
-    if(tokens.length === 1){
-      steps = [];
-      finalResult = formatNum(parseFloat(tokens[0]));
-    } else {
-      const r = reduce(tokens);
-      steps = r.steps;
-      finalResult = r.finalResult;
-    }
-    currentSteps = steps;
-    currentFinal = finalResult;
-    
-    hwQuestionText.textContent = input.value.replace(/\//g, ' \u00F7 ').replace(/\*/g, ' \u00D7 ');
+    const r = reduce(tokens);
+    currentSteps = r.steps; currentFinal = r.finalResult;
+    hwQuestionText.textContent = input.value.replace(/\//g, ' ÷ ').replace(/\*/g, ' × ');
     renderSteps();
-  } catch(err){
-    showError(err.message || 'Could not solve that expression');
+  } catch(e) {
+    errorMsg.textContent = e.message;
+    errorMsg.classList.add('show');
   }
 }
 
-/* ================= HANDWRITING CANVAS ================= */
 const hwOverlay = document.getElementById('hw-overlay');
-const hwCloseBtn = document.getElementById('hw-close-btn');
-const hwClearBtn = document.getElementById('hw-clear-btn');
-const hwUndoBtn = document.getElementById('hw-undo-btn');
 const hwCanvas = document.getElementById('hw-canvas');
-const hwContainer = document.getElementById('hw-canvas-container');
-let ctx = hwCanvas.getContext('2d');
-let drawing = false;
-let history = [];
+let ctx = hwCanvas.getContext('2d'), drawing = false;
 
-practiceBtn.addEventListener('click', () => {
-  hwOverlay.classList.add('open');
-  resizeCanvas();
-});
-
-hwCloseBtn.addEventListener('click', () => {
-  hwOverlay.classList.remove('open');
-});
-
-function saveState(){
-  history.push(ctx.getImageData(0, 0, hwCanvas.width, hwCanvas.height));
-}
-
-hwUndoBtn.addEventListener('click', () => {
-  if (history.length > 0) {
-    let lastState = history.pop();
-    ctx.putImageData(lastState, 0, 0);
-  }
-});
-
-hwClearBtn.addEventListener('click', () => {
-  saveState();
-  ctx.clearRect(0, 0, hwCanvas.width, hwCanvas.height);
-});
+document.getElementById('practice-btn').addEventListener('click', () => { audioFX.playClick(); hwOverlay.classList.add('open'); resizeCanvas(); });
+document.getElementById('hw-close-btn').addEventListener('click', () => { audioFX.playClick(); hwOverlay.classList.remove('open'); });
+document.getElementById('hw-clear-btn').addEventListener('click', () => { audioFX.playClick(); ctx.clearRect(0,0,hwCanvas.width,hwCanvas.height); });
 
 function resizeCanvas(){
-  const rect = hwContainer.getBoundingClientRect();
-  hwCanvas.width = rect.width;
-  hwCanvas.height = rect.height;
-  
-  ctx.lineWidth = 3;
-  ctx.lineCap = 'round';
-  ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--text') || '#232320';
-  history = [];
+  const rect = document.getElementById('hw-canvas-container').getBoundingClientRect();
+  hwCanvas.width = rect.width; hwCanvas.height = rect.height;
+  ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--text-primary');
 }
 
-function getPos(e){
-  const rect = hwCanvas.getBoundingClientRect();
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  return { x: clientX - rect.left, y: clientY - rect.top };
-}
-
-hwCanvas.addEventListener('pointerdown', (e) => {
-  saveState();
-  drawing = true;
-  const p = getPos(e);
-  ctx.beginPath();
-  ctx.moveTo(p.x, p.y);
-});
-
-hwCanvas.addEventListener('pointermove', (e) => {
-  if(!drawing) return;
-  const p = getPos(e);
-  ctx.lineTo(p.x, p.y);
-  ctx.stroke();
-});
-
+hwCanvas.addEventListener('pointerdown', (e) => { drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+hwCanvas.addEventListener('pointermove', (e) => { if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
 hwCanvas.addEventListener('pointerup', () => drawing = false);
-hwCanvas.addEventListener('pointerleave', () => drawing = false);
-
-input.addEventListener('input', () => {
-  solve(input.value.trim());
-});
-
-input.addEventListener('keydown', (e) => {
-  if(e.key === 'Enter'){
-    solve(input.value.trim());
-  }
-});
+function getPos(e){ const rect = hwCanvas.getBoundingClientRect(); return { x: e.clientX - rect.left, y: e.clientY - rect.top }; }
 
 solve(input.value.trim());
 
