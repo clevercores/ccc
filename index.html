@@ -120,13 +120,60 @@
   .icon-btn svg{ width:19px;height:19px; }
 
   .input-section{ padding:2px 24px 16px; }
+  .input-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:9px;
+  }
   .input-label{
     font-size:13px;
     color:var(--muted);
-    margin-bottom:9px;
     letter-spacing:.02em;
     text-align:left;
   }
+  
+  .controls-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .precision-select{
+    background:var(--icon-bg);
+    color:var(--text);
+    border:1px solid var(--divider);
+    border-radius:8px;
+    padding:4px 8px;
+    font-size:12px;
+    font-weight:600;
+    outline:none;
+    cursor:pointer;
+    font-family:inherit;
+    transition:border-color .15s ease;
+  }
+  .precision-select:focus{ border-color:var(--tint); }
+
+  .fire-btn {
+    background: var(--icon-bg);
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all .15s ease;
+  }
+  .fire-btn.active {
+    background: var(--danger-soft);
+    color: var(--danger);
+    border-color: var(--danger);
+  }
+
   .input-row{
     display:flex;
     align-items:center;
@@ -278,7 +325,7 @@
     font-size:10px;
     flex-shrink:0;
   }
-  .step.step-done .step-check{ display:inline-flex; }
+  body:not(.fire-mode) .step.step-done .step-check{ display:inline-flex; }
 
   .work{
     display:inline-flex;
@@ -303,11 +350,12 @@
     width:100%;
   }
 
+  /* Grid Layouts */
   .arith-grid{
     display:inline-grid;
     grid-auto-rows:min-content;
     row-gap:7px;
-    column-gap:5px;
+    column-gap:0;
     font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
     font-size:calc(17.5px * var(--scale, 1));
     color:var(--text);
@@ -317,40 +365,57 @@
   .a-sym{ justify-content:flex-start; color:var(--text); }
   .a-static{ justify-content:center; }
   .a-static.result{ color:var(--accent); font-weight:inherit; }
+  body.fire-mode .a-static.result{ color:var(--text); }
   .a-final-rule{ align-self:stretch; border-top:2px solid var(--text); margin:2px 0 1px; width:100%; }
   .a-dotted-rule{ align-self:stretch; border-top:1.5px dotted var(--muted-2); margin:3px 0 5px; width:100%; }
-  .a-carry-cell{ padding-bottom:4px; }
-  .a-carry-cell input{
-    width:100%;
-    max-width:2.4ch;
-    border:none;
-    border-bottom:1px dashed var(--muted-2);
-    background:transparent;
-    text-align:center;
-    font-style:italic;
-    font-size:0.72em;
-    color:var(--muted);
-    padding:0 0 2px;
-    outline:none;
-    font-family:inherit;
+  
+  /* Carry & Borrow Fields */
+  .a-carry-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 6px;
   }
-  .a-carry-cell input:focus{ border-bottom-color:var(--tint); color:var(--tint); }
-  .a-cell .cell{ padding:0; }
+  .carry-badge-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--icon-bg);
+    border: 1px dashed var(--muted-2);
+    border-radius: 6px;
+    padding: 1px 5px;
+    font-size: 11px;
+    color: var(--muted);
+    transition: opacity .2s ease;
+  }
+  .carry-badge-wrap.hidden { display: none !important; }
+  .carry-badge-wrap span { font-size: 10px; opacity: 0.8; }
+  .carry-input {
+    width: 2ch;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--tint);
+    outline: none;
+    font-family: inherit;
+  }
 
   .division-grid{
     display:inline-grid;
     grid-auto-rows:min-content;
     row-gap:6px;
-    column-gap:3px;
+    column-gap:0;
     font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
     font-size:calc(17.5px * var(--scale, 1));
     color:var(--text);
     max-width:100%;
   }
-  .division-grid > div{ display:flex; align-items:baseline; }
-  .q-cell{ justify-content:center; padding-bottom:3px; }
+  .division-grid > div{ display:flex; align-items:center; justify-content:center; }
+  .q-cell{ justify-content:center; width:100%; height:100%; }
   .q-static{ color:var(--text); justify-content:center; }
-  .prefix-cell{ justify-content:flex-start; padding-right:2px; white-space:nowrap; }
+  .prefix-cell{ justify-content:flex-end; padding-right:2px; white-space:nowrap; }
   .bracket-cell{
     justify-content:flex-start;
     border-top:2px solid var(--text);
@@ -361,10 +426,7 @@
     border-top:2px solid var(--text);
     padding-top:2px;
   }
-  .row-rule{ align-self:center; border-top:1.5px dashed var(--muted-2); height:0; }
-  .op-row{ justify-content:flex-end; gap:1px; }
-  .op-sign{ padding-right:2px; }
-  .num-row{ justify-content:flex-end; }
+  .row-rule{ align-self:center; border-top:1.5px dashed var(--muted-2); height:0; width:100%; }
 
   .cell{
     font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
@@ -383,74 +445,61 @@
     transition:color .15s ease, border-color .15s ease;
   }
   .cell:focus{ border-bottom-color:var(--tint); color:var(--tint); }
-  .cell.correct{
+  
+  /* Normal Feedback Colors */
+  body:not(.fire-mode) .cell.correct{
     border-bottom-color:transparent;
     background:transparent;
     color:var(--accent);
   }
-  .cell.incorrect{
+  body:not(.fire-mode) .cell.incorrect{
     border-bottom-color:var(--danger);
     background:transparent;
     color:var(--danger);
     animation:shake .3s ease;
   }
+
+  /* Fire Mode (Exam Mode) Input Override */
+  body.fire-mode .cell {
+    color: var(--text) !important;
+    border-bottom-color: var(--muted-2) !important;
+  }
+
   @keyframes shake{
     0%,100%{ transform:translateX(0); }
     25%{ transform:translateX(-4px); }
     75%{ transform:translateX(4px); }
   }
 
+  /* Minimal Answer Card without highlight box */
   .answer-card{
-    margin-top:6px;
-    background:var(--accent-soft);
-    border:1px solid var(--accent-line);
-    border-radius:16px;
-    padding:16px 18px;
+    margin-top:14px;
+    padding:6px 0;
     display:flex;
     align-items:center;
     justify-content:space-between;
     gap:12px;
     animation: rise .4s ease both;
-    position:relative;
   }
   .answer-card.hidden{ display:none; }
-  .answer-card .ans-info { display:flex; flex-direction:column; align-items:flex-start; }
+  .answer-card .ans-info { display:flex; align-items:baseline; gap:8px; }
   .answer-card .label{
-    font-size:13px;
+    font-size:14px;
+    font-weight:600;
     color:var(--muted);
   }
   .answer-card .value{
     font-family:ui-monospace, 'SF Mono', 'JetBrains Mono', monospace; font-feature-settings:'tnum' 1, 'zero' 1;
-    font-size:29px;
+    font-size:26px;
     font-weight:700;
     letter-spacing:-0.01em;
     color:var(--accent);
   }
-  .answer-card .card-close-btn {
-    background: transparent;
-    border: none;
-    color: var(--muted);
-    font-size: 16px;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .answer-card .card-close-btn:hover { color: var(--text); }
-
-  .confetti-piece{
-    position:absolute;
-    width:6px;height:10px;
-    border-radius:1px;
-    animation: confetti-fall .9s ease-out forwards;
-    pointer-events:none;
-  }
-  @keyframes confetti-fall{
-    0%{ transform:translateY(0) rotate(0deg); opacity:1; }
-    100%{ transform:translateY(70px) rotate(220deg); opacity:0; }
+  body.fire-mode .answer-card .value {
+    color:var(--text);
   }
 
-  /* Handwriting Modal View */
+  /* Handwriting Overlay & Header */
   .handwriting-overlay {
     display: none;
     position: absolute;
@@ -462,22 +511,22 @@
     padding: 16px;
   }
   .handwriting-overlay.open { display: flex; }
-  .hw-header {
+
+  .hw-top-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed var(--divider);
   }
-  .hw-title { font-size: 15px; font-weight: 600; color: var(--text); }
-  .hw-close-btn {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    border: 1px solid var(--divider);
-    background: var(--icon-bg);
-    color: var(--muted);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
+  .hw-question-display {
+    font-family: ui-monospace, 'SF Mono', 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
   }
+
   .hw-canvas-container {
     flex: 1;
     border: 1px dashed var(--muted-2);
@@ -491,21 +540,58 @@
     height: 100%;
     border-radius: 12px;
   }
-  .hw-tools {
+
+  .hw-bottom-bar {
     display: flex;
-    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
     margin-top: 12px;
-    justify-content: flex-end;
+    gap: 8px;
+  }
+  .hw-title-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .hw-title-tag svg { width: 16px; height: 16px; }
+
+  .hw-controls-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
   .hw-btn {
-    padding: 8px 16px;
+    padding: 8px 12px;
     border-radius: 8px;
     border: 1px solid var(--divider);
     background: var(--icon-bg);
     color: var(--text);
-    font-size: 13px;
+    font-size: 12px;
+    font-weight: 500;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: background .15s ease;
   }
+  .hw-btn:hover { background: var(--divider); }
+  .hw-btn svg { width: 14px; height: 14px; }
+
+  .hw-close-btn-bottom {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--divider);
+    background: var(--icon-bg);
+    color: var(--muted);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    transition: background .15s ease, color .15s ease;
+  }
+  .hw-close-btn-bottom:hover { background: var(--danger-soft); color: var(--danger); }
 
   footer{
     display:flex;
@@ -545,7 +631,6 @@
   main::-webkit-scrollbar{ width:6px; }
   main::-webkit-scrollbar-thumb{ background:var(--divider); border-radius:3px; }
 </style>
-<base target="_blank">
 </head>
 <body class="font-md">
 <div class="app" id="app" data-theme="light">
@@ -561,9 +646,21 @@
   </header>
 
   <div class="input-section">
-    <div class="input-label">Calculate</div>
+    <div class="input-header">
+      <div class="input-label">Calculate</div>
+      <div class="controls-group">
+        <button class="fire-btn" id="fire-btn" title="Toggle Fire/Exam Mode">🔥 Exam Mode</button>
+        <select class="precision-select" id="precision-select" aria-label="Select mode or decimals">
+          <option value="whole" selected>Whole Numbers</option>
+          <option value="1">.0 (1 Dec)</option>
+          <option value="2">.00 (2 Dec)</option>
+          <option value="3">.000 (3 Dec)</option>
+          <option value="4">.0000 (4 Dec)</option>
+        </select>
+      </div>
+    </div>
     <div class="input-row">
-      <input id="expr-input" type="text" inputmode="decimal" value="245/32" placeholder="e.g. 245/32" autocomplete="off" spellcheck="false" aria-label="Calculation input" autofocus>
+      <input id="expr-input" type="text" inputmode="text" value="2450/832" placeholder="e.g. 2450/832" autocomplete="off" spellcheck="false" aria-label="Calculation input" autofocus>
       <div class="fx-wrap">
         <button class="fx-btn" id="fx-btn" title="Insert symbol" aria-label="Insert a mathematical symbol" aria-haspopup="true" aria-expanded="false">ƒx</button>
         <div class="fx-menu" id="fx-menu" role="menu" aria-label="Insert symbol">
@@ -599,16 +696,27 @@
   </footer>
 
   <div class="handwriting-overlay" id="hw-overlay">
-    <div class="hw-header">
-      <span class="hw-title">Handwriting Scratchpad</span>
-      <button class="hw-close-btn" id="hw-close-btn" title="Close" aria-label="Close Scratchpad">✕</button>
+    <div class="hw-top-header">
+      <div class="hw-title-tag">Question</div>
+      <div class="hw-question-display" id="hw-question-text">2450 ÷ 832</div>
     </div>
     <div class="hw-canvas-container" id="hw-canvas-container">
       <canvas id="hw-canvas"></canvas>
     </div>
-    <div class="hw-tools">
-      <button class="hw-btn" id="hw-undo-btn">Undo</button>
-      <button class="hw-btn" id="hw-clear-btn">Clear Canvas</button>
+    <div class="hw-bottom-bar">
+      <div class="hw-title-tag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
+        Scratchpad
+      </div>
+      <div class="hw-controls-row">
+        <button class="hw-btn" id="hw-undo-btn" title="Undo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h10a5 5 0 0 1 5 5v2M3 10l6-6M3 10l6 6"/></svg> Undo
+        </button>
+        <button class="hw-btn" id="hw-clear-btn" title="Clear">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Clear
+        </button>
+        <button class="hw-close-btn-bottom" id="hw-close-btn" title="Close Scratchpad" aria-label="Close Scratchpad">✕</button>
+      </div>
     </div>
   </div>
 
@@ -616,6 +724,24 @@
 
 <script>
 (function(){
+
+/* ================= FIRE MODE & PRECISION ================= */
+const precisionSelect = document.getElementById('precision-select');
+const fireBtn = document.getElementById('fire-btn');
+
+let currentPrecision = precisionSelect.value;
+let isFireMode = false;
+
+fireBtn.addEventListener('click', () => {
+  isFireMode = !isFireMode;
+  fireBtn.classList.toggle('active', isFireMode);
+  document.body.classList.toggle('fire-mode', isFireMode);
+});
+
+precisionSelect.addEventListener('change', () => {
+  currentPrecision = precisionSelect.value;
+  solve(input.value.trim());
+});
 
 /* ================= THEME / FONT ================= */
 const app = document.getElementById('app');
@@ -745,8 +871,8 @@ function tokenize(expr){
   return tokens;
 }
 
-const OP_NAMES = { '+':'Add', '-':'Subtract', '*':'Multiply', '/':'Divide', '^':'Power' };
-const OP_SYMBOLS = { '+':'+', '-':'\u2212', '*':'\u00D7', '/':'\u00F7', '^':'^' };
+const OP_NAMES = { '+': 'Add', '-': 'Subtract', '*': 'Multiply', '/': 'Divide', '^': 'Power' };
+const OP_SYMBOLS = { '+': '+', '-': '\u2212', '*': '\u00D7', '/': '\u00F7', '^': '^' };
 
 function tokensToDisplayText(tokens){
   return tokens.map(t => ('+-*/^'.includes(t) && t.length===1) ? OP_SYMBOLS[t] : t).join(' ');
@@ -787,7 +913,27 @@ function quickEval(tokens){
   return parseExpr();
 }
 
-/* ================= WORK MODELS ================= */
+/* ================= WORK MODELS & CARRY LOGIC ================= */
+function checkNeedsCarryAddSub(a, b, op){
+  let carryNeeded = false;
+  let aDigits = a.replace('.','').split('').reverse();
+  let bDigits = b.replace('.','').split('').reverse();
+  let len = Math.max(aDigits.length, bDigits.length);
+  let carry = 0;
+  for(let i=0; i<len; i++){
+    let d1 = parseInt(aDigits[i]||'0', 10);
+    let d2 = parseInt(bDigits[i]||'0', 10);
+    if(op==='+'){
+      if(d1 + d2 + carry >= 10) { carryNeeded = true; break; }
+      carry = Math.floor((d1+d2+carry)/10);
+    } else {
+      if(d1 - carry < d2) { carryNeeded = true; break; }
+      carry = (d1 - carry < d2) ? 1 : 0;
+    }
+  }
+  return carryNeeded;
+}
+
 function buildAddSubModel(aStr, bStr, op, resultStr){
   const dec = Math.max(decimalsOf(aStr), decimalsOf(bStr));
   const a = padDecimals(aStr, dec);
@@ -795,11 +941,12 @@ function buildAddSubModel(aStr, bStr, op, resultStr){
   const r = padDecimals(resultStr, dec);
   const sym = op === '+' ? '+' : '\u2212';
   const width = Math.max(a.length, b.length, r.length);
+  
+  const hasCarry = checkNeedsCarryAddSub(a, b, op);
+
   const rows = [
-    { kind:'carry' },
-    { kind:'dotted-rule' },
     { kind:'given', text:a },
-    { kind:'given', text:b, sym },
+    { kind:'given', text:b, sym, hasCarry: hasCarry, carryLabel: op==='+'?'carry':'borrow' },
     { kind:'final-rule' },
     { kind:'blank', text:r }
   ];
@@ -848,17 +995,14 @@ function buildMultiplyModel(aStr, bStr){
 
   const rows = [
     { kind:'given', text:intA },
-    { kind:'given', text:intB, sym:'\u00D7' },
+    { kind:'given', text:intB, sym:'\u00D7', hasCarry: true, carryLabel: 'carry' },
     { kind:'final-rule' }
   ];
   if(showPartials){
     partialStrs.forEach(p => {
-      rows.push({ kind:'carry' });
-      rows.push({ kind:'blank', text:p });
+      rows.push({ kind:'blank', text:p, hasCarry: true, carryLabel: 'carry' });
     });
     rows.push({ kind:'final-rule' });
-  } else {
-    rows.push({ kind:'carry' });
   }
   rows.push({ kind:'blank', text:displayResult });
 
@@ -898,7 +1042,13 @@ function buildDivisionModel(aStr, bStr){
 
   for(let k=0; k<intDigits.length; k++){
     current = current*10 + Number(intDigits[k]);
-    if(!leadingStarted && current < divisor){ continue; }
+    if(!leadingStarted && current < divisor){ 
+      if (k === intDigits.length - 1 && quotientIntDigits.length === 0) {
+        quotientIntDigits.push(0);
+        steps.push({ qd: 0, preValue: current, product: 0, remainder: current, endCol: k });
+      }
+      continue; 
+    }
     const preValue = current;
     const qd = Math.floor(current/divisor);
     current = current - qd*divisor;
@@ -906,12 +1056,12 @@ function buildDivisionModel(aStr, bStr){
     leadingStarted = true;
     steps.push({ qd, preValue, product: qd*divisor, remainder: current, endCol: k });
   }
-  if(!leadingStarted){ quotientIntDigits.push(0); }
+  if(quotientIntDigits.length === 0){ quotientIntDigits.push(0); }
 
-  const maxDecimals = 2;
   const quotientDecDigits = [];
-  const hasDecimalPoint = current !== 0;
-  if(current !== 0){
+  const maxDecimals = currentPrecision === 'whole' ? 0 : parseInt(currentPrecision, 10);
+  
+  if(maxDecimals > 0 && current !== 0){
     let bringDown = newAFrac.split('');
     let count = 0;
     while(current !== 0 && count < maxDecimals){
@@ -926,52 +1076,87 @@ function buildDivisionModel(aStr, bStr){
     }
   }
 
-  const quotientStr = quotientIntDigits.join('') + (quotientDecDigits.length ? '.'+quotientDecDigits.join('') : '');
+  let quotientStr = quotientIntDigits.join('');
+  if (maxDecimals > 0 && quotientDecDigits.length > 0) {
+    quotientStr += '.' + quotientDecDigits.join('');
+  }
+  
   const resultNum = parseFloat(quotientStr) * resultSign;
-  const displayResult = formatNum(resultNum);
+  let displayResult = formatNum(resultNum);
+  if (currentPrecision === 'whole' && current !== 0) {
+    displayResult += ` R ${current}`;
+  }
 
   const colOffset = resultSign === -1 ? 1 : 0;
-  const visibleFracLen = newAFrac.length;
-  const totalDividendCols = colOffset + L + (hasDecimalPoint ? 1 : 0) + Math.max(visibleFracLen, quotientDecDigits.length);
+  const showDecimalsInGrid = maxDecimals > 0;
+  
+  let dividendFullStr = newAInt;
+  if(showDecimalsInGrid && (newAFrac || quotientDecDigits.length > 0)){
+    let fracPart = newAFrac;
+    while(fracPart.length < quotientDecDigits.length) fracPart += '0';
+    dividendFullStr += '.' + fracPart;
+  }
+
+  const dividendChars = [];
+  const colMap = [];
+  let colCounter = colOffset;
+
+  for(let i=0; i<dividendFullStr.length; i++){
+    const ch = dividendFullStr[i];
+    dividendChars.push({ col: colCounter, char: ch });
+    colMap.push(colCounter);
+    colCounter++;
+  }
+
+  const totalDividendCols = colCounter;
   const prefixCols = String(divisor).length + 2;
 
   const quotientCells = [];
   if(colOffset) quotientCells.push({ col:0, kind:'text', text:'\u2212' });
   
   quotientIntDigits.forEach((d,k) => {
-    let targetCol = colOffset + (steps[k] ? steps[k].endCol : k);
-    quotientCells.push({ col: targetCol, kind:'blank', expected:String(d) });
+    let targetCol = colOffset + (steps[k] ? steps[k].endCol : (L - quotientIntDigits.length + k));
+    quotientCells.push({ col: targetCol, kind:'blank', expected:String(d), group:k });
   });
 
-  if(quotientDecDigits.length){
-    quotientCells.push({ col: colOffset+L, kind:'text', text:'.' });
-    quotientDecDigits.forEach((d,j) => quotientCells.push({ col: colOffset+L+1+j, kind:'blank', expected:String(d) }));
-  }
-
-  const dividendChars = [];
-  newAInt.split('').forEach((c,k) => dividendChars.push({ col: colOffset+k, char:c }));
-  if(newAFrac){
-    dividendChars.push({ col: colOffset+L, char:'.' });
-    newAFrac.split('').forEach((c,j) => dividendChars.push({ col: colOffset+L+1+j, char:c }));
+  if(showDecimalsInGrid && quotientDecDigits.length > 0){
+    quotientCells.push({ col: colOffset + L, kind:'text', text:'.' });
+    quotientDecDigits.forEach((d,j) => {
+      quotientCells.push({ col: colOffset + L + 1 + j, kind:'blank', expected:String(d), group: quotientIntDigits.length + j });
+    });
   }
 
   const gridRows = [];
   steps.forEach((s, i) => {
-    const endCol = colOffset + s.endCol;
-    if(i > 0){
-      gridRows.push({ kind:'bringdown', endCol, expected:String(s.preValue), len:String(s.preValue).length });
+    let endCharIdx = s.endCol;
+    if(showDecimalsInGrid && s.endCol >= L){
+      endCharIdx = s.endCol;
     }
-    gridRows.push({ kind:'subtract', endCol, expected:String(s.product), len:String(s.product).length+1 });
-    gridRows.push({ kind:'rule', endCol, len:String(s.product).length+1 });
-    if(i === steps.length-1){
-      gridRows.push({ kind:'remainder', endCol, expected:String(s.remainder), len:String(s.remainder).length });
+
+    if(i > 0){
+      gridRows.push({ kind:'bringdown', endCharIdx, expected:String(s.preValue), group:i });
+    }
+    
+    const needsBorrow = checkNeedsCarryAddSub(String(s.preValue), String(s.product), '-');
+    gridRows.push({ kind:'subtract', endCharIdx, expected:String(s.product), group:i, hasCarry: needsBorrow, carryLabel: 'borrow' });
+    gridRows.push({ kind:'rule', endCharIdx, len:Math.max(String(s.preValue).length, String(s.product).length), group:i });
+    if(i === steps.length - 1){
+      gridRows.push({ kind:'remainder', endCharIdx, expected:String(s.remainder), group:i });
     }
   });
 
   return {
     resultStr: displayResult,
     isDivision: true,
-    grid: { totalCols: prefixCols+totalDividendCols, prefixCols, displayDivisor: String(divisor), dividendChars, quotientCells, rows:gridRows }
+    grid: { 
+      totalCols: prefixCols + totalDividendCols, 
+      prefixCols, 
+      displayDivisor: String(divisor), 
+      dividendChars, 
+      quotientCells, 
+      rows: gridRows,
+      colMap 
+    }
   };
 }
 
@@ -1067,7 +1252,7 @@ function computeOp(a, b, op){
   if(op === '+'){ const r = formatNum(av+bv); return { result:r, model:buildAddSubModel(a,b,'+',r) }; }
   if(op === '-'){ const r = formatNum(av-bv); return { result:r, model:buildAddSubModel(a,b,'-',r) }; }
   if(op === '*'){ const m = buildMultiplyModel(a,b); return { result:m.resultStr, model:m }; }
-  if(op === '/'){ const d = buildDivisionModel(a,b); if(d.error) throw new Error('Cannot divide by zero'); return { result:d.resultStr, model:d }; }
+  if(op === '/'){ const d = buildDivisionModel(a,b); if(d.error) throw new Error('Cannot divide by zero'); return { result:d.resultStr.split(' ')[0], model:d }; }
   if(op === '^'){ const m = buildPowerModel(a,b); return { result:m.resultStr, model:m }; }
   throw new Error('Unknown operator');
 }
@@ -1166,7 +1351,7 @@ function reduce(tokens){
     const { result, model } = computeOp(left, right, op);
 
     steps.push({ opName: OP_NAMES[op], exprHtml, model });
-    tokens.splice(opIdx-1, 3, result);
+    tokens.splice(opIdx-1, 3, model.resultStr || result);
 
     if(hadParen){
       closeIdx = tokens.indexOf(')');
@@ -1190,10 +1375,12 @@ const input = document.getElementById('expr-input');
 const solutionBtn = document.getElementById('solution-btn');
 const practiceBtn = document.getElementById('practice-btn');
 const goBtn = document.getElementById('go-btn');
+const hwQuestionText = document.getElementById('hw-question-text');
 
 let currentSteps = null;
 let currentFinal = null;
 let isRevealed = false;
+let revealTimer = null;
 
 function showError(msg){ errorMsg.textContent = '\u26A0\uFE0F  ' + msg; errorMsg.classList.add('show'); }
 function clearError(){ errorMsg.classList.remove('show'); }
@@ -1202,7 +1389,7 @@ solutionBtn.addEventListener('click', () => {
   if (isRevealed) {
     hideAllCells();
   } else {
-    revealAllCells();
+    revealStepByStep();
   }
 });
 
@@ -1211,6 +1398,7 @@ goBtn.addEventListener('click', () => {
 });
 
 function fireConfetti(){
+  if(isFireMode) return;
   const card = document.querySelector('.answer-card');
   if(!card) return;
   const colors = ['#249A70','#F0997B','#378ADD','#EF9F27','#D4537E'];
@@ -1231,30 +1419,45 @@ function tokenToHtml(tok, registry, stepIdx, narrow, fillWidth, orderState, expl
   const idx = registry.length;
   const expected = tok.expected;
   const ml = expected.length;
-  const inputMode = /[-.]/.test(expected) ? 'text' : 'numeric';
   registry.push({ expected, stepIdx });
   const style = fillWidth ? 'width:100%' : `width:${Math.max(ml,1)}ch`;
   const order = explicitOrder !== undefined ? explicitOrder : (orderState ? orderState.n++ : idx);
-  return `<input type="text" class="cell" data-cell-idx="${idx}" data-order="${order}" data-step="${stepIdx}" data-answer="${escapeHtml(expected)}" inputmode="${inputMode}" maxlength="${ml}" autocomplete="off" style="${style}" aria-label="Step result field">`;
+  return `<input type="text" class="cell" data-cell-idx="${idx}" data-order="${order}" data-step="${stepIdx}" data-answer="${escapeHtml(expected)}" inputmode="numeric" maxlength="${ml}" autocomplete="off" style="${style}" aria-label="Step result field">`;
 }
 
 function computeDivisionOrder(g, startN){
   let n = startN;
   const quotientOrder = {};
-  const rowDigitOrders = {};
+  const rowOrders = [];
 
-  g.quotientCells.forEach((c, idx) => {
-    if(c.kind === 'blank') quotientOrder[idx] = n++;
-  });
+  const numGroups = Math.max(
+    -1,
+    ...g.quotientCells.filter(c => c.kind==='blank').map(c => c.group),
+    ...g.rows.map(r => r.group)
+  ) + 1;
 
+  function assignRowDigits(r, rIdx){
+    if (!r.expected) return;
+    const digits = r.expected.split('');
+    rowOrders[rIdx] = digits.map(() => n++);
+  }
+
+  for(let group = 0; group < numGroups; group++){
+    g.rows.forEach((r, rIdx) => {
+      if(r.kind === 'bringdown' && r.group === group) assignRowDigits(r, rIdx);
+    });
+    g.quotientCells.forEach((c, idx) => {
+      if(c.kind === 'blank' && c.group === group) quotientOrder[idx] = n++;
+    });
+    g.rows.forEach((r, rIdx) => {
+      if(r.kind === 'subtract' && r.group === group) assignRowDigits(r, rIdx);
+    });
+  }
   g.rows.forEach((r, rIdx) => {
-    if(r.kind === 'rule') return;
-    const digits = String(r.expected).split('');
-    rowDigitOrders[rIdx] = [];
-    digits.forEach(() => rowDigitOrders[rIdx].push(n++));
+    if(r.kind === 'remainder') assignRowDigits(r, rIdx);
   });
 
-  return { quotientOrder, rowDigitOrders, n };
+  return { quotientOrder, rowOrders, n };
 }
 
 function renderDivisionGrid(model, registry, stepIdx, orderState){
@@ -1262,8 +1465,10 @@ function renderDivisionGrid(model, registry, stepIdx, orderState){
   const divOrder = computeDivisionOrder(g, orderState.n);
   orderState.n = divOrder.n;
 
-  let html = `<div class="division-grid" style="grid-template-columns:repeat(${g.totalCols}, 1ch);">`;
+  const fullCols = g.totalCols + 1;
+  let html = `<div class="division-grid" style="grid-template-columns:repeat(${g.totalCols}, 1ch) auto;">`;
 
+  // Render Quotient Row
   g.quotientCells.forEach((c, idx) => {
     const s = g.prefixCols + c.col + 1;
     const style = `grid-column:${s} / ${s+1}; grid-row:1;`;
@@ -1275,6 +1480,7 @@ function renderDivisionGrid(model, registry, stepIdx, orderState){
     }
   });
 
+  // Render Divisor and Dividend Row
   html += `<div class="prefix-cell" style="grid-column:1 / ${Math.max(1,g.prefixCols-1)}; grid-row:2;">${escapeHtml(g.displayDivisor)}</div>`;
   html += `<div class="bracket-cell" style="grid-column:${Math.max(1,g.prefixCols-1)} / ${g.prefixCols+1}; grid-row:2;">)</div>`;
   g.dividendChars.forEach(c => {
@@ -1282,30 +1488,47 @@ function renderDivisionGrid(model, registry, stepIdx, orderState){
     html += `<div class="d-cell" style="grid-column:${s} / ${s+1}; grid-row:2;">${escapeHtml(c.char)}</div>`;
   });
 
+  function getDigitsColumnPositions(endCharIdx, numDigits) {
+    const positions = [];
+    let currIdx = endCharIdx;
+    while (positions.length < numDigits && currIdx >= 0) {
+      if (g.dividendChars[currIdx] && g.dividendChars[currIdx].char !== '.') {
+        positions.unshift(g.prefixCols + g.colMap[currIdx] + 1);
+      }
+      currIdx--;
+    }
+    return positions;
+  }
+
   let rowNum = 3;
   g.rows.forEach((r, rIdx) => {
-    const endLine = g.prefixCols + r.endCol + 2;
-    const startLine = Math.max(1, endLine - r.len);
-    const style = `grid-column:${startLine} / ${endLine}; grid-row:${rowNum};`;
-    if(r.kind === 'rule'){
-      html += `<div class="row-rule" style="${style}"></div>`;
-    } else if(r.kind === 'subtract'){
-      const orders = divOrder.rowDigitOrders[rIdx];
-      const digits = String(r.expected).split('');
-      const digitStart = startLine + 1;
-      html += `<div class="op-sign" style="grid-column:${startLine} / ${startLine+1}; grid-row:${rowNum}; display:flex; align-items:baseline; justify-content:flex-end;">\u2212</div>`;
-      digits.forEach((d, i) => {
-        const col = digitStart + i;
-        html += `<div style="grid-column:${col} / ${col+1}; grid-row:${rowNum}; display:flex; align-items:baseline; justify-content:center;">${tokenToHtml({blank:true, expected:d}, registry, stepIdx, false, true, orderState, orders[i])}</div>`;
-      });
+    if (r.kind === 'rule') {
+      const startCol = g.prefixCols + (g.colMap[r.endCharIdx] !== undefined ? g.colMap[r.endCharIdx] - r.len + 2 : 1);
+      const endCol = g.prefixCols + (g.colMap[r.endCharIdx] !== undefined ? g.colMap[r.endCharIdx] + 2 : g.totalCols);
+      html += `<div class="row-rule" style="grid-column:${Math.max(g.prefixCols+1, startCol)} / ${endCol}; grid-row:${rowNum};"></div>`;
     } else {
-      const orders = divOrder.rowDigitOrders[rIdx];
-      const digits = String(r.expected).split('');
-      const digitStart = startLine;
-      digits.forEach((d, i) => {
-        const col = digitStart + i;
-        html += `<div style="grid-column:${col} / ${col+1}; grid-row:${rowNum}; display:flex; align-items:baseline; justify-content:center;">${tokenToHtml({blank:true, expected:d}, registry, stepIdx, false, true, orderState, orders[i])}</div>`;
+      const digits = r.expected ? r.expected.split('') : [];
+      const digitCols = getDigitsColumnPositions(r.endCharIdx, digits.length);
+      const orders = divOrder.rowOrders[rIdx] || [];
+
+      if(r.kind === 'subtract'){
+        const signCol = Math.max(1, digitCols[0] - 1);
+        html += `<div class="q-cell q-static" style="grid-column:${signCol} / ${signCol+1}; grid-row:${rowNum};">\u2212</div>`;
+      }
+      digits.forEach((d, di) => {
+        const s = digitCols[di];
+        const style = `grid-column:${s} / ${s+1}; grid-row:${rowNum};`;
+        html += `<div class="q-cell" style="${style}">${tokenToHtml({blank:true, expected:d}, registry, stepIdx, true, true, orderState, orders[di])}</div>`;
       });
+
+      if (r.hasCarry) {
+        html += `<div class="a-carry-right" style="grid-column:${fullCols} / ${fullCols+1}; grid-row:${rowNum};">
+          <div class="carry-badge-wrap" id="carry-badge-${stepIdx}-${rIdx}" title="Borrow field">
+            <span>${r.carryLabel || 'borrow'}</span>
+            <input type="text" class="carry-input" maxlength="2" inputmode="numeric" autocomplete="off" placeholder="—" aria-label="Carry field">
+          </div>
+        </div>`;
+      }
     }
     rowNum++;
   });
@@ -1316,56 +1539,44 @@ function renderDivisionGrid(model, registry, stepIdx, orderState){
 
 function computeGridOrder(rows, width, startN){
   let n = startN;
-  let groupId = -1;
-  let pending = null;
-  const carryOrder = {};
   const digitOrder = {};
   rows.forEach((r, rowIdx) => {
-    if(r.kind === 'carry'){ groupId++; pending = groupId; return; }
     if(r.kind !== 'blank') return;
     const padded = ' '.repeat(Math.max(0, width - r.text.length)) + r.text;
     const activeCols = [];
     for(let c=padded.length-1; c>=0; c--){ if(/[0-9]/.test(padded[c])) activeCols.push(c); }
-    activeCols.forEach((c, i) => {
-      if(pending !== null && i > 0){ carryOrder[`${pending}:${c}`] = n++; }
+    activeCols.forEach((c) => {
       digitOrder[`${rowIdx}:${c}`] = n++;
     });
-    pending = null;
   });
-  return { carryOrder, digitOrder, n };
+  return { digitOrder, n };
 }
 
 function renderColumnGrid(g, registry, stepIdx, orderState){
   const prefixCols = g.prefixCols || 1;
   const totalCols = prefixCols + g.width;
-  const { carryOrder, digitOrder, n } = computeGridOrder(g.rows, g.width, orderState.n);
+  const { digitOrder, n } = computeGridOrder(g.rows, g.width, orderState.n);
   orderState.n = n;
-  let html = `<div class="arith-grid" style="grid-template-columns:repeat(${totalCols}, 1ch);">`;
+  
+  const fullCols = totalCols + 1;
+  let html = `<div class="arith-grid" style="grid-template-columns:repeat(${totalCols}, 1ch) auto;">`;
   let rowNum = 1;
-  let groupId = -1;
+
   g.rows.forEach((r, rowIdx) => {
     if(r.kind === 'final-rule'){
-      html += `<div class="a-final-rule" style="grid-column:1 / ${totalCols+1}; grid-row:${rowNum};"></div>`;
+      html += `<div class="a-final-rule" style="grid-column:1 / ${fullCols+1}; grid-row:${rowNum};"></div>`;
       rowNum++; return;
     }
     if(r.kind === 'dotted-rule'){
-      html += `<div class="a-dotted-rule" style="grid-column:1 / ${totalCols+1}; grid-row:${rowNum};"></div>`;
+      html += `<div class="a-dotted-rule" style="grid-column:1 / ${fullCols+1}; grid-row:${rowNum};"></div>`;
       rowNum++; return;
     }
-    if(r.kind === 'carry'){
-      groupId++;
-      for(let c=0; c<g.width; c++){
-        const col = prefixCols + c + 1;
-        const ord = carryOrder[`${groupId}:${c}`];
-        const orderAttr = ord !== undefined ? ` data-order="${ord}"` : '';
-        html += `<div class="a-carry-cell" style="grid-column:${col} / ${col+1}; grid-row:${rowNum};"><input type="text" class="carry-input" maxlength="1" inputmode="numeric" autocomplete="off" aria-label="Carry-over"${orderAttr}></div>`;
-      }
-      rowNum++; return;
-    }
+
     const padded = ' '.repeat(Math.max(0, g.width - r.text.length)) + r.text;
     if(r.sym){
       html += `<div class="a-sym" style="grid-column:1 / ${prefixCols+1}; grid-row:${rowNum};">${escapeHtml(r.sym)}</div>`;
     }
+    
     const colRange = [];
     for(let c=0; c<padded.length; c++) colRange.push(c);
     if(r.kind === 'blank') colRange.reverse();
@@ -1382,6 +1593,16 @@ function renderColumnGrid(g, registry, stepIdx, orderState){
         html += `<div class="a-cell" style="${style}">${tokenToHtml({blank:true, expected:ch}, registry, stepIdx, false, true, orderState, ord)}</div>`;
       }
     });
+
+    if (r.hasCarry) {
+      html += `<div class="a-carry-right" style="grid-column:${totalCols+1} / ${totalCols+2}; grid-row:${rowNum};">
+        <div class="carry-badge-wrap" id="carry-badge-${stepIdx}-${rowIdx}" title="Carry field">
+          <span>${r.carryLabel || 'carry'}</span>
+          <input type="text" class="carry-input" maxlength="2" inputmode="numeric" autocomplete="off" placeholder="—" aria-label="Carry field">
+        </div>
+      </div>`;
+    }
+
     rowNum++;
   });
   html += '</div>';
@@ -1408,6 +1629,7 @@ function renderLines(lines, registry, stepIdx, orderState){
 function renderSteps(){
   const registry = [];
   const orderState = { n: 0 };
+  if (revealTimer) clearInterval(revealTimer);
   isRevealed = false;
   solutionBtn.textContent = 'Reveal';
 
@@ -1422,19 +1644,16 @@ function renderSteps(){
         : renderLines(s.model.lines, registry, idx, orderState);
     html += `</div>`;
   });
+  
+  // Minimal Answer Layout
   html += `<div class="answer-card hidden" id="answer-card">
       <div class="ans-info">
-        <span class="label">Answer</span>
+        <span class="label">Answer =</span>
         <span class="value">${escapeHtml(currentFinal)}</span>
       </div>
-      <button class="card-close-btn" id="answer-card-close" title="Close" aria-label="Close Answer">✕</button>
     </div>`;
   html += `</div>`;
   content.innerHTML = html;
-
-  document.getElementById('answer-card-close').addEventListener('click', () => {
-    hideAllCells();
-  });
 
   setupPracticeInputs();
 }
@@ -1446,17 +1665,14 @@ content.addEventListener('input', (e) => {
 });
 
 function setupPracticeInputs(){
-  const inputs = Array.from(content.querySelectorAll('.cell[data-order], .carry-input[data-order]'))
+  const inputs = Array.from(content.querySelectorAll('.cell[data-order]'))
     .sort((a, b) => Number(a.dataset.order) - Number(b.dataset.order));
 
   inputs.forEach((el, i) => {
-    const isCarry = el.classList.contains('carry-input');
     el.addEventListener('input', () => {
-      if(isCarry) handleCarryInput(el, inputs);
-      else handleCellInput(el, inputs);
+      handleCellInput(el, inputs);
     });
     el.addEventListener('keydown', (e) => {
-      if(isCarry && e.key === 'Enter'){ e.preventDefault(); advanceTo(el, inputs); }
       if(e.key === 'Backspace' && el.value === ''){
         let p = i-1;
         while(p >= 0 && inputs[p].disabled) p--;
@@ -1464,19 +1680,7 @@ function setupPracticeInputs(){
       }
     });
   });
-  if(inputs.length) inputs[0].focus();
-}
-
-function advanceTo(el, inputs){
-  const i = inputs.indexOf(el);
-  let n = i+1;
-  while(n < inputs.length && inputs[n].disabled) n++;
-  if(n < inputs.length) inputs[n].focus();
-}
-
-function handleCarryInput(el, inputs){
-  el.value = el.value.replace(/[^0-9]/g, '').slice(0, 1);
-  if(el.value.length >= 1) advanceTo(el, inputs);
+  if(inputs.length && document.activeElement !== input) inputs[0].focus();
 }
 
 function handleCellInput(el, inputs){
@@ -1486,10 +1690,18 @@ function handleCellInput(el, inputs){
   if(val.length < maxLen) return;
 
   const expected = el.dataset.answer;
-  if(val === expected){
+  if(val === expected || isFireMode){
     el.classList.remove('incorrect');
-    el.classList.add('correct');
+    if(!isFireMode) el.classList.add('correct');
     el.disabled = true;
+
+    // Hide carry/borrow badge when field calculation is complete
+    const stepWrap = el.closest('.step');
+    if(stepWrap){
+      const carryBadges = stepWrap.querySelectorAll('.carry-badge-wrap');
+      carryBadges.forEach(badge => badge.classList.add('hidden'));
+    }
+
     markStepDone(el);
     const i = inputs.indexOf(el);
     let n = i+1;
@@ -1506,26 +1718,46 @@ function markStepDone(el){
   const wrap = el.closest('.step');
   if(!wrap) return;
   const cells = wrap.querySelectorAll('.cell');
-  const done = Array.from(cells).every(c => c.classList.contains('correct'));
+  const done = Array.from(cells).every(c => c.disabled || c.classList.contains('correct'));
   wrap.classList.toggle('step-done', done);
 }
 
-function revealAllCells(){
-  const cells = Array.from(content.querySelectorAll('.cell:not(.correct)'));
-  cells.forEach(el => {
-    el.value = el.dataset.answer;
-    el.classList.remove('incorrect');
-    el.classList.add('correct');
-    el.disabled = true;
-    markStepDone(el);
-  });
-  Array.from(content.querySelectorAll('.carry-input')).forEach(el => { el.disabled = true; });
-  onAllComplete();
+/* Digit-by-digit Typewriter Reveal Effect */
+function revealStepByStep(){
+  const cells = Array.from(content.querySelectorAll('.cell'))
+    .sort((a, b) => Number(a.dataset.order) - Number(b.dataset.order));
+  
+  if (revealTimer) clearInterval(revealTimer);
   isRevealed = true;
   solutionBtn.textContent = 'Close';
+
+  let index = 0;
+  revealTimer = setInterval(() => {
+    while(index < cells.length && cells[index].disabled) {
+      index++;
+    }
+    if(index < cells.length) {
+      const el = cells[index];
+      el.value = el.dataset.answer;
+      if(!isFireMode) el.classList.add('correct');
+      el.disabled = true;
+      
+      const stepWrap = el.closest('.step');
+      if(stepWrap){
+        const carryBadges = stepWrap.querySelectorAll('.carry-badge-wrap');
+        carryBadges.forEach(badge => badge.classList.add('hidden'));
+      }
+      markStepDone(el);
+      index++;
+    } else {
+      clearInterval(revealTimer);
+      onAllComplete();
+    }
+  }, 120);
 }
 
 function hideAllCells(){
+  if (revealTimer) clearInterval(revealTimer);
   const cells = Array.from(content.querySelectorAll('.cell'));
   cells.forEach(el => {
     el.value = '';
@@ -1533,10 +1765,13 @@ function hideAllCells(){
     el.disabled = false;
     markStepDone(el);
   });
-  Array.from(content.querySelectorAll('.carry-input')).forEach(el => {
-    el.value = '';
-    el.disabled = false;
+  
+  Array.from(content.querySelectorAll('.carry-badge-wrap')).forEach(badge => {
+    badge.classList.remove('hidden');
+    const inp = badge.querySelector('.carry-input');
+    if(inp) { inp.value = ''; inp.disabled = false; }
   });
+
   const answerCard = document.getElementById('answer-card');
   if(answerCard) answerCard.classList.add('hidden');
   isRevealed = false;
@@ -1570,6 +1805,8 @@ function solve(expr){
     }
     currentSteps = steps;
     currentFinal = finalResult;
+    
+    hwQuestionText.textContent = input.value.replace(/\//g, ' \u00F7 ').replace(/\*/g, ' \u00D7 ');
     renderSteps();
   } catch(err){
     showError(err.message || 'Could not solve that expression');
@@ -1613,13 +1850,10 @@ hwClearBtn.addEventListener('click', () => {
 });
 
 function resizeCanvas(){
-  const dpr = window.devicePixelRatio || 1;
   const rect = hwContainer.getBoundingClientRect();
+  hwCanvas.width = rect.width;
+  hwCanvas.height = rect.height;
   
-  hwCanvas.width = rect.width * dpr;
-  hwCanvas.height = rect.height * dpr;
-  
-  ctx.scale(dpr, dpr);
   ctx.lineWidth = 3;
   ctx.lineCap = 'round';
   ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--text') || '#232320';
