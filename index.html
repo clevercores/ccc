@@ -111,7 +111,7 @@
 
   .fire-toggle {
     background: var(--control-bg); border: none; border-radius: 14px;
-    padding: 3px 7px; font-size: 11px; font-weight: 500;
+    padding: 3px 8px; font-size: 11px; font-weight: 500;
     color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 3px;
     transition: all 0.2s ease;
   }
@@ -180,21 +180,23 @@
   .step-header b { font-style: normal; font-weight: 500; color: var(--text-secondary); }
   .step-header .hl { font-family: 'JetBrains Mono', monospace; font-style: italic; font-weight: 500; color: var(--text-primary); }
 
-  /* Mathematical Grids */
+  /* Mathematical Grids with Increased Spacing */
   .division-grid, .arith-grid {
-    display: inline-grid; row-gap: 3px;
+    display: inline-grid;
+    row-gap: 4px;
+    column-gap: 4px;
     font-family: 'JetBrains Mono', monospace;
     font-size: calc(14.5px * var(--scale, 1));
-    color: var(--text-primary); max-width: 100%;
+    color: var(--text-primary);
+    max-width: 100%;
   }
   .division-grid > div, .arith-grid > div { display: flex; align-items: center; justify-content: center; }
 
-  /* Precise Division Bracket Layout */
   .div-divisor-cell {
     grid-column: 1 / 2;
     grid-row: 2;
     justify-content: flex-end !important;
-    padding-right: 2px;
+    padding-right: 4px;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 500;
   }
@@ -202,22 +204,26 @@
     grid-column: 2 / 3;
     grid-row: 2;
     justify-content: center !important;
-    padding-right: 4px;
+    padding-right: 6px;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 500;
   }
 
-  .a-carry-right { display: flex; align-items: center; padding-left: 6px; }
+  /* Contextual Carry / Borrow Fields - Hidden until required */
+  .a-carry-right { display: flex; align-items: center; padding-left: 8px; }
   .carry-badge-wrap {
-    display: flex; align-items: center; gap: 3px;
+    display: none; /* Default Hidden */
+    align-items: center; gap: 3px;
     background: var(--control-bg); border-radius: 5px;
-    padding: 1px 4px; font-size: 9.5px; color: var(--text-secondary);
+    padding: 2px 6px; font-size: 9.5px; color: var(--text-secondary);
+    transition: all 0.2s ease;
   }
+  .carry-badge-wrap.visible { display: flex !important; }
   .carry-badge-wrap.hidden { display: none !important; }
   .carry-badge-wrap span { font-size: 8.5px; opacity: 0.8; }
   .carry-input {
     width: 2ch; border: none; background: transparent;
-    text-align: center; font-weight: 500; font-size: 10.5px;
+    text-align: center; font-weight: 500; font-size: 11px;
     color: var(--tint); outline: none; font-family: inherit;
   }
 
@@ -229,7 +235,8 @@
     font-size: calc(14.5px * var(--scale, 1));
     font-weight: 500; text-align: center; background: transparent;
     color: var(--tint); border: none; border-bottom: 1.5px dashed var(--divider);
-    padding: 0; margin: 0; outline: none; transition: all 0.15s ease;
+    padding: 1px 2px; margin: 0; outline: none; transition: all 0.15s ease;
+    min-width: 1.2ch;
   }
   .cell:focus { border-bottom-color: var(--tint); }
   
@@ -249,7 +256,6 @@
   }
   body.fire-mode .answer-card .value { color: var(--text-primary); }
 
-  /* Confetti Particle Styling */
   .confetti-particle {
     position: absolute;
     width: 6px; height: 8px;
@@ -414,7 +420,7 @@
 
 </div>
 
-<!-- Web Audio API Synthesizer -->
+<!-- Audio Feedback Engine -->
 <script>
 class SoundEngine {
   constructor() { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
@@ -460,6 +466,7 @@ fireBtn.addEventListener('click', () => {
   isFireMode = !isFireMode;
   fireBtn.classList.toggle('active', isFireMode);
   document.body.classList.toggle('fire-mode', isFireMode);
+  setupPracticeInputs(); // Reconfigure edit freedom
 });
 
 precisionSelect.addEventListener('change', () => {
@@ -636,7 +643,6 @@ function buildMultiplyModel(aStr, bStr, resultStr){
   return { resultStr, isGrid:true, grid:{ width, prefixCols:1, rows } };
 }
 
-/* Division Model Supporting Decimal Modes & Correct Bracket Spacing */
 function buildDivisionModel(aStr, bStr){
   let [bInt, bFrac=''] = bStr.split('.');
   const shift = bFrac.length;
@@ -812,20 +818,18 @@ function tokenToHtml(tok, registry, stepIdx, orderState){
   const expected = tok.expected;
   registry.push({ expected, stepIdx });
   const order = orderState.n++;
-  return `<input type="text" class="cell" data-order="${order}" data-answer="${escapeHtml(expected)}" maxlength="${expected.length}" style="width:${Math.max(expected.length,1)}ch">`;
+  return `<input type="text" class="cell" data-order="${order}" data-step="${stepIdx}" data-answer="${escapeHtml(expected)}" maxlength="${expected.length}" style="width:${Math.max(expected.length,1)}ch">`;
 }
 
 function renderDivisionGrid(model, registry, stepIdx, orderState){
   const g = model.grid;
   let html = `<div class="division-grid" style="grid-template-columns: auto auto repeat(${g.dividendChars.length}, 1ch) auto;">`;
 
-  // Render Quotient Row above Dividend
   g.quotientCells.forEach((c) => {
     const s = 3 + c.col;
     html += `<div style="grid-column:${s}/${s+1}; grid-row:1;">${tokenToHtml(c, registry, stepIdx, orderState)}</div>`;
   });
 
-  // Render Divisor and Bracket
   html += `<div class="div-divisor-cell">${escapeHtml(g.displayDivisor)}</div>`;
   html += `<div class="div-bracket-cell">)</div>`;
   
@@ -835,7 +839,7 @@ function renderDivisionGrid(model, registry, stepIdx, orderState){
   });
 
   let rowNum = 3;
-  g.rows.forEach((r) => {
+  g.rows.forEach((r, rIdx) => {
     if (r.kind === 'rule') {
       const endCol = 3 + r.endCharIdx + 1;
       const startCol = Math.max(3, endCol - r.len);
@@ -849,7 +853,7 @@ function renderDivisionGrid(model, registry, stepIdx, orderState){
       if (r.hasCarry) {
         const fullCols = 3 + g.dividendChars.length;
         html += `<div class="a-carry-right" style="grid-column:${fullCols}/${fullCols+1}; grid-row:${rowNum};">
-          <div class="carry-badge-wrap"><span>${r.carryLabel}</span><input type="text" class="carry-input" maxlength="2"></div>
+          <div class="carry-badge-wrap" data-step-carry="${stepIdx}-${rIdx}"><span>${r.carryLabel}</span><input type="text" class="carry-input" maxlength="2"></div>
         </div>`;
       }
     }
@@ -865,7 +869,7 @@ function renderColumnGrid(g, registry, stepIdx, orderState){
   let html = `<div class="arith-grid" style="grid-template-columns:repeat(${totalCols}, 1ch) auto;">`;
   let rowNum = 1;
 
-  g.rows.forEach((r) => {
+  g.rows.forEach((r, rIdx) => {
     if(r.kind === 'final-rule'){
       html += `<div class="a-final-rule" style="grid-column:1 / ${totalCols+2}; grid-row:${rowNum};"></div>`;
       rowNum++; return;
@@ -890,7 +894,7 @@ function renderColumnGrid(g, registry, stepIdx, orderState){
 
     if (r.hasCarry) {
       html += `<div class="a-carry-right" style="grid-column:${totalCols+1} / ${totalCols+2}; grid-row:${rowNum};">
-        <div class="carry-badge-wrap"><span>${r.carryLabel || 'carry'}</span><input type="text" class="carry-input" maxlength="2"></div>
+        <div class="carry-badge-wrap" data-step-carry="${stepIdx}-${rIdx}"><span>${r.carryLabel || 'carry'}</span><input type="text" class="carry-input" maxlength="2"></div>
       </div>`;
     }
     rowNum++;
@@ -907,7 +911,7 @@ function renderSteps(){
 
   let html = '<div class="steps">';
   currentSteps.forEach((s, idx) => {
-    html += `<div class="step"><div class="step-header">Step ${idx+1}: <b>${s.opName}</b> &nbsp;<span class="hl">${s.exprHtml}</span></div>`;
+    html += `<div class="step" data-step-index="${idx}"><div class="step-header">Step ${idx+1}: <b>${s.opName}</b> &nbsp;<span class="hl">${s.exprHtml}</span></div>`;
     html += s.model.isDivision
       ? renderDivisionGrid(s.model, registry, idx, orderState)
       : renderColumnGrid(s.model.grid, registry, idx, orderState);
@@ -925,9 +929,34 @@ function renderSteps(){
 
 function setupPracticeInputs(){
   const inputs = Array.from(content.querySelectorAll('.cell')).sort((a,b) => Number(a.dataset.order) - Number(b.dataset.order));
-  inputs.forEach(el => {
+  
+  inputs.forEach((el, i) => {
+    // In normal mode, restrict locking. In Fire Mode, give absolute edit freedom.
+    if (!isFireMode && i > 0 && !inputs[i-1].classList.contains('correct')) {
+      el.disabled = true;
+    } else {
+      el.disabled = false;
+    }
+
+    el.addEventListener('focus', () => {
+      // Reveal associated carry badge when input comes into calculation focus
+      const parentRow = el.closest('div');
+      const stepWrap = el.closest('.step');
+      if (stepWrap) {
+        const carryBadge = stepWrap.querySelector('.carry-badge-wrap');
+        if (carryBadge && !carryBadge.classList.contains('hidden')) {
+          carryBadge.classList.add('visible');
+        }
+      }
+    });
+
     el.addEventListener('input', () => handleCellInput(el, inputs));
   });
+
+  if (inputs.length && !isFireMode) {
+    const firstActive = inputs.find(inp => !inp.disabled) || inputs[0];
+    firstActive.focus();
+  }
 }
 
 function handleCellInput(el, inputs){
@@ -936,14 +965,28 @@ function handleCellInput(el, inputs){
 
   if(val === el.dataset.answer || isFireMode){
     if(!isFireMode) { el.classList.add('correct'); audioFX.playClick(); }
-    el.disabled = true;
+    el.disabled = !isFireMode; // Keep active in Exam/Fire mode
 
+    // Hide carry badge once row calculation finishes
     const stepWrap = el.closest('.step');
-    if(stepWrap) stepWrap.querySelectorAll('.carry-badge-wrap').forEach(b => b.classList.add('hidden'));
+    if(stepWrap) {
+      const activeBadges = stepWrap.querySelectorAll('.carry-badge-wrap');
+      activeBadges.forEach(b => {
+        b.classList.remove('visible');
+        b.classList.add('hidden');
+      });
+    }
 
-    const next = inputs.find(i => !i.disabled);
-    if(next) next.focus();
-    else onAllComplete();
+    // Mathematical process-based automatic focus transition
+    const currentIndex = inputs.indexOf(el);
+    const nextInput = inputs[currentIndex + 1];
+
+    if (nextInput) {
+      nextInput.disabled = false;
+      nextInput.focus();
+    } else {
+      onAllComplete();
+    }
   } else {
     audioFX.playError();
     el.classList.add('incorrect');
@@ -958,12 +1001,20 @@ function revealStepByStep(){
 
   let idx = 0;
   revealTimer = setInterval(() => {
-    while(idx < cells.length && cells[idx].disabled) idx++;
+    while(idx < cells.length && (cells[idx].disabled && cells[idx].classList.contains('correct'))) idx++;
     if(idx < cells.length) {
       const el = cells[idx];
       el.value = el.dataset.answer;
       if(!isFireMode) el.classList.add('correct');
-      el.disabled = true;
+      el.disabled = !isFireMode;
+      
+      const stepWrap = el.closest('.step');
+      if(stepWrap) {
+        stepWrap.querySelectorAll('.carry-badge-wrap').forEach(b => {
+          b.classList.remove('visible');
+          b.classList.add('hidden');
+        });
+      }
       audioFX.playClick();
       idx++;
     } else {
@@ -976,9 +1027,13 @@ function revealStepByStep(){
 function hideAllCells(){
   if (revealTimer) clearInterval(revealTimer);
   content.querySelectorAll('.cell').forEach(el => { el.value = ''; el.classList.remove('correct','incorrect'); el.disabled = false; });
-  content.querySelectorAll('.carry-badge-wrap').forEach(b => b.classList.remove('hidden'));
+  content.querySelectorAll('.carry-badge-wrap').forEach(b => {
+    b.classList.remove('visible');
+    b.classList.remove('hidden');
+  });
   document.getElementById('answer-card').classList.add('hidden');
   solutionBtn.textContent = 'Reveal';
+  setupPracticeInputs();
 }
 
 function triggerConfetti(){
